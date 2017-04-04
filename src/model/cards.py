@@ -190,6 +190,23 @@ class Deck(Stack):
         Shuffle the cards of the deck.
         """
         shuffle(self.cards)
+        
+    def draw(self, numcards=1):
+		"""
+		Draws numcards many cards from the end of the deck.
+		The process stops if there are no cards left in the deck,
+		but no error is thrown.
+		"""
+		drawn = []
+		for _ in range(numcards):
+			# you can only draw another card if there are still cards
+			# left in the deck:
+			if len(self) == 0:
+				break
+			c = self.cards.pop()
+			drawn.append(c)
+		return drawn
+			
 
 
 class DiscardPile(Stack):

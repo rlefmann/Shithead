@@ -49,4 +49,17 @@ class Game:
         self.curplayer = 0 # TODO: remove
         
     def initialdeal(self):
-        pass
+		"""
+		Distributes the initial number of cards specified in the settings
+		to the players hands, upcards and downcards.
+		"""
+        for i in range(2):
+			# draw hand cards:
+			handcards = self.deck.draw(self.settings["NCARDS_HAND"])
+			self.players[i].hand.add(handcards)
+			# draw downcards:
+			downcards = self.deck.draw(self.settings["NCARDS_UPDOWN"])
+			self.players[i].downcards.add(downcards)
+			# draw upcards:
+			upcards = self.deck.draw(self.settings["NCARDS_UPDOWN"])
+			self.players[i].upcards.add(upcards)
