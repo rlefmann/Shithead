@@ -13,3 +13,29 @@ class Controller:
 		# determines what type of event was given to it and then
 		# performs the appropriate actions.
 		pass
+
+
+
+########################################################################
+# Events are what is send by the controller between the model and the
+# view and are the basic messages of the mvc pattern
+########################################################################
+
+
+class Event:
+	"""A generic event that is the base class of all other events."""
+	def __init__(self):
+		self.name = "generic event"
+
+
+class QuitEvent(Event)
+	"""
+	The program should end after creating this event.
+
+	It is created, when the pygame window is closed or when the escape
+	button is pressed.
+	"""
+	def __init__(self):
+		self.name = "Quit event"
+
+
