@@ -13,7 +13,7 @@ class MainWindow:
 		# The clock allows the game to run at a fixed framerate
 		self.clock = pg.time.Clock()
 		# create Surface object for displaying content:
-		self.screen = pg.display.set_mode(SCREENSIZE)
+		self.screen = pg.display.set_mode((SCREENWIDTH,SCREENHEIGHT))
 		pg.display.set_caption(TITLE)
 		# determines whether the main loop (see method run) is executed further. Will be set to false by the controller, when a QuitRequest is send.
 		self.running = True
