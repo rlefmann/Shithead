@@ -27,10 +27,18 @@ class Action:
 		self.atype = atype
 
 class TakeAction(Action):
+	"""
+	This action represents taking all of the cards from the discard pile.
+	"""
 	def __init__(self):
 		super(self.__class__, self).__init__(AType.TAKE)
 
 class PlayAction(Action):
+	"""
+	This action represents playing a certain amount of indices
+	(specified by indices) from a players hand, his upcards or
+	downcards (specified by srctype)
+	"""
 	def __init__(self, srctype, indices):
 		super(self.__class__, self).__init__(AType.PLAY)
 		if len(indices) == 0:

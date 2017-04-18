@@ -1,5 +1,5 @@
 from cards import *
-
+from action import *
 
 class Player:
 	"""
@@ -39,16 +39,16 @@ class Game:
 		villain = Player(settings["NCARDS_UPDOWN"], False)
 		self.players = (hero,villain)
 		
-		self.initialdeal()
+		self._initialdeal()
 		
 		# the minimal value that can be played
 		# (in the beginning every card can be played):
 		self.minval = 0
 		# the player whos turn it is right now:
-		self.curplayer = self.findfirstplayer()
+		self.curplayer = self._findfirstplayer()
 		self.curplayer = 0 # TODO: remove
 		
-	def initialdeal(self):
+	def _initialdeal(self):
 		"""
 		Distributes the initial number of cards specified in the settings
 		to the players hands, upcards and downcards.
@@ -64,6 +64,18 @@ class Game:
 			upcards = self.deck.draw(self.settings["NCARDS_UPDOWN"])
 			self.players[i].upcards.add(upcards)
 
-	def findfirstplayer(self):
+	def _findfirstplayer(self):
 		# TODO: implement
 		return 0
+
+	def is_possible_action(self, action):
+		"""
+		Checks whether an action a player has chosen is valid or not.
+		"""
+		if not isinstance(action, Action):
+			raise Exception("something other than an action was senf to possibleaction")
+		elif isinstance(action, TakeAction):
+			print "take action"
+		elif isinstance(action, PlayAction):
+			print "play action"
+		return True # TODO: implement. This is just a skeleton
