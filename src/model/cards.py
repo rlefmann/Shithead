@@ -57,6 +57,12 @@ class CardCollection(object):
     def __init__(self, hidden = False):
         self.cards = []
         self.hidden = hidden
+
+    def __getitem__(self,idx):
+		"""
+		For accessing the elements of the CardCollection via square brackets.
+		"""
+		self.cards[idx]
         
     def add(self, cards):
         """
@@ -180,7 +186,7 @@ class Deck(Stack):
     def __init__(self):
         super(Deck, self).__init__(True) # The deck is hidden
         # create cards:
-        tuples = itertools.product(range(4),range(13))
+        tuples = itertools.product(range(13),range(4))
         for t in tuples:
             c = Card(t[0],t[1])
             self.cards.append(c)
