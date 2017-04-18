@@ -7,15 +7,14 @@ class Request:
 		self.name = "generic request"
 
 
-class RequestQuit(Request)
+class RequestQuit(Request):
 	"""
 	The program should end after creating this request.
 
-	It is created, when the pygame window is closed or when the escape
-	button is pressed.
+	It is created, when the pygame window is closed or when the escape button is pressed.
 	"""
 	def __init__(self):
-		self.name = "Quit request"
+		self.name = "request quit"
 
 
 class RequestInitialBoard(Request):
