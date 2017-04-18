@@ -62,7 +62,7 @@ class CardCollection(object):
 		"""
 		For accessing the elements of the CardCollection via square brackets.
 		"""
-		self.cards[idx]
+		return self.cards[idx]
         
     def add(self, cards):
         """
