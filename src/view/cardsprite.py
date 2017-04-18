@@ -52,9 +52,9 @@ class CardSprite(pg.sprite.Sprite):
 		"""
 		filepath = ""
 		if not highlighted:
-			filepath += "./img/Cards/"
+			filepath += "./img/cards/"
 		else:
-			filepath += "./img/CardsHL/"
+			filepath += "./img/highlighted/"
 		filepath += self.cardstr
 		filepath += ".png"
 		return filepath
