@@ -1,5 +1,8 @@
 from model.settings import Settings
 from model.game import *
+from model.ai import *
+
+from view.mainwindow import *
 
 class Controller:
 	"""
@@ -23,10 +26,31 @@ class Controller:
 		# create the ai that simulates the opponent player:
 		# TODO: maybe other ai's should be allowed, too
 		self.ai = StraightforwardAI(self.game)
-		
+		self.view = MainWindow()
+		# set the listener function:
+		self.view.listener = self.on_request
+		# start the game loop:
+		self.view.run()
 		
 	def on_request(self, request):
 		"""
 		Here all the message handling is performed. The method determines what type of request was given to it and then performs the appropriate actions.
 		"""
-		pass
+		
+		# Check if a request was send and not sth else:
+		if not isinstance(request, Request):
+			raise Exception("something other than a request was send to the controller")
+
+		print request.name
+
+		# handle the different requests:
+		if isinstance(request, RequestQuit):
+			self.view.running = False
+		elif isinstance(request, RequestInitialBoard):
+			pass # TODO: handle request
+		elif isinstance(request, RequestPlay):
+			pass # TODO: handle request
+		elif isinstance(request, RequestTake):
+			pass # TODO: handle request
+		else:
+			raise Exception("the controller can't handle this request")
