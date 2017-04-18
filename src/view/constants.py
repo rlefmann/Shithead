@@ -3,7 +3,7 @@ SCREENWIDTH = 800
 SCREENHEIGHT = 600
 CARDWIDTH = 80
 CARDHEIGHT = 100
-OVERLAP = int(CARDSIZE[0]/4) # one can see at least 1/4 of each card
+OVERLAP = int(CARDWIDTH/4) # one can see at least 1/4 of each card
 MARGIN = 5
 
 # COLORS:
