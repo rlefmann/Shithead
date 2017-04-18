@@ -88,7 +88,7 @@ class CardCollection(object):
             raise ValueError("remove: indices must be a list or range")
         elif len(indices) == 0:
             raise ValueError("remove: you must provide at least one index")
-        # collect removed cards
+        # collect removed cards:
         removed_cards = []
         # last index first to avoid messing the indices up by removing elements
         for idx in sorted(indices, reverse=True): 
