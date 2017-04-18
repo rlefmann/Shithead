@@ -7,13 +7,13 @@ class HiddenCardSprite(pg.sprite.Sprite):
 	"""
 	A card of which you can only see the back.
 	"""
-	def __init__(self, pos):
+	def __init__(self, xpos, ypos):
 		super(HiddenCardSprite,self).__init__()
 		self.image = pg.image.load("./img/Cards/back.png").convert()
 		self.image = pg.transform.scale(self.image, CARDSIZE)
 		self.rect = self.image.get_rect()
-		self.rect.x = pos[0]
-		self.rect.y = pos[1]
+		self.rect.x = xpos
+		self.rect.y = ypos
 
 
 class CardSprite(pg.sprite.Sprite):
@@ -21,7 +21,11 @@ class CardSprite(pg.sprite.Sprite):
 	A card of which you can see the rank and suit.
 	It can be either highlighted or unhighlighted (=visible). If the card is visible, the highlighted attribute is false.
 	"""
-	def __init__(self, cardstr, pos, highlighted=False):
+	def __init__(self, cardstr, xpos, ypos, highlighted=False):
+		"""
+		Attributes:
+			cardstr: a string representation of the card, eg "qh" for the queen of hearts
+		"""
 		super(CardSprite,self).__init__()
 		self.cardstr = cardstr
 		self.highlighted = highlighted
@@ -43,8 +47,8 @@ class CardSprite(pg.sprite.Sprite):
 		self.image = self.images[self.highlighted]
 
 		self.rect = self.image.get_rect()
-		self.rect.x = pos[0]
-		self.rect.y = pos[1]
+		self.rect.x = xpos
+		self.rect.y = ypos
 
 	def _get_image_path(self, highlighted=False):
 		"""
