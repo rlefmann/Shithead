@@ -73,7 +73,7 @@ class Game:
 		Checks whether an action a player has chosen is valid or not.
 		"""
 		if not isinstance(action, Action):
-			raise Exception("something other than an action was senf to possibleaction")
+			raise Exception("something other than an action was senf to is_possible_action")
 		elif isinstance(action, TakeAction):
 			print "take action"
 		elif isinstance(action, PlayAction):
