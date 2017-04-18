@@ -66,4 +66,4 @@ class Game:
 
 	def findfirstplayer(self):
 		# TODO: implement
-		pass
+		return 0

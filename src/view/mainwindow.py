@@ -2,6 +2,7 @@ import pygame as pg
 
 from constants import *
 from ..requests import *
+from cardspritegroups import *
 
 class MainWindow:
 	"""
@@ -25,6 +26,8 @@ class MainWindow:
 		# we start at the bottom with the player hand:
 		xpos = MARGIN
 		ypos = SCREENHEIGHT - 2*MARGIN - CARDHEIGHT
+		self.phand = SpreadCards(xpos, ypos)
+		self.update()
 
 	def run(self):
 		"""
@@ -43,3 +46,13 @@ class MainWindow:
 					req = RequestQuit()
 				if req:
 					self.listener(req)
+				self.update()
+
+	def update(self):
+		"""
+		Updates all the spritegroups and redraws the screen:
+		"""
+		self.screen.fill(GREEN)
+		self.phand.draw(self.screen)
+		# draw the new frame:
+		pg.display.flip()

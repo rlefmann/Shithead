@@ -47,10 +47,15 @@ class Controller:
 		if isinstance(request, RequestQuit):
 			self.view.running = False
 		elif isinstance(request, RequestInitialBoard):
-			pass # TODO: handle request
+			self._on_request_initial_board()
 		elif isinstance(request, RequestPlay):
 			pass # TODO: handle request
 		elif isinstance(request, RequestTake):
 			pass # TODO: handle request
 		else:
 			raise Exception("the controller can't handle this request")
+
+	def _on_request_initial_board(self):
+		phand = self.game.players[0].hand # get heroes hand
+		cards = [str(c) for c in phand] # get list of cardstrings
+		self.view.phand.update(cards)
