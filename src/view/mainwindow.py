@@ -22,7 +22,9 @@ class MainWindow:
 	def _create_sprites(self):
 		"""
 		"""
-		pass # TODO: implement
+		# we start at the bottom with the player hand:
+		xpos = MARGIN
+		ypos = SCREENHEIGHT - 2*MARGIN - CARDHEIGHT
 
 	def run(self):
 		"""
