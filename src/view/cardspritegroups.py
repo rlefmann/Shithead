@@ -16,7 +16,7 @@ class Align(Enum):
 	STACK=4
 
 
-def CardSpriteGroup(pg.sprite.OrderedUpdates):
+class CardSpriteGroup(pg.sprite.OrderedUpdates):
 	"""
 	A basic group of card sprites. Inherits from OrderedUpdates so that the overlapping of cards is displayed correctly.
 	"""
@@ -45,7 +45,7 @@ def CardSpriteGroup(pg.sprite.OrderedUpdates):
 		pass
 
 
-def SpreadCards(CardSpriteGroup):
+class SpreadCards(CardSpriteGroup):
 	"""
 	Cards that are spread out on the table such that they overlap by a certain amount specified in the constant OVERLAP. These can be either hidden (for opponents cards) or visible. The alignment can be either left or right aligned. If it is left aligned the xpos is the x-position of the leftmost card, otherwise the x-position of the rightmost card.
 	"""
@@ -67,7 +67,7 @@ def SpreadCards(CardSpriteGroup):
 		# remove all previous sprites:
 		self.empty()
 		# the xpos of the next card to be drawn:
-		curxpos = self.xpos 
+		curxpos = self.xpos
 		for cardstr in cards:
 			if self.visible:
 				c = CardSprite(cardstr,curxpos,self.ypos)
