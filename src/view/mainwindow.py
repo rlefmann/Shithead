@@ -3,6 +3,7 @@ import pygame as pg
 from constants import *
 from ..requests import *
 from cardspritegroups import *
+from cursor import Cursor
 
 class MainWindow:
 	"""
@@ -18,6 +19,9 @@ class MainWindow:
 		pg.display.set_caption(TITLE)
 		# determines whether the main loop (see method run) is executed further. Will be set to false by the controller, when a QuitRequest is send.
 		self.running = True
+		# SpriteGroup for everything that is not included in a separate
+		# Spritegroup (mainly the cursor):
+		self.sprites = pg.sprite.Group()
 		self._create_sprites()
 
 	def _create_sprites(self):
@@ -27,6 +31,9 @@ class MainWindow:
 		xpos = MARGIN
 		ypos = SCREENHEIGHT - 2*MARGIN - CARDHEIGHT
 		self.phand = SpreadCards(xpos, ypos)
+		ypos -= CURSORHEIGHT
+		self.cursor = Cursor(xpos,ypos)
+		self.sprites.add(self.cursor)
 		xpos = int(SCREENWIDTH/2)
 		ypos -= (CARDHEIGHT+MARGIN)
 		self.pdown = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=False)
@@ -49,6 +56,7 @@ class MainWindow:
 		self.vdown = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=False)
 		ypos += OVERLAP
 		self.vup = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=True)
+		
 		self.update()
 		
 
@@ -76,6 +84,8 @@ class MainWindow:
 		Updates all the spritegroups and redraws the screen:
 		"""
 		self.screen.fill(GREEN)
+		self.sprites.update()
+		self.sprites.draw(self.screen)
 		self.phand.draw(self.screen)
 		self.pdown.draw(self.screen)
 		self.pup.draw(self.screen)
