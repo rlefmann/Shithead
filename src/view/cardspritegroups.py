@@ -130,3 +130,27 @@ class LaidOutCards(CardSpriteGroup):
 			self.add(c)
 			curxpos += (CARDWIDTH+MARGIN)
 				
+
+class CardStack(CardSpriteGroup):
+	"""
+	Only the top card of a stack can be seen.
+	"""
+	def __init__(self,xpos,ypos,visible=True):
+		super(CardStack, self).__init__(xpos,ypos,Align.STACK,visible)
+		
+	def alignment_allowed(self, alignment):
+		return alignment == Align.STACK
+		
+	def update(self, cards):
+		self.spritelist = []
+		self.empty()
+		if len(cards) > 0:
+			if self.visible:
+				c = CardSprite(cards[-1], self.xpos, self.ypos)
+			else:
+				c = HiddenCardSprite(self.xpos, self.ypos)
+			self.spritelist.append(c)
+			self.add(c)
+				
+# TODO: what happens if there are no cards to display?
+# TODO: is the extra spritelist really needed?
