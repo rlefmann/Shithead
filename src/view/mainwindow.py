@@ -27,6 +27,11 @@ class MainWindow:
 		xpos = MARGIN
 		ypos = SCREENHEIGHT - 2*MARGIN - CARDHEIGHT
 		self.phand = SpreadCards(xpos, ypos)
+		xpos = int(SCREENWIDTH/2)
+		ypos -= (CARDHEIGHT+MARGIN)
+		self.pdown = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=False)
+		ypos -= OVERLAP
+		self.pup = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=True)
 		self.update()
 
 	def run(self):
@@ -54,5 +59,7 @@ class MainWindow:
 		"""
 		self.screen.fill(GREEN)
 		self.phand.draw(self.screen)
+		self.pdown.draw(self.screen)
+		self.pup.draw(self.screen)
 		# draw the new frame:
 		pg.display.flip()

@@ -59,3 +59,9 @@ class Controller:
 		phand = self.game.players[0].hand # get heroes hand
 		cards = [str(c) for c in phand] # get list of cardstrings
 		self.view.phand.update(cards)
+		pdown = self.game.players[0].downcards
+		cards = [str(c) for c in pdown]
+		self.view.pdown.update(cards)
+		pup = self.game.players[0].upcards
+		cards = [str(c) for c in pup]
+		self.view.pup.update(cards)

@@ -9,7 +9,7 @@ class HiddenCardSprite(pg.sprite.Sprite):
 	"""
 	def __init__(self, xpos, ypos):
 		super(HiddenCardSprite,self).__init__()
-		self.image = pg.image.load("./img/Cards/back.png").convert()
+		self.image = pg.image.load("./img/cards/back.png").convert()
 		self.image = pg.transform.scale(self.image, CARDSIZE)
 		self.rect = self.image.get_rect()
 		self.rect.x = xpos

@@ -121,10 +121,11 @@ class LaidOutCards(CardSpriteGroup):
 			else: # odd number of cards
 				curxpos = self.xpos - int(CARDSIZE[0]/2) - int(n/2)*(CARDSIZE[0]+MARGIN)
 		for cardstr in cards:
+			# TODO: here we need to create a gap when there is an empty slot
 			if self.visible:
 				c = CardSprite(cardstr, curxpos, self.ypos)
 			else:
-				c = HiddenCardSprite(xpos,ypos)
+				c = HiddenCardSprite(curxpos,self.ypos)
 			self.spritelist.append(c)
 			self.add(c)
 			curxpos += (CARDWIDTH+MARGIN)
