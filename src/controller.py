@@ -56,12 +56,14 @@ class Controller:
 			raise Exception("the controller can't handle this request")
 
 	def _on_request_initial_board(self):
-		phand = self.game.players[0].hand # get heroes hand
-		cards = [str(c) for c in phand] # get list of cardstrings
-		self.view.phand.update(cards)
-		pdown = self.game.players[0].downcards
-		cards = [str(c) for c in pdown]
-		self.view.pdown.update(cards)
-		pup = self.game.players[0].upcards
-		cards = [str(c) for c in pup]
-		self.view.pup.update(cards)
+		self._update_cardspritegroup(self.game.players[0].hand, self.view.phand)
+		self._update_cardspritegroup(self.game.players[0].downcards, self.view.pdown)
+		self._update_cardspritegroup(self.game.players[0].upcards, self.view.pup)
+		
+	def _update_cardspritegroup(self, modelsrc, viewdest):
+		"""
+		Creates a list of cardstrings from the modelsrc (a CardCollection)
+		and updates the viewdest (a CardSpriteGroup) with them.
+		"""
+		cards = [str(c) for c in modelsrc] # get list of cardstrings
+		viewdest.update(cards)
