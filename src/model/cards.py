@@ -115,6 +115,16 @@ class CardCollection(object):
         """
         return len(self.cards)
         
+    def cardstrings(self):
+		"""
+		Returns a list of string representations of the cards in the
+		collection. If the collection is hidden, "??"s are put in the
+		list instead of the actual card rank and value.
+		"""
+		if self.hidden:
+			return ["??" for c in self.cards]
+		return [str(c) for c in self.cards]
+        
     
     
 class Hand(CardCollection):
@@ -176,6 +186,10 @@ class Stack(CardCollection):
         # display the filler and how many cards the stack contains
         return "[%s], %d cards" % (filler, len(self.cards))
 
+	def cardstrings(self):
+		res = ["??" for c in self.cards]
+		if len(self.cards)>0:
+			res[-1] = str(self.cards[-1])
 
 class Deck(Stack):
     """
