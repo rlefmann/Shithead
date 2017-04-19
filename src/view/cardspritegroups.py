@@ -79,3 +79,53 @@ class SpreadCards(CardSpriteGroup):
 				curxpos += OVERLAP
 			else:
 				curxpos -= OVERLAP
+
+
+class LaidOutCards(CardSpriteGroup):
+	"""
+	Cards that lay next to each other, divided by a gap specified in the
+	constant MARGIN. The alignment can be either left, right or center
+	and the cards can be either visible (example: upcards) or hidden
+	(example: downcards).
+	"""
+	def __init__(self,xpos,ypos,alignment=Align.CENTER,visible=True):
+		super(LaidOutCards, self).__init__(xpos,ypos,alignment,visible)
+		
+	def alignment_allowed(self, alignment):
+		"""
+		The alignment can be either left, right or center.
+		"""
+		return alignment in [Align.LEFT, Align.CENTER, Align.RIGHT]
+	
+	def update(self, cards):
+		# empty the sprite list:
+		self.spritelist = []
+		# remove all previous sprites:
+		self.empty()
+		
+		# Detect the leftmost vertical position:
+		
+		# the vertical space the laid out cards take on the screen:
+		verticalspace = len(cards)*(MARGIN+CARDWIDTH)
+		if self.alignment == Align.LEFT:
+			assert self.xpos + verticalspace < SCREENWIDTH
+			curxpos = self.xpos
+		elif self.alignment == Align.RIGHT:
+			assert self.xpos - verticalspace > 0
+			curxpos = self.xpos - verticalspace
+		else: # Align.CENTER
+			# TODO: Assert
+			n=len(cards)
+			if n%2 == 0: # even number of cards
+				curxpos = self.xpos - int(MARGIN/2) - n/2*CARDWIDTH - (n/2-1)*MARGIN
+			else: # odd number of cards
+				curxpos = self.xpos - int(CARDSIZE[0]/2) - int(n/2)*(CARDSIZE[0]+MARGIN)
+		for cardstr in cards:
+			if self.visible:
+				c = CardSprite(cardstr, curxpos, self.ypos)
+			else:
+				c = HiddenCardSprite(xpos,ypos)
+			self.spritelist.append(c)
+			self.add(c)
+			curxpos += (CARDWIDTH+MARGIN)
+				
