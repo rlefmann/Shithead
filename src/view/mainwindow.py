@@ -23,7 +23,7 @@ class MainWindow:
 	def _create_sprites(self):
 		"""
 		"""
-		# we start at the bottom with the player hand:
+		# we start at the bottom with the player hand, downcards and upcards:
 		xpos = MARGIN
 		ypos = SCREENHEIGHT - 2*MARGIN - CARDHEIGHT
 		self.phand = SpreadCards(xpos, ypos)
@@ -32,7 +32,25 @@ class MainWindow:
 		self.pdown = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=False)
 		ypos -= OVERLAP
 		self.pup = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=True)
+		
+		# deck and discardpile:
+		xpos = int(SCREENWIDTH/2) - CARDWIDTH - MARGIN
+		ypos = int(SCREENHEIGHT/2) - int(CARDHEIGHT/2)
+		self.deck = CardStack(xpos,ypos,visible=False)
+		xpos += (CARDWIDTH + 2*MARGIN)
+		self.dpile = CardStack(xpos,ypos,visible=True)
+		
+		# now we display villains hand, downcards and upcards:
+		xpos = SCREENWIDTH - CARDWIDTH - MARGIN
+		ypos = MARGIN
+		self.vhand = SpreadCards(xpos, ypos, alignment=Align.RIGHT, visible=False)
+		xpos = int(SCREENWIDTH/2)
+		ypos += (CARDHEIGHT+MARGIN)
+		self.vdown = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=False)
+		ypos += OVERLAP
+		self.vup = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=True)
 		self.update()
+		
 
 	def run(self):
 		"""
@@ -61,5 +79,10 @@ class MainWindow:
 		self.phand.draw(self.screen)
 		self.pdown.draw(self.screen)
 		self.pup.draw(self.screen)
+		self.deck.draw(self.screen)
+		self.dpile.draw(self.screen)
+		self.vhand.draw(self.screen)
+		self.vdown.draw(self.screen)
+		self.vup.draw(self.screen)
 		# draw the new frame:
 		pg.display.flip()

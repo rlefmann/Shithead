@@ -59,11 +59,16 @@ class Controller:
 		self._update_cardspritegroup(self.game.players[0].hand, self.view.phand)
 		self._update_cardspritegroup(self.game.players[0].downcards, self.view.pdown)
 		self._update_cardspritegroup(self.game.players[0].upcards, self.view.pup)
+		self._update_cardspritegroup(self.game.deck, self.view.deck)
+		self._update_cardspritegroup(self.game.discardpile, self.view.dpile)
+		self._update_cardspritegroup(self.game.players[1].hand, self.view.vhand)
+		self._update_cardspritegroup(self.game.players[1].downcards, self.view.vdown)
+		self._update_cardspritegroup(self.game.players[1].upcards, self.view.vup)
 		
 	def _update_cardspritegroup(self, modelsrc, viewdest):
 		"""
 		Creates a list of cardstrings from the modelsrc (a CardCollection)
 		and updates the viewdest (a CardSpriteGroup) with them.
 		"""
-		cards = [str(c) for c in modelsrc] # get list of cardstrings
+		cards = modelsrc.cardstrings() # get list of cardstrings
 		viewdest.update(cards)
