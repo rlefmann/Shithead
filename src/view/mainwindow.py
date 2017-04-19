@@ -19,46 +19,34 @@ class MainWindow:
 		pg.display.set_caption(TITLE)
 		# determines whether the main loop (see method run) is executed further. Will be set to false by the controller, when a QuitRequest is send.
 		self.running = True
-		# SpriteGroup for everything that is not included in a separate
-		# Spritegroup (mainly the cursor):
-		self.sprites = pg.sprite.Group()
 		self._create_sprites()
+		self._create_cursors()
+		self.update()
 
 	def _create_sprites(self):
 		"""
 		"""
 		# we start at the bottom with the player hand, downcards and upcards:
-		xpos = MARGIN
-		ypos = SCREENHEIGHT - 2*MARGIN - CARDHEIGHT
-		self.phand = SpreadCards(xpos, ypos)
-		ypos -= CURSORHEIGHT
-		self.cursor = Cursor(xpos,ypos)
-		self.sprites.add(self.cursor)
-		xpos = int(SCREENWIDTH/2)
-		ypos -= (CARDHEIGHT+MARGIN)
-		self.pdown = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=False)
-		ypos -= OVERLAP
-		self.pup = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=True)
+		self.phand = SpreadCards(PHAND_X, PHAND_Y)
+		self.pdown = LaidOutCards(PDOWN_X,PDOWN_Y,alignment=Align.LEFT,visible=False)
+		self.pup = LaidOutCards(PUP_X,PUP_Y,alignment=Align.LEFT,visible=True)
 		
 		# deck and discardpile:
-		xpos = int(SCREENWIDTH/2) - CARDWIDTH - MARGIN
-		ypos = int(SCREENHEIGHT/2) - int(CARDHEIGHT/2)
-		self.deck = CardStack(xpos,ypos,visible=False)
-		xpos += (CARDWIDTH + 2*MARGIN)
-		self.dpile = CardStack(xpos,ypos,visible=True)
+		self.deck = CardStack(DECK_X,DECK_Y,visible=False)
+		self.dpile = CardStack(DPILE_X,DPILE_Y,visible=True)
 		
 		# now we display villains hand, downcards and upcards:
-		xpos = SCREENWIDTH - CARDWIDTH - MARGIN
-		ypos = MARGIN
-		self.vhand = SpreadCards(xpos, ypos, alignment=Align.RIGHT, visible=False)
-		xpos = int(SCREENWIDTH/2)
-		ypos += (CARDHEIGHT+MARGIN)
-		self.vdown = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=False)
-		ypos += OVERLAP
-		self.vup = LaidOutCards(xpos,ypos,alignment=Align.CENTER,visible=True)
+		self.vhand = SpreadCards(VHAND_X, VHAND_Y, alignment=Align.RIGHT, visible=False)
+		self.vdown = LaidOutCards(VDOWN_X,VDOWN_Y,alignment=Align.RIGHT,visible=False)
+		self.vup = LaidOutCards(VUP_X,VUP_Y,alignment=Align.RIGHT,visible=True)
 		
-		self.update()
-		
+	def _create_cursors(self):
+		# SpriteGroup for all cursors:
+		self.cursors = pg.sprite.Group()
+		xpos = MARGIN
+		ypos = PHAND_Y - CURSORHEIGHT
+		self.phand_cursor = Cursor(xpos,ypos)
+		self.cursors.add(self.phand_cursor)
 
 	def run(self):
 		"""
@@ -84,8 +72,8 @@ class MainWindow:
 		Updates all the spritegroups and redraws the screen:
 		"""
 		self.screen.fill(GREEN)
-		self.sprites.update()
-		self.sprites.draw(self.screen)
+		self.cursors.update()
+		self.cursors.draw(self.screen)
 		self.phand.draw(self.screen)
 		self.pdown.draw(self.screen)
 		self.pup.draw(self.screen)

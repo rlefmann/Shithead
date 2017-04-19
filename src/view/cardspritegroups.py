@@ -106,7 +106,7 @@ class LaidOutCards(CardSpriteGroup):
 		# Detect the leftmost vertical position:
 		
 		# the vertical space the laid out cards take on the screen:
-		verticalspace = len(cards)*(MARGIN+CARDWIDTH)
+		verticalspace = len(cards)*(MARGIN+CARDWIDTH)-MARGIN
 		if self.alignment == Align.LEFT:
 			assert self.xpos + verticalspace < SCREENWIDTH
 			curxpos = self.xpos
