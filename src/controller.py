@@ -56,7 +56,8 @@ class Controller:
 			raise Exception("the controller can't handle this request")
 
 	def _on_request_initial_board(self):
-		self._update_cardspritegroup(self.game.players[0].hand, self.view.phand)
+		self.view.update_phand(self.game.players[0].hand.cardstrings())
+		#self._update_cardspritegroup(self.game.players[0].hand, self.view.phand)
 		self._update_cardspritegroup(self.game.players[0].downcards, self.view.pdown)
 		self._update_cardspritegroup(self.game.players[0].upcards, self.view.pup)
 		self._update_cardspritegroup(self.game.deck, self.view.deck)

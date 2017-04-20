@@ -68,12 +68,28 @@ class MainWindow:
 					req = RequestQuit()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
 					req = RequestQuit()
+				# switch the cursor with tab key:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_TAB:
 					self.switchcursor()
+				elif event.type == pg.KEYDOWN and event.key == pg.K_LEFT:
+					self.cursors[self.cur_cursor_idx].moveleft()
+					self.update()
+				elif event.type == pg.KEYDOWN and event.key == pg.K_RIGHT:
+					self.cursors[self.cur_cursor_idx].moveright()
+					self.update()
 				if req:
 					self.listener(req)
 				self.update()
 
+	def update_phand(self, cardstrs):
+		"""
+		Updates the players hand with a new list of cardstrings.
+		"""
+		self.phand.update(cardstrs)
+		self.cursors[0].setnumsteps(len(cardstrs))
+
+	def 
+	
 	def update(self):
 		"""
 		Updates all the spritegroups and redraws the screen:

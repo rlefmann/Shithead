@@ -12,6 +12,7 @@ class Cursor(pg.sprite.Sprite):
 		self.image = pg.transform.scale(self.image, (20,20))
 		self.stepwidth = stepwidth
 		self.numsteps = numsteps
+		self.exclude_indices = [] # the indices that should be excluded
 		self.curstep = 0
 		self.rect = self.image.get_rect()
 		self.rect.x = xpos
