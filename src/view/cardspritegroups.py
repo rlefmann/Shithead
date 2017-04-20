@@ -90,6 +90,7 @@ class LaidOutCards(CardSpriteGroup):
 	"""
 	def __init__(self,xpos,ypos,alignment=Align.CENTER,visible=True):
 		super(LaidOutCards, self).__init__(xpos,ypos,alignment,visible)
+		self.empty_slots = []
 		
 	def alignment_allowed(self, alignment):
 		"""
@@ -102,6 +103,8 @@ class LaidOutCards(CardSpriteGroup):
 		self.spritelist = []
 		# remove all previous sprites:
 		self.empty()
+		# remove the information about the empty slots:
+		self.empty_slots = []
 		
 		# Detect the leftmost vertical position:
 		
@@ -120,14 +123,20 @@ class LaidOutCards(CardSpriteGroup):
 				curxpos = self.xpos - int(MARGIN/2) - n/2*CARDWIDTH - (n/2-1)*MARGIN
 			else: # odd number of cards
 				curxpos = self.xpos - int(CARDSIZE[0]/2) - int(n/2)*(CARDSIZE[0]+MARGIN)
-		for cardstr in cards:
-			# TODO: here we need to create a gap when there is an empty slot
-			if self.visible:
+		for idx, cardstr in enumerate(cards):
+			# a gap because of an empty slot:
+			if cardstr == "xx":
+				self.empty_slots.append(idx)
+			elif self.visible:
+				if cardstr == "??":
+					raise ValueError("the cardstring ?? is not allowed to be handed to visible LaidOutCards")
 				c = CardSprite(cardstr, curxpos, self.ypos)
+				self.spritelist.append(c)
+				self.add(c)
 			else:
 				c = HiddenCardSprite(curxpos,self.ypos)
-			self.spritelist.append(c)
-			self.add(c)
+				self.spritelist.append(c)
+				self.add(c)
 			curxpos += (CARDWIDTH+MARGIN)
 				
 

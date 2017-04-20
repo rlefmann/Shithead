@@ -27,12 +27,12 @@ class Game:
 		self.settings = settings
 		
 		# create and shuffle deck:
-		self.deck = Deck()
-		self.deck.shuffle()
+		self._deck = Deck()
+		self._deck.shuffle()
 		
 		# create other card collections:
-		self.discardpile = DiscardPile()
-		self.graveyard = Graveyard()
+		self._discardpile = DiscardPile()
+		self._graveyard = Graveyard()
 		
 		# create players:
 		hero = Player(settings["NCARDS_UPDOWN"], True)
@@ -55,13 +55,13 @@ class Game:
 		"""
 		for i in range(2):
 			# draw hand cards:
-			handcards = self.deck.draw(self.settings["NCARDS_HAND"])
+			handcards = self._deck.draw(self.settings["NCARDS_HAND"])
 			self.players[i].hand.add(handcards)
 			# draw downcards:
-			downcards = self.deck.draw(self.settings["NCARDS_UPDOWN"])
+			downcards = self._deck.draw(self.settings["NCARDS_UPDOWN"])
 			self.players[i].downcards.add(downcards)
 			# draw upcards:
-			upcards = self.deck.draw(self.settings["NCARDS_UPDOWN"])
+			upcards = self._deck.draw(self.settings["NCARDS_UPDOWN"])
 			self.players[i].upcards.add(upcards)
 
 	def _findfirstplayer(self):
@@ -79,3 +79,35 @@ class Game:
 		elif isinstance(action, PlayAction):
 			print "play action"
 		return True # TODO: implement. This is just a skeleton
+
+	def phand(self):
+		"""Returns the players hand as a list of cardstrings."""
+		return self.players[0].hand.cardstrings()
+	
+	def pupcards(self):
+		"""Returns the players upcards as a list of cardstrings."""
+		return self.players[0].upcards.cardstrings()
+	
+	def pdowncards(self):
+		"""Returns the players downcards as a list of cardstrings."""
+		return self.players[0].downcards.cardstrings()
+
+	def vhand(self):
+		"""Returns the villains hand as a list of cardstrings."""
+		return self.players[1].hand.cardstrings()
+	
+	def vupcards(self):
+		"""Returns the villains upcards as a list of cardstrings."""
+		return self.players[1].upcards.cardstrings()
+	
+	def vdowncards(self):
+		"""Returns the villains downcards as a list of cardstrings."""
+		return self.players[1].downcards.cardstrings()
+
+	def deck(self):
+		"""Returns the deck as a list of cardstrings"""
+		return self._deck.cardstrings()
+
+	def discardpile(self):
+		"""Returns the discardpile as a list of cardstrings"""
+		return self._discardpile.cardstrings()
