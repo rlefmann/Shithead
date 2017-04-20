@@ -3,7 +3,7 @@ import pygame as pg
 from constants import *
 from ..requests import *
 from cardspritegroups import *
-from cursor import Cursor
+from cursor import *
 
 class MainWindow:
 	"""
@@ -42,7 +42,7 @@ class MainWindow:
 		
 	def _create_cursors(self):
 		self.phandcursor = Cursor(PHANDCURSOR_X,PHANDCURSOR_Y)
-		self.pupdowncursor = Cursor(PUPDOWNCURSOR_X,PUPDOWNCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
+		self.pupdowncursor = SlotCursor(PUPDOWNCURSOR_X,PUPDOWNCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
 		self.dpilecursor = Cursor(DPILECURSOR_X, DPILECURSOR_Y) # stepwidth doesnt matter because there is only one cursor position
 		
 		# create list of all cursors:
@@ -88,7 +88,11 @@ class MainWindow:
 		self.phand.update(cardstrs)
 		self.cursors[0].setnumsteps(len(cardstrs))
 
-	def 
+	def update_pupcards(self, cardstrs):
+		cardstrs[2] = "xx" # TODO: remove
+		self.pup.update(cardstrs)
+		self.pupdowncursor.empty_slots = self.pup.empty_slots
+		self.pupdowncursor.setnumsteps(len(cardstrs))
 	
 	def update(self):
 		"""
@@ -116,4 +120,5 @@ class MainWindow:
 		self.cur_cursor_idx = (self.cur_cursor_idx+1)%3
 		self.activecursor.empty()
 		self.activecursor.add(self.cursors[self.cur_cursor_idx])
+		self.cursors[self.cur_cursor_idx].reset()
 		
