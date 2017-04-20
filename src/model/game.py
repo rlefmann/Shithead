@@ -79,3 +79,23 @@ class Game:
 		elif isinstance(action, PlayAction):
 			print "play action"
 		return True # TODO: implement. This is just a skeleton
+
+	def phand(self):
+		"""
+		Returns the players hand as a list of cardstrings.
+		"""
+		return self.players[0].hand.cardstrings()
+	
+	def pupcards(self):
+		"""
+		Returns the players upcards as a list of cardstrings.
+		"""
+		return self.players[0].upcards.cardstrings()
+	
+	def pdowncards(self):
+		"""
+		Returns the players downcards as a list of cardstrings.
+		"""
+		return self.players[0].downcards.cardstrings()
+
+	

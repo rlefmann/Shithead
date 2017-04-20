@@ -103,6 +103,9 @@ class MainWindow:
 		"""
 		Update the players downcards with a new list of cardstrings.
 		"""
+		self.pdown.update(cardstrs)
+		self.pdowncursor.empty_slots = self.pdown.empty_slots
+		self.pdowncursor.setnumsteps(len(cardstrs))
 	
 	def update(self):
 		"""
