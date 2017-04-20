@@ -42,11 +42,13 @@ class MainWindow:
 		
 	def _create_cursors(self):
 		self.phandcursor = Cursor(PHANDCURSOR_X,PHANDCURSOR_Y)
-		self.pupdowncursor = SlotCursor(PUPDOWNCURSOR_X,PUPDOWNCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
+		self.pupcursor = SlotCursor(PUPCURSOR_X,PUPCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
+		self.pdowncursor = SlotCursor(PDOWNCURSOR_X,PDOWNCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
+		self.pdowncursor.active = False
 		self.dpilecursor = Cursor(DPILECURSOR_X, DPILECURSOR_Y) # stepwidth doesnt matter because there is only one cursor position
-		
+		self.dpilecursor.active = False
 		# create list of all cursors:
-		self.cursors = [self.phandcursor, self.pupdowncursor, self.dpilecursor]
+		self.cursors = [self.phandcursor, self.pupcursor, self.pdowncursor, self.dpilecursor]
 		self.cur_cursor_idx = 0 # the index of the current cursor
 		# This spritegroup only contains the active cursor:
 		self.activecursor = pg.sprite.Group()
@@ -89,10 +91,18 @@ class MainWindow:
 		self.cursors[0].setnumsteps(len(cardstrs))
 
 	def update_pupcards(self, cardstrs):
+		"""
+		Update the players upcards with a new list of cardstrings.
+		"""
 		cardstrs[2] = "xx" # TODO: remove
 		self.pup.update(cardstrs)
-		self.pupdowncursor.empty_slots = self.pup.empty_slots
-		self.pupdowncursor.setnumsteps(len(cardstrs))
+		self.pupcursor.empty_slots = self.pup.empty_slots
+		self.pupcursor.setnumsteps(len(cardstrs))
+
+	def update_pdowncards(self, cardstrs):
+		"""
+		Update the players downcards with a new list of cardstrings.
+		"""
 	
 	def update(self):
 		"""
@@ -117,8 +127,11 @@ class MainWindow:
 		Switches to the next cursor in self.cursors. If we are already at
 		the last one, we begin again with the first.
 		"""
-		self.cur_cursor_idx = (self.cur_cursor_idx+1)%3
-		self.activecursor.empty()
-		self.activecursor.add(self.cursors[self.cur_cursor_idx])
-		self.cursors[self.cur_cursor_idx].reset()
+		self.cur_cursor_idx = (self.cur_cursor_idx+1)%len(self.cursors)
+		if self.cursors[self.cur_cursor_idx].active:
+			self.activecursor.empty()
+			self.activecursor.add(self.cursors[self.cur_cursor_idx])
+			self.cursors[self.cur_cursor_idx].reset()
+		else:
+			self.switchcursor() # TODO: avoid infinite loop when all cursors are deactivated
 		
