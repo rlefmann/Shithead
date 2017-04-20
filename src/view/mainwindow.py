@@ -48,9 +48,9 @@ class MainWindow:
 		# create list of all cursors:
 		self.cursors = [self.phandcursor, self.pupdowncursor, self.dpilecursor]
 		self.cur_cursor_idx = 0 # the index of the current cursor
-		# This spritegroup only contains the active cursor:
-		self.activecursor = pg.sprite.Group()
-		self.activecursor.add(self.phandcursor)
+		# Only one cursor is displayed at a moment. This spritegroup only contains that cursor:
+		self.current_cursor = pg.sprite.Group()
+		self.current_cursor.add(self.phandcursor)
 		
 		
 	def run(self):
@@ -68,6 +68,7 @@ class MainWindow:
 					req = RequestQuit()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
 					req = RequestQuit()
+				# switch between active cursors using the tab key:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_TAB:
 					self.switchcursor()
 				if req:
@@ -79,8 +80,8 @@ class MainWindow:
 		Updates all the spritegroups and redraws the screen:
 		"""
 		self.screen.fill(GREEN)
-		self.activecursor.update() # TODO: necessary?
-		self.activecursor.draw(self.screen)
+		self.current_cursor.update() # TODO: necessary?
+		self.current_cursor.draw(self.screen)
 		self.phand.draw(self.screen)
 		self.pdown.draw(self.screen)
 		self.pup.draw(self.screen)
@@ -98,6 +99,6 @@ class MainWindow:
 		the last one, we begin again with the first.
 		"""
 		self.cur_cursor_idx = (self.cur_cursor_idx+1)%3
-		self.activecursor.empty()
-		self.activecursor.add(self.cursors[self.cur_cursor_idx])
+		self.current_cursor.empty()
+		self.current_cursor.add(self.cursors[self.cur_cursor_idx])
 		
