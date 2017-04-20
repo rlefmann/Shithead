@@ -106,6 +106,26 @@ class MainWindow:
 		self.pdown.update(cardstrs)
 		self.pdowncursor.empty_slots = self.pdown.empty_slots
 		self.pdowncursor.setnumsteps(len(cardstrs))
+
+	def update_vhand(self, cardstrs):
+		"""Updates the villains hand with a new list of cardstrings."""
+		self.vhand.update(cardstrs)
+
+	def update_vupcards(self, cardstrs):
+		"""Update the villains upcards with a new list of cardstrings."""
+		self.vup.update(cardstrs)
+
+	def update_vdowncards(self, cardstrs):
+		"""Update the villains downcards with a new list of cardstrings."""
+		self.vdown.update(cardstrs)
+
+	def update_deck(self, cardstrs):
+		"""Updates the deck with a new list of cardstrings."""
+		self.deck.update(cardstrs)
+
+	def update_discardpile(self, cardstrs):
+		"""Updates the discardpile with a new list of cardstrings."""
+		self.dpile.update(cardstrs)
 	
 	def update(self):
 		"""

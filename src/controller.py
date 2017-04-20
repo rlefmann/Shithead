@@ -56,19 +56,14 @@ class Controller:
 			raise Exception("the controller can't handle this request")
 
 	def _on_request_initial_board(self):
+		# update heroes hand, upcards and downcards:
 		self.view.update_phand(self.game.phand())
 		self.view.update_pupcards(self.game.pupcards())
 		self.view.update_pdowncards(self.game.pdowncards())
-		self._update_cardspritegroup(self.game.deck, self.view.deck)
-		self._update_cardspritegroup(self.game.discardpile, self.view.dpile)
-		self._update_cardspritegroup(self.game.players[1].hand, self.view.vhand)
-		self._update_cardspritegroup(self.game.players[1].downcards, self.view.vdown)
-		self._update_cardspritegroup(self.game.players[1].upcards, self.view.vup)
-		
-	def _update_cardspritegroup(self, modelsrc, viewdest):
-		"""
-		Creates a list of cardstrings from the modelsrc (a CardCollection)
-		and updates the viewdest (a CardSpriteGroup) with them.
-		"""
-		cards = modelsrc.cardstrings() # get list of cardstrings
-		viewdest.update(cards)
+		# update villains hand, upcards and downcards:
+		self.view.update_vhand(self.game.vhand())
+		self.view.update_vupcards(self.game.vupcards())
+		self.view.update_vdowncards(self.game.vdowncards())
+		# update deck and discardpile:
+		self.view.update_deck(self.game.deck())
+		self.view.update_discardpile(self.game.discardpile())
