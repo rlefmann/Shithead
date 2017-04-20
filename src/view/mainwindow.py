@@ -41,13 +41,18 @@ class MainWindow:
 		self.vup = LaidOutCards(VUP_X,VUP_Y,alignment=Align.RIGHT,visible=True)
 		
 	def _create_cursors(self):
-		# SpriteGroup for all cursors:
-		self.cursors = pg.sprite.Group()
-		xpos = MARGIN
-		ypos = PHAND_Y - CURSORHEIGHT
-		self.phand_cursor = Cursor(xpos,ypos)
-		self.cursors.add(self.phand_cursor)
-
+		self.phandcursor = Cursor(PHANDCURSOR_X,PHANDCURSOR_Y)
+		self.pupdowncursor = Cursor(PUPDOWNCURSOR_X,PUPDOWNCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
+		self.dpilecursor = Cursor(DPILECURSOR_X, DPILECURSOR_Y) # stepwidth doesnt matter because there is only one cursor position
+		
+		# create list of all cursors:
+		self.cursors = [self.phandcursor, self.pupdowncursor, self.dpilecursor]
+		self.cur_cursor_idx = 0 # the index of the current cursor
+		# This spritegroup only contains the active cursor:
+		self.activecursor = pg.sprite.Group()
+		self.activecursor.add(self.phandcursor)
+		
+		
 	def run(self):
 		"""
 		The main loop of the game and handling of key presses.
@@ -63,6 +68,8 @@ class MainWindow:
 					req = RequestQuit()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
 					req = RequestQuit()
+				elif event.type == pg.KEYDOWN and event.key == pg.K_TAB:
+					self.switchcursor()
 				if req:
 					self.listener(req)
 				self.update()
@@ -72,8 +79,8 @@ class MainWindow:
 		Updates all the spritegroups and redraws the screen:
 		"""
 		self.screen.fill(GREEN)
-		self.cursors.update()
-		self.cursors.draw(self.screen)
+		self.activecursor.update() # TODO: necessary?
+		self.activecursor.draw(self.screen)
 		self.phand.draw(self.screen)
 		self.pdown.draw(self.screen)
 		self.pup.draw(self.screen)
@@ -84,3 +91,13 @@ class MainWindow:
 		self.vup.draw(self.screen)
 		# draw the new frame:
 		pg.display.flip()
+		
+	def switchcursor(self):
+		"""
+		Switches to the next cursor in self.cursors. If we are already at
+		the last one, we begin again with the first.
+		"""
+		self.cur_cursor_idx = (self.cur_cursor_idx+1)%3
+		self.activecursor.empty()
+		self.activecursor.add(self.cursors[self.cur_cursor_idx])
+		

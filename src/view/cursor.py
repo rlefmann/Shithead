@@ -16,5 +16,26 @@ class Cursor(pg.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.x = xpos
 		self.rect.y = ypos
+	
+	def setnumsteps(self,numsteps):
+		"""
+		Sets the number of positions the cursor can have.
+		"""
+		self.numsteps = numsteps
 		
+	def moveleft(self):
+		"""
+		Moves the cursor one position to the left.
+		"""
+		if self.curstep > 0:
+			self.rect.x -= self.stepwidth
+			self.curstep -= 1
+			
+	def moveright(self):
+		"""
+		Moves the cursor one position to the right.
+		"""
+		if self.curstep < self.numsteps-1:
+			self.rect.x += self.stepwidth
+			self.curstep += 1
 		
