@@ -73,16 +73,35 @@ class MainWindow:
 				# switch between active cursors using the tab key:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_TAB:
 					self.switchcursor()
+				# move cursor to the left:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_LEFT:
 					self.cursors[self.cur_cursor_idx].moveleft()
 					self.update()
+				# move cursor to the right:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_RIGHT:
 					self.cursors[self.cur_cursor_idx].moveright()
 					self.update()
+				elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+					self._select_card()
 				if req:
 					self.listener(req)
 				self.update()
-
+	
+	def _select_card(self):
+		# TODO: this could be done more elegantly:
+		if self.cur_cursor_idx == 0:
+			spritegroup = self.phand
+		elif self.cur_cursor_idx == 1:
+			spritegroup = self.pup
+		elif self.cur_cursor_idx == 2:
+			spritegroup = self.pdown
+		else:
+			spritegroup = self.dpile
+		idx = self.cursors[self.cur_cursor_idx].curstep
+		sprite = spritegroup.spritelist[idx] # here we need the additional spritelist
+		sprite.sethighlighted(not sprite.highlighted)
+		
+		
 	def update_phand(self, cardstrs):
 		"""
 		Updates the players hand with a new list of cardstrings.
