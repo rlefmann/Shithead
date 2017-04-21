@@ -83,3 +83,31 @@ class SlotCursor(Cursor):
 		i = 0
 		while i in self.empty_slots:
 			self.moveright() 
+
+
+class CursorManager:
+	
+	def __init__(self):
+		self.cursors = []
+		self.current_cursor_idx = 0
+		self.selected = [] # TODO
+		
+	def add(self, cursor):
+		self.cursors.append(cursor)
+		
+	def get_current_cursor(self):
+		return self.cursors[self.current_cursor_idx]
+		
+	def get_current_idx(self):
+		return self.current_cursor_idx
+		
+	def switchcursor(self):
+		"""
+		Switches to the next cursor in self.cursors. If we are already at
+		the last one, we begin again with the first.
+		"""
+		self.current_cursor_idx = (self.current_cursor_idx+1)%len(self.cursors)
+		if self.cursors[self.current_cursor_idx].active:
+			self.cursors[self.current_cursor_idx].reset()
+		else:
+			self.switchcursor() # TODO: avoid infinite loop when all cursors are deactivated

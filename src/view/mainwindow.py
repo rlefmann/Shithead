@@ -48,11 +48,16 @@ class MainWindow:
 		self.dpilecursor = Cursor(DPILECURSOR_X, DPILECURSOR_Y) # stepwidth doesnt matter because there is only one cursor position
 		self.dpilecursor.active = False
 		# create list of all cursors:
-		self.cursors = [self.phandcursor, self.pupcursor, self.pdowncursor, self.dpilecursor]
-		self.cur_cursor_idx = 0 # the index of the current cursor
+		self.curmgr = CursorManager()
+		self.curmgr.add(self.phandcursor)
+		self.curmgr.add(self.pupcursor)
+		self.curmgr.add(self.pdowncursor)
+		self.curmgr.add(self.dpilecursor)
+		self.cursors = [self.phandcursor, self.pupcursor, self.pdowncursor, self.dpilecursor] ## TODO: remove
+		#self.cur_cursor_idx = 0 # the index of the current cursor
 		# Only one cursor is displayed at a moment. This spritegroup only contains that cursor:
 		self.current_cursor = pg.sprite.Group()
-		self.current_cursor.add(self.phandcursor)
+		self.current_cursor.add(self.curmgr.get_current_cursor())
 		
 		
 	def run(self):
@@ -72,14 +77,16 @@ class MainWindow:
 					req = RequestQuit()
 				# switch between active cursors using the tab key:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_TAB:
-					self.switchcursor()
+					self.curmgr.switchcursor()
+					self.current_cursor.empty()
+					self.current_cursor.add(self.curmgr.get_current_cursor())
 				# move cursor to the left:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_LEFT:
-					self.cursors[self.cur_cursor_idx].moveleft()
+					self.cursors[self.curmgr.get_current_idx()].moveleft()
 					self.update()
 				# move cursor to the right:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_RIGHT:
-					self.cursors[self.cur_cursor_idx].moveright()
+					self.cursors[self.curmgr.get_current_idx()].moveright()
 					self.update()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
 					self._select_card()
@@ -89,15 +96,15 @@ class MainWindow:
 	
 	def _select_card(self):
 		# TODO: this could be done more elegantly:
-		if self.cur_cursor_idx == 0:
+		if self.curmgr.get_current_idx() == 0:
 			spritegroup = self.phand
-		elif self.cur_cursor_idx == 1:
+		elif self.curmgr.get_current_idx() == 1:
 			spritegroup = self.pup
-		elif self.cur_cursor_idx == 2:
+		elif self.curmgr.get_current_idx() == 2:
 			spritegroup = self.pdown
 		else:
 			spritegroup = self.dpile
-		idx = self.cursors[self.cur_cursor_idx].curstep
+		idx = self.cursors[self.curmgr.get_current_idx()].curstep
 		sprite = spritegroup.spritelist[idx] # here we need the additional spritelist
 		sprite.sethighlighted(not sprite.highlighted)
 		
@@ -164,16 +171,16 @@ class MainWindow:
 		# draw the new frame:
 		pg.display.flip()
 		
-	def switchcursor(self):
-		"""
-		Switches to the next cursor in self.cursors. If we are already at
-		the last one, we begin again with the first.
-		"""
-		self.cur_cursor_idx = (self.cur_cursor_idx+1)%len(self.cursors)
-		if self.cursors[self.cur_cursor_idx].active:
-			self.current_cursor.empty()
-			self.current_cursor.add(self.cursors[self.cur_cursor_idx])
-			self.cursors[self.cur_cursor_idx].reset()
-		else:
-			self.switchcursor() # TODO: avoid infinite loop when all cursors are deactivated
+	#~ def switchcursor(self):
+		#~ """
+		#~ Switches to the next cursor in self.cursors. If we are already at
+		#~ the last one, we begin again with the first.
+		#~ """
+		#~ self.cur_cursor_idx = (self.cur_cursor_idx+1)%len(self.cursors)
+		#~ if self.cursors[self.cur_cursor_idx].active:
+			#~ self.current_cursor.empty()
+			#~ self.current_cursor.add(self.cursors[self.cur_cursor_idx])
+			#~ self.cursors[self.cur_cursor_idx].reset()
+		#~ else:
+			#~ self.switchcursor() # TODO: avoid infinite loop when all cursors are deactivated
 		
