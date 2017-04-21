@@ -32,6 +32,12 @@ class CardSpriteGroup(pg.sprite.OrderedUpdates):
 			raise Exception("alignment not allowed for this CardSpriteGroup")
 		self.alignment = alignment
 
+	def __getitem__(self,idx):
+		"""
+		For accessing the sprites of the CardSpriteGroup via square brackets.
+		"""
+		return self.spritelist[idx]
+
 	def alignment_allowed(self, alignment):
 		"""
 		Not all alignments are allowed for every type of
@@ -138,7 +144,7 @@ class LaidOutCards(CardSpriteGroup):
 				self.spritelist.append(c)
 				self.add(c)
 			curxpos += (CARDWIDTH+MARGIN)
-				
+		
 
 class CardStack(CardSpriteGroup):
 	"""

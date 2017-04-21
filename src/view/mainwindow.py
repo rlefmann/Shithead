@@ -42,7 +42,9 @@ class MainWindow:
 		
 	def _create_cursors(self):
 		self.phandcursor = Cursor(PHANDCURSOR_X,PHANDCURSOR_Y)
+		self.phandcursor.cardspritegroup = self.phand
 		self.pupcursor = SlotCursor(PUPCURSOR_X,PUPCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
+		self.pupcursor.cardspritegroup = self.pup
 		self.pdowncursor = SlotCursor(PDOWNCURSOR_X,PDOWNCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
 		self.pdowncursor.active = False
 		self.dpilecursor = Cursor(DPILECURSOR_X, DPILECURSOR_Y) # stepwidth doesnt matter because there is only one cursor position
@@ -79,7 +81,7 @@ class MainWindow:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_TAB:
 					self.curmgr.switchcursor()
 					self.current_cursor.empty()
-					self.current_cursor.add(self.curmgr.get_current_cursor())
+					self.current_cursor.add(self.curmgr.current_cursor)
 				# move cursor to the left:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_LEFT:
 					self.cursors[self.curmgr.current_idx].moveleft()
@@ -89,24 +91,24 @@ class MainWindow:
 					self.cursors[self.curmgr.current_idx].moveright()
 					self.update()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-					self._select_card()
+					self.curmgr.select_card()
 				if req:
 					self.listener(req)
 				self.update()
 	
-	def _select_card(self):
-		# TODO: this could be done more elegantly:
-		if self.curmgr.current_idx == 0:
-			spritegroup = self.phand
-		elif self.curmgr.current_idx == 1:
-			spritegroup = self.pup
-		elif self.curmgr.current_idx == 2:
-			spritegroup = self.pdown
-		else:
-			spritegroup = self.dpile
-		idx = self.cursors[self.curmgr.current_idx].curstep
-		sprite = spritegroup.spritelist[idx] # here we need the additional spritelist
-		sprite.sethighlighted(not sprite.highlighted)
+	#~ def _select_card(self):
+		#~ # TODO: this could be done more elegantly:
+		#~ if self.curmgr.current_idx == 0:
+			#~ spritegroup = self.phand
+		#~ elif self.curmgr.current_idx == 1:
+			#~ spritegroup = self.pup
+		#~ elif self.curmgr.current_idx == 2:
+			#~ spritegroup = self.pdown
+		#~ else:
+			#~ spritegroup = self.dpile
+		#~ idx = self.cursors[self.curmgr.current_idx].curstep
+		#~ sprite = spritegroup.spritelist[idx] # here we need the additional spritelist
+		#~ sprite.sethighlighted(not sprite.highlighted)
 		
 		
 	def update_phand(self, cardstrs):
@@ -120,7 +122,6 @@ class MainWindow:
 		"""
 		Update the players upcards with a new list of cardstrings.
 		"""
-		cardstrs[2] = "xx" # TODO: remove
 		self.pup.update(cardstrs)
 		self.pupcursor.empty_slots = self.pup.empty_slots
 		self.pupcursor.setnumsteps(len(cardstrs))

@@ -1,6 +1,7 @@
 import pygame as pg
 
 from constants import *
+from cardspritegroups import CardSpriteGroup
 
 class Cursor(pg.sprite.Sprite):
 	"""
@@ -9,7 +10,7 @@ class Cursor(pg.sprite.Sprite):
 	def __init__(self, xpos, ypos, stepwidth=OVERLAP, numsteps=1):
 		super(Cursor, self).__init__()
 		self.image = pg.image.load("./img/cursor.png").convert_alpha()
-		self.image = pg.transform.scale(self.image, (20,20))
+		self.image = pg.transform.scale(self.image, (CURSORWIDTH,CURSORHEIGHT))
 		self.stepwidth = stepwidth
 		self.numsteps = numsteps
 		self.active = True
@@ -18,7 +19,18 @@ class Cursor(pg.sprite.Sprite):
 		self.basex = xpos # we keep this for resetting the cursor
 		self.rect.x = xpos
 		self.rect.y = ypos
-	
+		self._cardspritegroup = None
+
+	@property
+	def cardspritegroup(self):
+		return self._cardspritegroup
+
+	@cardspritegroup.setter
+	def cardspritegroup(self, newgroup):
+		if not isinstance(newgroup, CardSpriteGroup):
+			raise TypeError("you need to assign a cardspritegroup to the cursor")
+		self._cardspritegroup = newgroup
+		
 	def setnumsteps(self,numsteps):
 		"""
 		Sets the number of positions the cursor can have.
@@ -91,7 +103,10 @@ class CursorManager(object):
 		self.cursors = []
 		self.current_cursor_idx = 0
 		self.selected = [] # TODO
-		
+		# if the cursormanager is blocked you cannot switch between
+		# cursors:
+		self.blocked = False
+			
 	def add(self, cursor):
 		self.cursors.append(cursor)
 	
@@ -114,3 +129,13 @@ class CursorManager(object):
 		else:
 			self.switchcursor() # TODO: avoid infinite loop when all cursors are deactivated
 
+	def select_card(self):
+		cardspritegroup = self.current_cursor.cardspritegroup
+		if cardspritegroup == None:
+			raise ValueError("Cardspritegroup of current cursor is None")
+		idx = self.current_cursor.curstep
+		sprite = cardspritegroup[idx]
+		sprite.sethighlighted(not sprite.highlighted)
+		
+		
+	
