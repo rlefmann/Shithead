@@ -162,4 +162,3 @@ class CardStack(CardSpriteGroup):
 			self.add(c)
 				
 # TODO: what happens if there are no cards to display?
-# TODO: is the extra spritelist really needed?
