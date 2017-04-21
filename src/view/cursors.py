@@ -1,25 +1,21 @@
 import pygame as pg
 
 from constants import *
-from cardspritegroups import CardSpriteGroup
+from cardspritegroups import CardSpriteGroup, CardStack, LaidOutCards, SpreadCards
 
 class Cursor(pg.sprite.Sprite):
 	"""
 	A cursor for selecting cards from a CardSpriteGroup.
+	The CardSpriteGroup
 	"""
-	def __init__(self, xpos, ypos, stepwidth=OVERLAP, numsteps=1):
+	def __init__(self, spritegroup):
 		super(Cursor, self).__init__()
-		self.image = pg.image.load("./img/cursor.png").convert_alpha()
-		self.image = pg.transform.scale(self.image, (CURSORWIDTH,CURSORHEIGHT))
-		self.stepwidth = stepwidth
-		self.numsteps = numsteps
-		self.active = True
-		self.curstep = 0
+		self._blocked = False
+		self.image = pg.image.load("./img/frame.png").convert_alpha()
+		self.image = pg.transform.scale(self.image, CARDSIZE)
 		self.rect = self.image.get_rect()
-		self.basex = xpos # we keep this for resetting the cursor
-		self.rect.x = xpos
-		self.rect.y = ypos
-		self._cardspritegroup = None
+		self.cardspritegroup = spritegroup
+		self.move(self.cardspritegroup,0) # TODO: is this okay (idx=0)?
 
 	@property
 	def cardspritegroup(self):
@@ -30,112 +26,95 @@ class Cursor(pg.sprite.Sprite):
 		if not isinstance(newgroup, CardSpriteGroup):
 			raise TypeError("you need to assign a cardspritegroup to the cursor")
 		self._cardspritegroup = newgroup
-		
-	def setnumsteps(self,numsteps):
-		"""
-		Sets the number of positions the cursor can have.
-		"""
-		self.numsteps = numsteps
-		
+
+	def move(self, spritegroup, idx):
+		if not isinstance(self.cardspritegroup, CardStack):
+			self.rect.x = spritegroup[idx].xpos
+			self.rect.y = spritegroup[idx].ypos
+			self.cardspritegroup = spritegroup
+			self._idx = idx
+
 	def moveleft(self):
 		"""
 		Moves the cursor one position to the left.
 		"""
-		if self.curstep > 0:
-			self.rect.x -= self.stepwidth
-			self.curstep -= 1
-			
+		if isinstance(self.cardspritegroup, SpreadCards) and self._idx > 0:
+			self.move(self.cardspritegroup, self._idx-1)
+		elif isinstance(self.cardspritegroup, LaidOutCards):
+			# move the cursor one position to the left, but skip empty slots:
+			emptyslots = self.cardspritegroup.empty_slots
+			i = self._idx - 1
+			while i in emptyslots:
+				i-=1
+			if i>=0:
+				self.move(self.cardspritegroup, i)
+
 	def moveright(self):
 		"""
 		Moves the cursor one position to the right.
 		"""
-		if self.curstep < self.numsteps-1:
-			self.rect.x += self.stepwidth
-			self.curstep += 1
+		if isinstance(self.cardspritegroup, SpreadCards) and self._idx < len(self.cardspritegroup)-1:
+			self.move(self.cardspritegroup, self._idx+1)
+		elif isinstance(self.cardspritegroup, LaidOutCards):
+			# move the cursor one position to the left, but skip empty slots:
+			emptyslots = self.cardspritegroup.empty_slots
+			i = self._idx + 1
+			while i in emptyslots:
+				i+=1
+			if i < len(self.cardspritegroup):
+				self.move(self.cardspritegroup, i)
 
 	def reset(self):
 		"""
 		Resets the cursor to the initial position.
-		"""
-		self.rect.x = self.basex
-		self.curstep = 0
-
-class SlotCursor(Cursor):
-	"""
-	A special cursor for CardSpriteGroups which may have empty slots
-	(in the case of shithead those are just LaidOutCards)
-	"""
-	def __init__(self, xpos, ypos, stepwidth=OVERLAP, numsteps=1):
-		super(SlotCursor, self).__init__(xpos, ypos, stepwidth, numsteps)
-		# the indices of the empty slots:
-		self.empty_slots = []
-
-	def moveleft(self):
-		i = self.curstep - 1
-		while i in self.empty_slots:
-			i-=1
-		if i >= 0:
-			self.rect.x -= self.stepwidth*(self.curstep-i)
-			self.curstep = i
-
-	def moveright(self):
-		i = self.curstep+1
-		while i in self.empty_slots:
-			i+=1
-		if i < self.numsteps:
-			self.rect.x += self.stepwidth*(i-self.curstep)
-			self.curstep = i
-
-	def reset(self):
-		"""
-		Resets the cursor to point at the leftmost nonempty slot.
+		If the spritegroup is of type LaidOutCards it picks the first
+		non-empty slot.
 		TODO: what happens if all the slots are empty?
 		"""
-		super(SlotCursor,self).reset()
-		i = 0
-		while i in self.empty_slots:
-			self.moveright() 
+		if isinstance(self.cardspritegroup, SpreadCards) or isinstance(self.cardspritegroup, CardStack):
+			self.move(self.cardspritegroup, 0)
+		elif isinstance(self.cardspritegroup, LaidOutCards):
+			emptyslots = self.cardspritegroup.empty_slots
+			self._idx = 0
+			if self._idx in emptyslots:
+				self.moveright()
+
+	def toggle_highlighted(self):
+		"""
+		Highlights the currently selected CardSprite.
+		"""
+		sprite = self.cardspritegroup[self._idx]
+		sprite.sethighlighted(not sprite.highlighted)
 
 
 class CursorManager(object):
-	
-	def __init__(self):
-		self.cursors = []
-		self.current_cursor_idx = 0
-		self.selected = [] # TODO
-		# if the cursormanager is blocked you cannot switch between
-		# cursors:
-		self.blocked = False
-			
-	def add(self, cursor):
-		self.cursors.append(cursor)
-	
-	@property
-	def current_cursor(self):
-		return self.cursors[self.current_cursor_idx]
-	
-	@property
-	def current_idx(self):
-		return self.current_cursor_idx
+	def __init__(self, spritegroups):
+		if len(spritegroups) == 0:
+			raise ValueError("you need to give the CursorManager at least 1 SpriteGroup")
+		self._spritegroups = spritegroups
+		self._groupidx = 0
+		print len(self.curgroup)
+		self._cursor = Cursor(self.curgroup)
+		self._inactive = [] # the indices of inactive groups
 		
-	def switchcursor(self):
-		"""
-		Switches to the next cursor in self.cursors. If we are already at
-		the last one, we begin again with the first.
-		"""
-		self.current_cursor_idx = (self.current_cursor_idx+1)%len(self.cursors)
-		if self.cursors[self.current_cursor_idx].active:
-			self.cursors[self.current_cursor_idx].reset()
-		else:
-			self.switchcursor() # TODO: avoid infinite loop when all cursors are deactivated
+	@property
+	def curgroup(self):
+		return self._spritegroups[self._groupidx]
 
-	def select_card(self):
-		cardspritegroup = self.current_cursor.cardspritegroup
-		if cardspritegroup == None:
-			raise ValueError("Cardspritegroup of current cursor is None")
-		idx = self.current_cursor.curstep
-		sprite = cardspritegroup[idx]
-		sprite.sethighlighted(not sprite.highlighted)
-		
-		
+	@property
+	def cursor(self):
+		return self._cursor
+
+	# TODO: needed?
+	def toggle_inactive(self, groupidx):
+		if groupidx in self._inactive:
+			self._inactive.remove(groupidx)
+		else:
+			self._inactive.append(groupidx)
 	
+	def next_group(self):
+		self._groupidx = (self._groupidx+1)%len(self._spritegroups)
+		if len(self.curgroup) == 0 or self._groupidx in self._inactive:
+			self.next_group()
+		else:
+			self._cursor.move(self.curgroup,0) # this must be the first non-empty

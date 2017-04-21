@@ -15,6 +15,14 @@ class HiddenCardSprite(pg.sprite.Sprite):
 		self.rect.x = xpos
 		self.rect.y = ypos
 
+	@property
+	def xpos(self):
+		return self.rect.x
+
+	@property
+	def ypos(self):
+		return self.rect.y
+	
 
 class CardSprite(pg.sprite.Sprite):
 	"""
@@ -49,6 +57,14 @@ class CardSprite(pg.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.x = xpos
 		self.rect.y = ypos
+
+	@property
+	def xpos(self):
+		return self.rect.x
+
+	@property
+	def ypos(self):
+		return self.rect.y
 
 	def _get_image_path(self, highlighted=False):
 		"""

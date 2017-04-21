@@ -38,6 +38,9 @@ class CardSpriteGroup(pg.sprite.OrderedUpdates):
 		"""
 		return self.spritelist[idx]
 
+	def __len__(self):
+		return len(self.spritelist)
+
 	def alignment_allowed(self, alignment):
 		"""
 		Not all alignments are allowed for every type of

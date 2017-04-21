@@ -20,8 +20,7 @@ class MainWindow:
 		# determines whether the main loop (see method run) is executed further. Will be set to false by the controller, when a QuitRequest is send.
 		self.running = True
 		self._create_sprites()
-		self._create_cursors()
-		self.update()
+		#self.update()
 
 	def _create_sprites(self):
 		"""
@@ -41,25 +40,28 @@ class MainWindow:
 		self.vup = LaidOutCards(VUP_X,VUP_Y,alignment=Align.RIGHT,visible=True)
 		
 	def _create_cursors(self):
-		self.phandcursor = Cursor(PHANDCURSOR_X,PHANDCURSOR_Y)
-		self.phandcursor.cardspritegroup = self.phand
-		self.pupcursor = SlotCursor(PUPCURSOR_X,PUPCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
-		self.pupcursor.cardspritegroup = self.pup
-		self.pdowncursor = SlotCursor(PDOWNCURSOR_X,PDOWNCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
-		self.pdowncursor.active = False
-		self.dpilecursor = Cursor(DPILECURSOR_X, DPILECURSOR_Y) # stepwidth doesnt matter because there is only one cursor position
-		self.dpilecursor.active = False
-		# create list of all cursors:
-		self.curmgr = CursorManager()
-		self.curmgr.add(self.phandcursor)
-		self.curmgr.add(self.pupcursor)
-		self.curmgr.add(self.pdowncursor)
-		self.curmgr.add(self.dpilecursor)
-		self.cursors = [self.phandcursor, self.pupcursor, self.pdowncursor, self.dpilecursor] ## TODO: remove
-		#self.cur_cursor_idx = 0 # the index of the current cursor
-		# Only one cursor is displayed at a moment. This spritegroup only contains that cursor:
+		spritegroups_with_cursor = [self.phand, self.pup, self.pdown, self.dpile]
+		self.curmgr = CursorManager(spritegroups_with_cursor)
+		self.curmgr.toggle_inactive(2) # downcards inactive
+		#~ self.phandcursor = Cursor(PHANDCURSOR_X,PHANDCURSOR_Y)
+		#~ self.phandcursor.cardspritegroup = self.phand
+		#~ self.pupcursor = SlotCursor(PUPCURSOR_X,PUPCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
+		#~ self.pupcursor.cardspritegroup = self.pup
+		#~ self.pdowncursor = SlotCursor(PDOWNCURSOR_X,PDOWNCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
+		#~ self.pdowncursor.active = False
+		#~ self.dpilecursor = Cursor(DPILECURSOR_X, DPILECURSOR_Y) # stepwidth doesnt matter because there is only one cursor position
+		#~ self.dpilecursor.active = False
+		#~ # create list of all cursors:
+		#~ self.curmgr = CursorManager()
+		#~ self.curmgr.add(self.phandcursor)
+		#~ self.curmgr.add(self.pupcursor)
+		#~ self.curmgr.add(self.pdowncursor)
+		#~ self.curmgr.add(self.dpilecursor)
+		#~ self.cursors = [self.phandcursor, self.pupcursor, self.pdowncursor, self.dpilecursor] ## TODO: remove
+		#~ #self.cur_cursor_idx = 0 # the index of the current cursor
+		#~ # Only one cursor is displayed at a moment. This spritegroup only contains that cursor:
 		self.current_cursor = pg.sprite.Group()
-		self.current_cursor.add(self.curmgr.current_cursor)
+		self.current_cursor.add(self.curmgr.cursor)
 		
 		
 	def run(self):
@@ -68,6 +70,7 @@ class MainWindow:
 		"""
 		# The first thing that is send to the controller is the request for the initial board:
 		self.listener(RequestInitialBoard())
+		self._create_cursors()
 		# Main loop:
 		while self.running:
 			self.clock.tick(FRAMERATE)
@@ -79,19 +82,21 @@ class MainWindow:
 					req = RequestQuit()
 				# switch between active cursors using the tab key:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_TAB:
-					self.curmgr.switchcursor()
-					self.current_cursor.empty()
-					self.current_cursor.add(self.curmgr.current_cursor)
+					self.curmgr.next_group()
+					#self.current_cursor.empty()
+					#self.current_cursor.add(self.curmgr.current_cursor)
 				# move cursor to the left:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_LEFT:
-					self.cursors[self.curmgr.current_idx].moveleft()
+					self.curmgr.cursor.moveleft()
+					#self.cursors[self.curmgr.current_idx].moveleft()
 					self.update()
 				# move cursor to the right:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_RIGHT:
-					self.cursors[self.curmgr.current_idx].moveright()
+					self.curmgr.cursor.moveright()
+					#self.cursors[self.curmgr.current_idx].moveright()
 					self.update()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-					self.curmgr.select_card()
+					self.curmgr.cursor.toggle_highlighted()
 				if req:
 					self.listener(req)
 				self.update()
@@ -116,23 +121,23 @@ class MainWindow:
 		Updates the players hand with a new list of cardstrings.
 		"""
 		self.phand.update(cardstrs)
-		self.cursors[0].setnumsteps(len(cardstrs))
+		#self.cursors[0].setnumsteps(len(cardstrs))
 
 	def update_pupcards(self, cardstrs):
 		"""
 		Update the players upcards with a new list of cardstrings.
 		"""
 		self.pup.update(cardstrs)
-		self.pupcursor.empty_slots = self.pup.empty_slots
-		self.pupcursor.setnumsteps(len(cardstrs))
+		#self.pupcursor.empty_slots = self.pup.empty_slots
+		#self.pupcursor.setnumsteps(len(cardstrs))
 
 	def update_pdowncards(self, cardstrs):
 		"""
 		Update the players downcards with a new list of cardstrings.
 		"""
 		self.pdown.update(cardstrs)
-		self.pdowncursor.empty_slots = self.pdown.empty_slots
-		self.pdowncursor.setnumsteps(len(cardstrs))
+		#self.pdowncursor.empty_slots = self.pdown.empty_slots
+		#self.pdowncursor.setnumsteps(len(cardstrs))
 
 	def update_vhand(self, cardstrs):
 		"""Updates the villains hand with a new list of cardstrings."""
@@ -159,8 +164,6 @@ class MainWindow:
 		Updates all the spritegroups and redraws the screen:
 		"""
 		self.screen.fill(GREEN)
-		self.current_cursor.update() # TODO: necessary?
-		self.current_cursor.draw(self.screen)
 		self.phand.draw(self.screen)
 		self.pdown.draw(self.screen)
 		self.pup.draw(self.screen)
@@ -169,6 +172,8 @@ class MainWindow:
 		self.vhand.draw(self.screen)
 		self.vdown.draw(self.screen)
 		self.vup.draw(self.screen)
+		self.current_cursor.update() # TODO: necessary?
+		self.current_cursor.draw(self.screen)
 		# draw the new frame:
 		pg.display.flip()
 		
