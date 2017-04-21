@@ -57,7 +57,7 @@ class MainWindow:
 		#self.cur_cursor_idx = 0 # the index of the current cursor
 		# Only one cursor is displayed at a moment. This spritegroup only contains that cursor:
 		self.current_cursor = pg.sprite.Group()
-		self.current_cursor.add(self.curmgr.get_current_cursor())
+		self.current_cursor.add(self.curmgr.current_cursor)
 		
 		
 	def run(self):
@@ -82,11 +82,11 @@ class MainWindow:
 					self.current_cursor.add(self.curmgr.get_current_cursor())
 				# move cursor to the left:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_LEFT:
-					self.cursors[self.curmgr.get_current_idx()].moveleft()
+					self.cursors[self.curmgr.current_idx].moveleft()
 					self.update()
 				# move cursor to the right:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_RIGHT:
-					self.cursors[self.curmgr.get_current_idx()].moveright()
+					self.cursors[self.curmgr.current_idx].moveright()
 					self.update()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
 					self._select_card()
@@ -96,15 +96,15 @@ class MainWindow:
 	
 	def _select_card(self):
 		# TODO: this could be done more elegantly:
-		if self.curmgr.get_current_idx() == 0:
+		if self.curmgr.current_idx == 0:
 			spritegroup = self.phand
-		elif self.curmgr.get_current_idx() == 1:
+		elif self.curmgr.current_idx == 1:
 			spritegroup = self.pup
-		elif self.curmgr.get_current_idx() == 2:
+		elif self.curmgr.current_idx == 2:
 			spritegroup = self.pdown
 		else:
 			spritegroup = self.dpile
-		idx = self.cursors[self.curmgr.get_current_idx()].curstep
+		idx = self.cursors[self.curmgr.current_idx].curstep
 		sprite = spritegroup.spritelist[idx] # here we need the additional spritelist
 		sprite.sethighlighted(not sprite.highlighted)
 		

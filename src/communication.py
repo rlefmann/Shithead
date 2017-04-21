@@ -1,7 +1,7 @@
 # These are the classes needed for communication between the components
 # of the MVC framework.
 
-
+# TODO: remove?
 collectionstrings = ["phand","pupcards","pdowncards","vhand","vdowncards","deck","discardpile","graveyard"]
 
 # Requests are what is send by the controller between the model and the view and are the basic messages of the mvc pattern

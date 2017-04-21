@@ -85,7 +85,7 @@ class SlotCursor(Cursor):
 			self.moveright() 
 
 
-class CursorManager:
+class CursorManager(object):
 	
 	def __init__(self):
 		self.cursors = []
@@ -94,11 +94,13 @@ class CursorManager:
 		
 	def add(self, cursor):
 		self.cursors.append(cursor)
-		
-	def get_current_cursor(self):
+	
+	@property
+	def current_cursor(self):
 		return self.cursors[self.current_cursor_idx]
-		
-	def get_current_idx(self):
+	
+	@property
+	def current_idx(self):
 		return self.current_cursor_idx
 		
 	def switchcursor(self):
@@ -111,3 +113,4 @@ class CursorManager:
 			self.cursors[self.current_cursor_idx].reset()
 		else:
 			self.switchcursor() # TODO: avoid infinite loop when all cursors are deactivated
+
