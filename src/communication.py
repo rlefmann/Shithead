@@ -1,5 +1,10 @@
-# Requests are what is send by the controller between the model and the view and are the basic messages of the mvc pattern
+# These are the classes needed for communication between the components
+# of the MVC framework.
 
+
+collectionstrings = ["phand","pupcards","pdowncards","vhand","vdowncards","deck","discardpile","graveyard"]
+
+# Requests are what is send by the controller between the model and the view and are the basic messages of the mvc pattern
 
 class Request:
 	"""A generic request that is the base class of all other requests."""

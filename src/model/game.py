@@ -48,6 +48,17 @@ class Game:
 		self.curplayer = self._findfirstplayer()
 		self.curplayer = 0 # TODO: remove
 		
+		self.decode_collectionstring = {
+			"phand": self.players[0].hand,
+			"pupcards": self.players[0].upcards,
+			"pdowncards": self.players[0].downcards,
+			"vhand": self.players[1].hand,
+			"vupcards": self.players[1].upcards,
+			"vdowncards": self.players[1].downcards,
+			"deck": self.deck,
+			"discardpile": self.discardpile
+		}
+		
 	def _initialdeal(self):
 		"""
 		Distributes the initial number of cards specified in the settings
