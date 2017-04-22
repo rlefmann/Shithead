@@ -11,8 +11,20 @@ class Cursor(pg.sprite.Sprite):
 	def __init__(self, spritegroup):
 		super(Cursor, self).__init__()
 		self._blocked = False
-		self.image = pg.image.load("./img/frame.png").convert_alpha()
-		self.image = pg.transform.scale(self.image, CARDSIZE)
+
+		self._images = {}
+		# create cursor image for when the whole card is visible:
+		img = pg.image.load("./img/frame.png").convert_alpha()
+		img = pg.transform.scale(img, CARDSIZE)
+		self._images[False] = img
+
+		# create cursor image for when the card is overlapped:
+		img = pg.image.load("./img/frameoverlap.png").convert_alpha()
+		img = pg.transform.scale(img, CARDSIZE)
+		self._images[True] = img
+
+		self.image = self._images[False]
+		
 		self.rect = self.image.get_rect()
 		self.cardspritegroup = spritegroup
 		self.move(self.cardspritegroup,0) # TODO: is this okay (idx=0)?
@@ -28,11 +40,18 @@ class Cursor(pg.sprite.Sprite):
 		self._cardspritegroup = newgroup
 
 	def move(self, spritegroup, idx):
-		if not isinstance(self.cardspritegroup, CardStack):
+		if not isinstance(self.cardspritegroup, CardStack): # TODO: where is this for? Makes no sense to me
 			self.rect.x = spritegroup[idx].xpos
 			self.rect.y = spritegroup[idx].ypos
 			self.cardspritegroup = spritegroup
 			self._idx = idx
+			# change the width of the frame depending on whether we have
+			# selected an overlapped card or not:
+			if isinstance(self.cardspritegroup, SpreadCards) and idx < len(self.cardspritegroup)-1:
+				self.image = self._images[True]
+			else:
+				self.image = self._images[False]
+				
 
 	def moveleft(self):
 		"""
