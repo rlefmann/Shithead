@@ -3,7 +3,7 @@ import pygame as pg
 from constants import *
 from ..requests import *
 from cardspritegroups import *
-from cursors import *
+from cursor import *
 
 class MainWindow:
 	"""
