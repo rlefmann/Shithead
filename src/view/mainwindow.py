@@ -39,27 +39,11 @@ class MainWindow:
 		self.vdown = LaidOutCards(VDOWN_X,VDOWN_Y,alignment=Align.RIGHT,visible=False)
 		self.vup = LaidOutCards(VUP_X,VUP_Y,alignment=Align.RIGHT,visible=True)
 		
-	def _create_cursors(self):
+	def _create_cursor(self):
 		spritegroups_with_cursor = [self.phand, self.pup, self.pdown, self.dpile]
 		self.curmgr = CursorManager(spritegroups_with_cursor)
 		self.curmgr.toggle_inactive(2) # downcards inactive
-		#~ self.phandcursor = Cursor(PHANDCURSOR_X,PHANDCURSOR_Y)
-		#~ self.phandcursor.cardspritegroup = self.phand
-		#~ self.pupcursor = SlotCursor(PUPCURSOR_X,PUPCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
-		#~ self.pupcursor.cardspritegroup = self.pup
-		#~ self.pdowncursor = SlotCursor(PDOWNCURSOR_X,PDOWNCURSOR_Y, stepwidth=PUPDOWNCURSOR_STEPWIDTH)
-		#~ self.pdowncursor.active = False
-		#~ self.dpilecursor = Cursor(DPILECURSOR_X, DPILECURSOR_Y) # stepwidth doesnt matter because there is only one cursor position
-		#~ self.dpilecursor.active = False
-		#~ # create list of all cursors:
-		#~ self.curmgr = CursorManager()
-		#~ self.curmgr.add(self.phandcursor)
-		#~ self.curmgr.add(self.pupcursor)
-		#~ self.curmgr.add(self.pdowncursor)
-		#~ self.curmgr.add(self.dpilecursor)
-		#~ self.cursors = [self.phandcursor, self.pupcursor, self.pdowncursor, self.dpilecursor] ## TODO: remove
-		#~ #self.cur_cursor_idx = 0 # the index of the current cursor
-		#~ # Only one cursor is displayed at a moment. This spritegroup only contains that cursor:
+		# This is the spritegroup necessary to display the cursor:
 		self.current_cursor = pg.sprite.Group()
 		self.current_cursor.add(self.curmgr.cursor)
 		
@@ -70,7 +54,7 @@ class MainWindow:
 		"""
 		# The first thing that is send to the controller is the request for the initial board:
 		self.listener(RequestInitialBoard())
-		self._create_cursors()
+		self._create_cursor()
 		# Main loop:
 		while self.running:
 			self.clock.tick(FRAMERATE)
@@ -83,38 +67,22 @@ class MainWindow:
 				# switch between active cursors using the tab key:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_TAB:
 					self.curmgr.next_group()
-					#self.current_cursor.empty()
-					#self.current_cursor.add(self.curmgr.current_cursor)
 				# move cursor to the left:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_LEFT:
 					self.curmgr.cursor.moveleft()
-					#self.cursors[self.curmgr.current_idx].moveleft()
 					self.update()
 				# move cursor to the right:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_RIGHT:
 					self.curmgr.cursor.moveright()
-					#self.cursors[self.curmgr.current_idx].moveright()
 					self.update()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
 					self.curmgr.cursor.toggle_highlighted()
+					self.curmgr.toggle_blocked()
+				elif event.type == pg.KEYDOWN and event.key == pg.K_RETURN:
+					print "return pressed" # TODO: replace
 				if req:
 					self.listener(req)
-				self.update()
-	
-	#~ def _select_card(self):
-		#~ # TODO: this could be done more elegantly:
-		#~ if self.curmgr.current_idx == 0:
-			#~ spritegroup = self.phand
-		#~ elif self.curmgr.current_idx == 1:
-			#~ spritegroup = self.pup
-		#~ elif self.curmgr.current_idx == 2:
-			#~ spritegroup = self.pdown
-		#~ else:
-			#~ spritegroup = self.dpile
-		#~ idx = self.cursors[self.curmgr.current_idx].curstep
-		#~ sprite = spritegroup.spritelist[idx] # here we need the additional spritelist
-		#~ sprite.sethighlighted(not sprite.highlighted)
-		
+				self.update()	
 		
 	def update_phand(self, cardstrs):
 		"""
@@ -176,17 +144,3 @@ class MainWindow:
 		self.current_cursor.draw(self.screen)
 		# draw the new frame:
 		pg.display.flip()
-		
-	#~ def switchcursor(self):
-		#~ """
-		#~ Switches to the next cursor in self.cursors. If we are already at
-		#~ the last one, we begin again with the first.
-		#~ """
-		#~ self.cur_cursor_idx = (self.cur_cursor_idx+1)%len(self.cursors)
-		#~ if self.cursors[self.cur_cursor_idx].active:
-			#~ self.current_cursor.empty()
-			#~ self.current_cursor.add(self.cursors[self.cur_cursor_idx])
-			#~ self.cursors[self.cur_cursor_idx].reset()
-		#~ else:
-			#~ self.switchcursor() # TODO: avoid infinite loop when all cursors are deactivated
-		

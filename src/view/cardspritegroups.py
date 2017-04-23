@@ -25,7 +25,6 @@ class CardSpriteGroup(pg.sprite.OrderedUpdates):
 		self.xpos = xpos
 		self.ypos = ypos
 		# this is a separate list of sprites we need to keep:
-		# TODO: what for?
 		self.spritelist = []
 		self.visible = visible
 		if not self.alignment_allowed(alignment):

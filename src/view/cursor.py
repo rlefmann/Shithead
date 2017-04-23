@@ -28,6 +28,8 @@ class Cursor(pg.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.cardspritegroup = spritegroup
 		self.move(self.cardspritegroup,0) # TODO: is this okay (idx=0)?
+		self._selected_indices = []
+		
 
 	@property
 	def cardspritegroup(self):
@@ -103,6 +105,10 @@ class Cursor(pg.sprite.Sprite):
 		Highlights the currently selected CardSprite.
 		"""
 		sprite = self.cardspritegroup[self._idx]
+		if not sprite.highlighted:
+			self._selected_indices.append(self._idx)
+		else:
+			self._selected_indices.remove(self._idx)
 		sprite.sethighlighted(not sprite.highlighted)
 
 
@@ -115,6 +121,8 @@ class CursorManager(object):
 		print len(self.curgroup)
 		self._cursor = Cursor(self.curgroup)
 		self._inactive = [] # the indices of inactive groups
+		# If the cursor is blocked it cannot switch between groups anymore:
+		self._blocked = False
 		
 	@property
 	def curgroup(self):
@@ -124,7 +132,9 @@ class CursorManager(object):
 	def cursor(self):
 		return self._cursor
 
-	# TODO: needed?
+	def is_blocked(self):
+		return self._blocked
+	
 	def toggle_inactive(self, groupidx):
 		if groupidx in self._inactive:
 			self._inactive.remove(groupidx)
@@ -132,8 +142,12 @@ class CursorManager(object):
 			self._inactive.append(groupidx)
 	
 	def next_group(self):
-		self._groupidx = (self._groupidx+1)%len(self._spritegroups)
-		if len(self.curgroup) == 0 or self._groupidx in self._inactive:
-			self.next_group()
-		else:
-			self._cursor.move(self.curgroup,0) # this must be the first non-empty
+		if not self.is_blocked():
+			self._groupidx = (self._groupidx+1)%len(self._spritegroups)
+			if len(self.curgroup) == 0 or self._groupidx in self._inactive:
+				self.next_group()
+			else:
+				self._cursor.move(self.curgroup,0) # this must be the first non-empty
+
+	def toggle_blocked(self):
+		self._blocked = not self._blocked
