@@ -39,7 +39,10 @@ class Cursor(pg.sprite.Sprite):
 	@property
 	def curgroup(self):
 		return self._spritegroups[self._groupidx]
-
+		
+	@property
+	def selected_indices(self):
+		return self._selected_indices
 
 	def next_group(self):
 		if not self.is_blocked():

@@ -1,10 +1,17 @@
 # These are the classes needed for communication between the components
 # of the MVC framework.
 
+from enum import Enum
+
 # TODO: remove?
-collectionstrings = ["phand","pupcards","pdowncards","vhand","vdowncards","deck","discardpile","graveyard"]
+#collectionstrings = ["phand","pupcards","pdowncards","vhand","vdowncards","deck","discardpile","graveyard"]
 
 # Requests are what is send by the controller between the model and the view and are the basic messages of the mvc pattern
+
+class SourceCollection(Enum):
+	HAND = 1
+	UPCARDS = 2
+	DOWNCARDS = 3
 
 class Request:
 	"""A generic request that is the base class of all other requests."""
@@ -37,8 +44,9 @@ class RequestPlay(Request):
 
 	The cards are handed to the request via the `indices` argument of the constructor.
 	"""
-	def __init__(self, indices):
+	def __init__(self, src, indices):
 		self.name = "request play"
+		self.src = src
 		self.indices = indices
 
 

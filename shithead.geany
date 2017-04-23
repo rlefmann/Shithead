@@ -28,15 +28,11 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=4
-FILE_NAME_0=1126;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fcardsprite.py;0;4
-FILE_NAME_1=4069;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fmainwindow.py;0;4
-FILE_NAME_2=5010;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fcardspritegroups.py;0;4
-FILE_NAME_3=1045;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fconstants.py;0;4
-FILE_NAME_4=2869;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fcursors.py;0;4
-FILE_NAME_5=112;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fcommunication.py;0;4
-FILE_NAME_6=2505;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fmodel%2Fgame.py;0;4
-FILE_NAME_7=0;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fmodel%2Faction.py;0;4
+current_page=1
+FILE_NAME_0=2365;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fcontroller.py;0;4
+FILE_NAME_1=760;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fmainwindow.py;0;4
+FILE_NAME_2=1260;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fcursor.py;0;4
+FILE_NAME_3=695;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fcardspritegroups.py;0;4
 
 [VTE]
 last_dir=/home/lefmann

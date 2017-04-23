@@ -1,7 +1,7 @@
 import pygame as pg
 
 from constants import *
-from ..requests import *
+from ..communication import *
 from cardspritegroups import *
 from cursor import *
 
@@ -77,13 +77,26 @@ class MainWindow:
 					self.update()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
 					self.cursor.toggle_highlighted()
-					#self.cursor.toggle_blocked()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_RETURN:
 					print "return pressed" # TODO: replace
+					indices = self.cursor.selected_indices
+					if len(indices) > 0:
+						g = self.cursor.curgroup 
+						if g == self.phand:
+							req = RequestPlay(SourceCollection.HAND, indices)
+						elif g == self.pup:
+							req = RequestPlay(SourceCollection.UPCARDS, indices)
+						elif g == self.pdown:
+							req = RequestPlay(SourceCollection.DOWNCARDS, indices)
+						elif g == self.dpile:
+							req = RequestTake()
+						else:
+							raise Error("you cannot do this!") # TODO: more descriptive message
+				# send request to controller:
 				if req:
 					self.listener(req)
 				self.update()	
-		
+	
 	def update_phand(self, cardstrs):
 		"""
 		Updates the players hand with a new list of cardstrings.
