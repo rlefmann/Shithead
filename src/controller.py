@@ -57,13 +57,13 @@ class Controller:
 
 	def _on_request_initial_board(self):
 		# update heroes hand, upcards and downcards:
-		self.view.update_phand(self.game.phand())
-		self.view.update_pupcards(self.game.pupcards())
-		self.view.update_pdowncards(self.game.pdowncards())
+		self.view.update_phand(self.game.phand)
+		self.view.update_pupcards(self.game.pupcards)
+		self.view.update_pdowncards(self.game.pdowncards)
 		# update villains hand, upcards and downcards:
-		self.view.update_vhand(self.game.vhand())
-		self.view.update_vupcards(self.game.vupcards())
-		self.view.update_vdowncards(self.game.vdowncards())
+		self.view.update_vhand(self.game.vhand)
+		self.view.update_vupcards(self.game.vupcards)
+		self.view.update_vdowncards(self.game.vdowncards)
 		# update deck and discardpile:
-		self.view.update_deck(self.game.deck())
-		self.view.update_discardpile(self.game.discardpile())
+		self.view.update_deck(self.game.deck)
+		self.view.update_discardpile(self.game.discardpile)
