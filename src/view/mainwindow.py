@@ -41,12 +41,12 @@ class MainWindow:
 		
 	def _create_cursor(self):
 		spritegroups_with_cursor = [self.phand, self.pup, self.pdown, self.dpile]
-		self.curmgr = CursorManager(spritegroups_with_cursor)
-		self.curmgr.toggle_inactive(2) # downcards inactive
+		self.cursor = Cursor(spritegroups_with_cursor)
+		self.cursor.toggle_inactive(2) # downcards inactive
 		# This is the spritegroup necessary to display the cursor:
 		self.current_cursor = pg.sprite.Group()
-		self.current_cursor.add(self.curmgr.cursor)
-		
+		self.current_cursor.add(self.cursor)
+		# TODO: this can be put into a global spritegroup
 		
 	def run(self):
 		"""
@@ -66,18 +66,18 @@ class MainWindow:
 					req = RequestQuit()
 				# switch between active cursors using the tab key:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_TAB:
-					self.curmgr.next_group()
+					self.cursor.next_group()
 				# move cursor to the left:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_LEFT:
-					self.curmgr.cursor.moveleft()
+					self.cursor.moveleft()
 					self.update()
 				# move cursor to the right:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_RIGHT:
-					self.curmgr.cursor.moveright()
+					self.cursor.moveright()
 					self.update()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-					self.curmgr.cursor.toggle_highlighted()
-					self.curmgr.toggle_blocked()
+					self.cursor.toggle_highlighted()
+					#self.cursor.toggle_blocked()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_RETURN:
 					print "return pressed" # TODO: replace
 				if req:
@@ -89,15 +89,12 @@ class MainWindow:
 		Updates the players hand with a new list of cardstrings.
 		"""
 		self.phand.update(cardstrs)
-		#self.cursors[0].setnumsteps(len(cardstrs))
 
 	def update_pupcards(self, cardstrs):
 		"""
 		Update the players upcards with a new list of cardstrings.
 		"""
 		self.pup.update(cardstrs)
-		#self.pupcursor.empty_slots = self.pup.empty_slots
-		#self.pupcursor.setnumsteps(len(cardstrs))
 
 	def update_pdowncards(self, cardstrs):
 		"""
