@@ -1,7 +1,7 @@
 import pygame as pg
 
 from constants import *
-from ..communication import *
+from ..requests import *
 from cardspritegroups import *
 from cursor import *
 

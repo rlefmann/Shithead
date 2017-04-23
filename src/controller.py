@@ -49,7 +49,7 @@ class Controller:
 		elif isinstance(request, RequestInitialBoard):
 			self._on_request_initial_board()
 		elif isinstance(request, RequestPlay):
-			pass # TODO: handle request
+			self._on_request_play(request)
 		elif isinstance(request, RequestTake):
 			pass # TODO: handle request
 		else:
@@ -67,3 +67,7 @@ class Controller:
 		# update deck and discardpile:
 		self.view.update_deck(self.game.deck)
 		self.view.update_discardpile(self.game.discardpile)
+		
+	def _on_request_play(self, req):
+		if self.game.is_possible_action(req):
+			self.game.play(req)

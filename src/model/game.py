@@ -1,5 +1,5 @@
 from cards import *
-from action import *
+from ..requests import *
 
 class Player:
 	"""
@@ -69,17 +69,50 @@ class Game:
 		# TODO: implement
 		return 0
 
-	def is_possible_action(self, action):
+	def is_possible_action(self, request):
 		"""
-		Checks whether an action a player has chosen is valid or not.
+		Checks whether a request a player has chosen is possible or not.
 		"""
-		if not isinstance(action, Action):
-			raise Exception("something other than an action was senf to is_possible_action")
-		elif isinstance(action, TakeAction):
-			print "take action"
-		elif isinstance(action, PlayAction):
-			print "play action"
-		return True # TODO: implement. This is just a skeleton
+		if not isinstance(request, Request):
+			raise Exception("something other than a request was sent to is_possible_action")
+		elif isinstance(request, RequestTake):
+			# the discard pile must contain cards
+			return len(self._discardpile) > 0
+		elif isinstance(request, RequestPlay):
+			# get the cardcollection specified by the src of the request:
+			if request.src == SourceCollection.HAND:
+				src_coll = self._players[self._curplayer].hand
+			elif request.src == SourceCollection.UPCARDS:
+				src_coll = self._players[self._curplayer].upcards
+			else:
+				src_coll = self._players[self._curplayer].downcards
+			# check if cardcollection contains cards:
+			if len(src_coll) == 0:
+				return False
+			
+			# get rank of first chosen card:
+			rank = src_coll[request.indices[0]].rank
+			# iterate over indices:
+			for idx in request.indices:
+				# check if indices are valid and if rank of all cards is the same
+				if idx<0 or idx>= len(src_coll):
+					return False
+				elif src_coll[idx].rank != rank:
+					print "cards at indices have different ranks"
+					return False
+			# check if cards are playable
+			return rank >= self._minval or rank == self._settings["INVISIBLE"] or rank == self._settings["BURN"]
+		else:
+			raise TypeError("the game class can only handle take and play requests")
+
+	def play(self, playreq):
+		"""
+		Places the cards specified in the playreq on the discard pile.
+		Note that the validity of the move is NOT checked. You have to
+		use is_possible_action first.
+		"""
+		print "play!"+str(playreq.indices) # TODO: implement
+		
 
 	@property
 	def phand(self):
