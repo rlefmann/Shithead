@@ -85,6 +85,7 @@ class Game:
 			if len(src_coll) == 0:
 				return False
 			# get rank of first chosen card:
+			print src_coll[request.indices[0]]
 			rank = src_coll[request.indices[0]].rank
 			# iterate over indices:
 			for idx in request.indices:
@@ -135,8 +136,12 @@ class Game:
 				print "player has redrawn "+str(len(cards))+" cards"
 			# sort hand:
 			src_coll.sort()
-		
 
+	def take(self):
+		cards = self._discardpile.removeall()
+		hand = self._players[self._curplayer].hand
+		hand.add(cards)
+		
 	@property
 	def phand(self):
 		"""Returns the players hand as a list of cardstrings."""
@@ -176,3 +181,15 @@ class Game:
 	def discardpile(self):
 		"""Returns the discardpile as a list of cardstrings"""
 		return self._discardpile.cardstrings()
+
+	@property
+	def curhand(self):
+		return self._players[self._curplayer].hand.cardstrings()
+
+	@property
+	def curupcards(self):
+		return self._players[self._curplayer].upcards.cardstrings()
+
+	@property
+	def curdowncards(self):
+		return self._players[self._curplayer].downcards.cardstrings()

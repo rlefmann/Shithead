@@ -51,7 +51,7 @@ class Controller:
 		elif isinstance(request, RequestPlay):
 			self._on_request_play(request)
 		elif isinstance(request, RequestTake):
-			pass # TODO: handle request
+			self._on_request_take(request)
 		else:
 			raise Exception("the controller can't handle this request")
 
@@ -76,6 +76,14 @@ class Controller:
 			if req.src == SourceCollection.HAND:
 				self.view.update_phand(self.game.phand)
 			elif req.src == SourceCollection.UPCARDS:
-				self.view.update_pup(self.game.upcards)
+				self.view.update_pupcards(self.game.pupcards)
 			else:
-				self.view.update_pdown(self.game.downcards)
+				self.view.update_pdowncards(self.game.pdowncards)
+			self.view.reset_cursor()
+			self.view.update()
+
+	def _on_request_take(self, req):
+		if self.game.is_possible_action(req):
+			self.game.take()
+			self.view.update_discardpile(self.game.discardpile)
+			self.view.update_phand(self.game.curhand)

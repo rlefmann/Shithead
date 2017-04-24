@@ -28,9 +28,9 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=1
+current_page=3
 FILE_NAME_0=2365;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fcontroller.py;0;4
-FILE_NAME_1=760;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fmainwindow.py;0;4
+FILE_NAME_1=3768;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fmainwindow.py;0;4
 FILE_NAME_2=1260;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fcursor.py;0;4
 FILE_NAME_3=695;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fcardspritegroups.py;0;4
 

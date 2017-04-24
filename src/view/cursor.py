@@ -110,13 +110,20 @@ class Cursor(pg.sprite.Sprite):
 		TODO: what happens if all the slots are empty?
 		TODO: does this make sense or should we also jump back to group 0?
 		"""
-		if isinstance(self.curgroup, SpreadCards) or isinstance(self.curgroup, CardStack):
-			self._move(self.curgroup, 0)
-		elif isinstance(self.curgroup, LaidOutCards):
-			emptyslots = self.curgroup.empty_slots
-			self._cardidx = 0
-			if self._cardidx in emptyslots:
-				self.moveright()
+		# remove highlighting:
+		for idx in self._selected_indices:
+			sprite = self.curgroup[idx]
+			sprite.sethighlighted(False)
+			self._selected_indices.remove(idx)
+
+		self._move(0,0)
+		#~ if isinstance(self.curgroup, SpreadCards) or isinstance(self.curgroup, CardStack):
+			#~ self._move(0, 0) # 
+		#~ elif isinstance(self.curgroup, LaidOutCards):
+			#~ emptyslots = self.curgroup.empty_slots
+			#~ self._cardidx = 0
+			#~ if self._cardidx in emptyslots:
+				#~ self.moveright()
 
 	def toggle_highlighted(self):
 		"""

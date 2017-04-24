@@ -78,7 +78,6 @@ class MainWindow:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
 					self.cursor.toggle_highlighted()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_RETURN:
-					print "return pressed" # TODO: replace
 					indices = self.cursor.selected_indices
 					if len(indices) > 0:
 						g = self.cursor.curgroup 
@@ -154,3 +153,6 @@ class MainWindow:
 		self.current_cursor.draw(self.screen)
 		# draw the new frame:
 		pg.display.flip()
+
+	def reset_cursor(self):
+		self.cursor.reset()
