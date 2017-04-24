@@ -71,3 +71,11 @@ class Controller:
 	def _on_request_play(self, req):
 		if self.game.is_possible_action(req):
 			self.game.play(req)
+			# update view:
+			self.view.update_discardpile(self.game.discardpile)
+			if req.src == SourceCollection.HAND:
+				self.view.update_phand(self.game.phand)
+			elif req.src == SourceCollection.UPCARDS:
+				self.view.update_pup(self.game.upcards)
+			else:
+				self.view.update_pdown(self.game.downcards)

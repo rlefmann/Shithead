@@ -80,16 +80,10 @@ class Game:
 			return len(self._discardpile) > 0
 		elif isinstance(request, RequestPlay):
 			# get the cardcollection specified by the src of the request:
-			if request.src == SourceCollection.HAND:
-				src_coll = self._players[self._curplayer].hand
-			elif request.src == SourceCollection.UPCARDS:
-				src_coll = self._players[self._curplayer].upcards
-			else:
-				src_coll = self._players[self._curplayer].downcards
+			src_coll = self._get_collection_from_request(request)
 			# check if cardcollection contains cards:
 			if len(src_coll) == 0:
 				return False
-			
 			# get rank of first chosen card:
 			rank = src_coll[request.indices[0]].rank
 			# iterate over indices:
@@ -104,6 +98,17 @@ class Game:
 			return rank >= self._minval or rank == self._settings["INVISIBLE"] or rank == self._settings["BURN"]
 		else:
 			raise TypeError("the game class can only handle take and play requests")
+			
+	def _get_collection_from_request(self, request):
+		"""
+		Get the cardcollection specified by the src of the request
+		"""
+		if request.src == SourceCollection.HAND:
+			return self._players[self._curplayer].hand
+		elif request.src == SourceCollection.UPCARDS:
+			return self._players[self._curplayer].upcards
+		else:
+			return self._players[self._curplayer].downcards
 
 	def play(self, playreq):
 		"""
@@ -111,7 +116,25 @@ class Game:
 		Note that the validity of the move is NOT checked. You have to
 		use is_possible_action first.
 		"""
-		print "play!"+str(playreq.indices) # TODO: implement
+		print "play! "+str(playreq.indices) # TODO: implement
+		# get the cardcollection specified by the src of the request:
+		src_coll = self._get_collection_from_request(playreq)
+		# put cards from src_coll to discardpile:
+		cards = src_coll.remove(playreq.indices)
+		self._discardpile.add(cards)
+		# adjust minval:
+		self._minval = cards[0].rank # TODO: adjust, when a special card is played
+		print "new minval: "+str(self._minval) # TODO; remove
+		# redraw if src_coll was the players hand and there are cards
+		# left in the deck:
+		if src_coll == self._players[self._curplayer].hand:
+			numcards_missing = self._settings["NCARDS_HAND"] - len(src_coll)
+			if numcards_missing > 0:
+				cards = self._deck.draw(numcards_missing)
+				src_coll.add(cards)
+				print "player has redrawn "+str(len(cards))+" cards"
+			# sort hand:
+			src_coll.sort()
 		
 
 	@property
