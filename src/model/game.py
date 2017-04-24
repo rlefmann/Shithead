@@ -79,6 +79,7 @@ class Game:
 			# the discard pile must contain cards
 			return len(self._discardpile) > 0
 		elif isinstance(request, RequestPlay):
+			print "play " + str(request.indices) # TODO: remove
 			# get the cardcollection specified by the src of the request:
 			src_coll = self._get_collection_from_request(request)
 			# check if cardcollection contains cards:
@@ -105,11 +106,11 @@ class Game:
 		Get the cardcollection specified by the src of the request
 		"""
 		if request.src == SourceCollection.HAND:
-			return self._players[self._curplayer].hand
+			return self.curplayer.hand
 		elif request.src == SourceCollection.UPCARDS:
-			return self._players[self._curplayer].upcards
+			return self.curplayer.upcards
 		else:
-			return self._players[self._curplayer].downcards
+			return self.curplayer.downcards
 
 	def play(self, playreq):
 		"""
@@ -128,7 +129,7 @@ class Game:
 		print "new minval: "+str(self._minval) # TODO; remove
 		# redraw if src_coll was the players hand and there are cards
 		# left in the deck:
-		if src_coll == self._players[self._curplayer].hand:
+		if src_coll == self.curplayer.hand:
 			numcards_missing = self._settings["NCARDS_HAND"] - len(src_coll)
 			if numcards_missing > 0:
 				cards = self._deck.draw(numcards_missing)
@@ -139,7 +140,7 @@ class Game:
 
 	def take(self):
 		cards = self._discardpile.removeall()
-		hand = self._players[self._curplayer].hand
+		hand = self.curplayer.hand
 		hand.add(cards)
 		
 	@property
@@ -193,3 +194,8 @@ class Game:
 	@property
 	def curdowncards(self):
 		return self._players[self._curplayer].downcards.cardstrings()
+
+	@property
+	def curplayer(self):
+		return self._players[self._curplayer]
+		

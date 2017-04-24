@@ -53,6 +53,7 @@ class Cursor(pg.sprite.Sprite):
 				self._move(self._groupidx,0) # this must be the first non-empty
 
 	def _move(self, groupidx, cardidx):
+		print "move to "+str(groupidx)+","+str(cardidx)
 		if not self._is_valid_idx(groupidx, self._spritegroups):
 			raise ValueError("called the _move method with an invalid groupidx")
 		group = self._spritegroups[groupidx]
@@ -64,7 +65,7 @@ class Cursor(pg.sprite.Sprite):
 		self._cardidx = cardidx
 		# change the width of the frame depending on whether we have
 		# selected an overlapped card or not:
-		if isinstance(self.curgroup, SpreadCards) and cardidx < len(group)-1:
+		if isinstance(self.curgroup, SpreadCards) and len(self.curgroup)>1 and cardidx < len(group)-1:
 			self.image = self._images[True]
 		else:
 			self.image = self._images[False]
@@ -114,16 +115,9 @@ class Cursor(pg.sprite.Sprite):
 		for idx in self._selected_indices:
 			sprite = self.curgroup[idx]
 			sprite.sethighlighted(False)
-			self._selected_indices.remove(idx)
+		self._selected_indices = []
 
 		self._move(0,0)
-		#~ if isinstance(self.curgroup, SpreadCards) or isinstance(self.curgroup, CardStack):
-			#~ self._move(0, 0) # 
-		#~ elif isinstance(self.curgroup, LaidOutCards):
-			#~ emptyslots = self.curgroup.empty_slots
-			#~ self._cardidx = 0
-			#~ if self._cardidx in emptyslots:
-				#~ self.moveright()
 
 	def toggle_highlighted(self):
 		"""
@@ -132,6 +126,7 @@ class Cursor(pg.sprite.Sprite):
 		sprite = self.curgroup[self._cardidx]
 		if not sprite.highlighted:
 			self._selected_indices.append(self._cardidx)
+			print self._selected_indices
 		else:
 			self._selected_indices.remove(self._cardidx)
 		sprite.sethighlighted(not sprite.highlighted)

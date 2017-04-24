@@ -70,11 +70,9 @@ class MainWindow:
 				# move cursor to the left:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_LEFT:
 					self.cursor.moveleft()
-					self.update()
 				# move cursor to the right:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_RIGHT:
 					self.cursor.moveright()
-					self.update()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
 					self.cursor.toggle_highlighted()
 				elif event.type == pg.KEYDOWN and event.key == pg.K_RETURN:
@@ -94,7 +92,7 @@ class MainWindow:
 				# send request to controller:
 				if req:
 					self.listener(req)
-				self.update()	
+				self._redraw()	
 	
 	def update_phand(self, cardstrs):
 		"""
@@ -113,8 +111,6 @@ class MainWindow:
 		Update the players downcards with a new list of cardstrings.
 		"""
 		self.pdown.update(cardstrs)
-		#self.pdowncursor.empty_slots = self.pdown.empty_slots
-		#self.pdowncursor.setnumsteps(len(cardstrs))
 
 	def update_vhand(self, cardstrs):
 		"""Updates the villains hand with a new list of cardstrings."""
@@ -136,7 +132,7 @@ class MainWindow:
 		"""Updates the discardpile with a new list of cardstrings."""
 		self.dpile.update(cardstrs)
 	
-	def update(self):
+	def _redraw(self):
 		"""
 		Updates all the spritegroups and redraws the screen:
 		"""
@@ -149,10 +145,10 @@ class MainWindow:
 		self.vhand.draw(self.screen)
 		self.vdown.draw(self.screen)
 		self.vup.draw(self.screen)
-		self.current_cursor.update() # TODO: necessary?
 		self.current_cursor.draw(self.screen)
 		# draw the new frame:
 		pg.display.flip()
 
 	def reset_cursor(self):
 		self.cursor.reset()
+
