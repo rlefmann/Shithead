@@ -77,6 +77,7 @@ class Controller:
 			if req.src == SourceCollection.HAND:
 				self.view.update_phand(self.game.phand)
 			elif req.src == SourceCollection.UPCARDS:
+				print "upcards: "+str(self.game.pupcards)
 				self.view.update_pupcards(self.game.pupcards)
 			else:
 				self.view.update_pdowncards(self.game.pdowncards)

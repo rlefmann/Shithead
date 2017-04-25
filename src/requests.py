@@ -56,7 +56,7 @@ class RequestPlay(Request):
 		if not isinstance(src, SourceCollection):
 			raise TypeError("the src of a request must be of type SourceCollection")
 		if len(indices) == 0:
-			raise Error("a play request requires at least one index")
+			raise Exception("a play request requires at least one index")
 		self.src = src
 		self.indices = indices
 		

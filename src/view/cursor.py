@@ -83,16 +83,16 @@ class Cursor(pg.sprite.Sprite):
 		while groupidx in self._inactive_groups:
 			groupidx += 1
 			if groupidx >= len(self._spritegroups): # there is no active group
-				raise Error("cannot place the cursor, because all groups are inactive")
+				raise Exception("cannot place the cursor, because all groups are inactive")
 		# find cardidx:
 		group = self._spritegroups[groupidx]
 		if len(group) == 0:
-			raise Error("cannot place the cursor, because the group is empty")
+			raise Exception("cannot place the cursor, because the group is empty")
 		elif isinstance(group, LaidOutCards):
 			while cardidx in group.empty_slots:
 				cardidx += 1
 				if cardidx >= len(group):
-					raise Error("cannot place the cursor, because all slots in the group is empty") # TODO: deal with empty groups
+					raise Exception("cannot place the cursor, because all slots in the group are empty") # TODO: deal with empty groups
 		return groupidx, cardidx
 
 	def _is_valid_idx(self,idx,lst):

@@ -89,7 +89,7 @@ class MainWindow:
 						elif g == self.dpile:
 							req = RequestTake()
 						else:
-							raise Error("you cannot do this!") # TODO: more descriptive message
+							raise Exception("you cannot do this!") # TODO: more descriptive message
 				# send request to controller:
 				if req:
 					self.listener(req)

@@ -33,6 +33,7 @@ class Card:
 		"""
 		return self.rank*4 + self.suit
     
+# TODO: we most certainly need to implement the cardstrings method for some specific collections. We can then use the result for __repr__
     
 class CardCollection(object):
     """
@@ -200,7 +201,7 @@ class Deck(Stack):
     def __init__(self):
         super(Deck, self).__init__(True) # The deck is hidden
         # create cards:
-        tuples = itertools.product(range(13),range(4))
+        tuples = itertools.product(range(5),range(4)) # TODO: change back to 13
         for t in tuples:
             c = Card(t[0],t[1])
             self.cards.append(c)
@@ -276,7 +277,7 @@ class UpDownCards(CardCollection):
         if len(newcards) == self.numcards:
             self.cards = newcards
         else:
-            raise Error("the number of cards must be equal to %d" % self.numcards)
+            raise Exception("the number of cards must be equal to %d" % self.numcards)
             
     def delete(self, idx):
         """
@@ -289,6 +290,7 @@ class UpDownCards(CardCollection):
         """
         Returns a string representation of the cards in the slots.
         None entries are represented by xx, hidden cards by ??.
+        # TODO: use cardstrings method for this!
         """
         res = "["
         for card in self.cards:
@@ -301,6 +303,18 @@ class UpDownCards(CardCollection):
                 res += ", "
         res = res[:-2] + "]" # remove the last comma and whitespace
         return res
+        
+    def cardstrings(self):
+		res = []
+		for card in self.cards:
+			if card == None:
+				res.append("xx")
+			elif self.hidden:
+				res.append("??")
+			else:
+				res.append(str(card))
+		print "cardstrings updown: "+str(res)
+		return res
 
         
 if __name__ == "__main__":

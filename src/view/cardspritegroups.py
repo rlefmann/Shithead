@@ -107,6 +107,7 @@ class LaidOutCards(CardSpriteGroup):
 		return alignment in [Align.LEFT, Align.CENTER, Align.RIGHT]
 	
 	def update(self, cards):
+		print cards
 		# empty the sprite list:
 		self.spritelist = []
 		# remove all previous sprites:

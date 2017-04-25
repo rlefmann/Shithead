@@ -23,7 +23,7 @@ class StraightforwardAI(AI):
 
 	def think(self):
 		if self.game.curplayer == 0:
-			raise Error("the computer player is always player 1, but it is player 0s turn")
+			raise Exception("the computer player is always player 1, but it is player 0s turn")
 		smallestplayable = self.findsmallestplayableindices()
 		if len(smallestplayable) == 0:
 			return RequestTake()
