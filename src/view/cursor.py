@@ -89,8 +89,10 @@ class Cursor(pg.sprite.Sprite):
 		if len(group) == 0:
 			raise Exception("cannot place the cursor, because the group is empty")
 		elif isinstance(group, LaidOutCards):
+			print "empty slots: "+str(group.empty_slots)
 			while cardidx in group.empty_slots:
 				cardidx += 1
+				print "len: "+str(len(group))
 				if cardidx >= len(group):
 					raise Exception("cannot place the cursor, because all slots in the group are empty") # TODO: deal with empty groups
 		return groupidx, cardidx
@@ -102,31 +104,34 @@ class Cursor(pg.sprite.Sprite):
 		"""
 		Moves the cursor one position to the left.
 		"""
-		if isinstance(self.curgroup, SpreadCards) and self._cardidx > 0:
-			self._move(self._groupidx, self._cardidx-1)
-		elif isinstance(self.curgroup, LaidOutCards):
-			# move the cursor one position to the left, but skip empty slots:
-			emptyslots = self.curgroup.empty_slots
-			i = self._cardidx - 1
-			while i in emptyslots:
-				i-=1
-			if i>=0:
-				self._move(self._groupidx, i)
+		if self._cardidx > 0:
+			if isinstance(self.curgroup, SpreadCards):
+				self._move(self._groupidx, self._cardidx-1)
+			elif isinstance(self.curgroup, LaidOutCards):
+				# move the cursor one position to the left, but skip empty slots:
+				#emptyslots = self.curgroup.empty_slots
+				i = self._cardidx - 1
+				#while i in emptyslots:
+				while self.curgroup[i] == None:
+					i-=1
+				if i>=0:
+					self._move(self._groupidx, i)
 
 	def moveright(self):
 		"""
 		Moves the cursor one position to the right.
 		"""
-		if isinstance(self.curgroup, SpreadCards) and self._cardidx < len(self.curgroup)-1:
-			self._move(self._groupidx, self._cardidx+1)
-		elif isinstance(self.curgroup, LaidOutCards):
-			# move the cursor one position to the left, but skip empty slots:
-			emptyslots = self.curgroup.empty_slots
-			i = self._cardidx + 1
-			while i in emptyslots:
-				i+=1
-			if i < len(self.curgroup):
-				self._move(self._groupidx, i)
+		if self._cardidx < len(self.curgroup)-1:
+			if isinstance(self.curgroup, SpreadCards):
+				self._move(self._groupidx, self._cardidx+1)
+			elif isinstance(self.curgroup, LaidOutCards):
+				# move the cursor one position to the left, but skip empty slots:
+				emptyslots = self.curgroup.empty_slots
+				i = self._cardidx + 1
+				while i in emptyslots:
+					i+=1
+				if i < len(self.curgroup):
+					self._move(self._groupidx, i)
 				
 	# TODO: this should be a accessible method
 	def _unhighlight_all(self):
@@ -137,7 +142,7 @@ class Cursor(pg.sprite.Sprite):
 		
 	def _set_group_activeness(self):
 		for idx, group in enumerate(self._spritegroups):
-			if len(group) == 0:
+			if len(group) == 0 or group.spritelist.count(None) == len(group): # the first is redundant
 				self.set_inactive(idx)
 			else:
 				self.set_active(idx)

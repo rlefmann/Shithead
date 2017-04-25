@@ -99,7 +99,17 @@ class LaidOutCards(CardSpriteGroup):
 	def __init__(self,xpos,ypos,alignment=Align.CENTER,visible=True):
 		super(LaidOutCards, self).__init__(xpos,ypos,alignment,visible)
 		self.empty_slots = []
+	
+	def __len__(self): # TODO: remove
+		"""
+		For LaidOutGroups the length is the number of slots, not the
+		number of cards
+		"""
+		return len(self.spritelist)#+len(self.empty_slots)
+	
+	#def __getitem__(self, idx):
 		
+	
 	def alignment_allowed(self, alignment):
 		"""
 		The alignment can be either left, right or center.
@@ -132,9 +142,11 @@ class LaidOutCards(CardSpriteGroup):
 				curxpos = self.xpos - int(MARGIN/2) - n/2*CARDWIDTH - (n/2-1)*MARGIN
 			else: # odd number of cards
 				curxpos = self.xpos - int(CARDSIZE[0]/2) - int(n/2)*(CARDSIZE[0]+MARGIN)
+				
 		for idx, cardstr in enumerate(cards):
 			# a gap because of an empty slot:
 			if cardstr == "xx":
+				self.spritelist.append(None) # TODO: dont know if this is a good idea
 				self.empty_slots.append(idx)
 			elif self.visible:
 				if cardstr == "??":
