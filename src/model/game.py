@@ -118,14 +118,20 @@ class Game:
 		Note that the validity of the move is NOT checked. You have to
 		use is_possible_action first.
 		"""
-		print "play! "+str(playreq.indices) # TODO: implement
+		print "play! "+str(playreq.indices)
 		# get the cardcollection specified by the src of the request:
 		src_coll = self._get_collection_from_request(playreq)
 		# put cards from src_coll to discardpile:
 		cards = src_coll.remove(playreq.indices)
 		self._discardpile.add(cards)
+		rank = cards[0].rank
+		if rank == self._settings["BURN"]:
+			dead_cards = self._discardpile.removeall()
+			self._graveyard.add(dead_cards)
+			self._minval = 0
 		# adjust minval:
-		self._minval = cards[0].rank # TODO: adjust, when a special card is played
+		elif rank != self._settings["INVISIBLE"]: # dont adjust minval if a invisible card is played
+			self._minval = rank
 		print "new minval: "+str(self._minval) # TODO; remove
 		# redraw if src_coll was the players hand and there are cards
 		# left in the deck:
@@ -142,6 +148,7 @@ class Game:
 		cards = self._discardpile.removeall()
 		hand = self.curplayer.hand
 		hand.add(cards)
+		self._minval = 0
 		
 	@property
 	def phand(self):

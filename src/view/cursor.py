@@ -34,7 +34,9 @@ class Cursor(pg.sprite.Sprite):
 		self.image = self._images[False]
 		
 		self.rect = self.image.get_rect()
-		self._move(0,0) # TODO: is this okay (idx=0)?
+		
+		#self._move(0,0) # TODO: is this okay (idx=0)?
+		self.reset()
 		
 	@property
 	def curgroup(self):
@@ -69,6 +71,25 @@ class Cursor(pg.sprite.Sprite):
 			self.image = self._images[True]
 		else:
 			self.image = self._images[False]
+			
+			
+	def _first_allowed_pos(self):
+		groupidx, cardidx = 0,0
+		# find groupidx:
+		while groupidx in self._inactive_groups:
+			groupidx += 1
+			if groupidx >= len(self._spritegroups): # there is no active group
+				raise Error("cannot place the cursor, because all groups are inactive")
+		# find cardidx:
+		group = self._spritegroups[groupidx]
+		if len(group) == 0:
+			raise Error("cannot place the cursor, because the group is empty")
+		elif isinstance(group, LaidOutCards):
+			while cardidx in group.empty_slots():
+				cardidx += 1
+				if cardidx >= len(group):
+					raise Error("cannot place the cursor, because all slots in the group is empty") # TODO: deal with empty groups
+		return groupidx, cardidx
 
 	def _is_valid_idx(self,idx,lst):
 		return 0<=idx<len(lst)
@@ -116,8 +137,9 @@ class Cursor(pg.sprite.Sprite):
 			sprite = self.curgroup[idx]
 			sprite.sethighlighted(False)
 		self._selected_indices = []
-
-		self._move(0,0)
+		
+		groupidx, cardidx = self._first_allowed_pos()
+		self._move(groupidx, cardidx)
 
 	def toggle_highlighted(self):
 		"""

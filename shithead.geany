@@ -28,13 +28,7 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=0
-FILE_NAME_0=1914;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fcontroller.py;0;4
-FILE_NAME_1=3361;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fmainwindow.py;0;4
-FILE_NAME_2=3488;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fcursor.py;0;4
-FILE_NAME_3=695;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fview%2Fcardspritegroups.py;0;4
-FILE_NAME_4=4625;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fmodel%2Fgame.py;0;4
-FILE_NAME_5=6730;Python;0;EUTF-8;1;1;1;%2Fhome%2Flefmann%2FDrive%2FInformatik%2FShithead%2FShithead%2Fsrc%2Fmodel%2Fcards.py;0;4
+current_page=-1
 
 [VTE]
 last_dir=/home/lefmann
