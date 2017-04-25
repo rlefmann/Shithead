@@ -79,7 +79,6 @@ class Game:
 			# the discard pile must contain cards
 			return len(self._discardpile) > 0
 		elif isinstance(request, RequestPlay):
-			print "play " + str(request.indices) # TODO: remove
 			# get the cardcollection specified by the src of the request:
 			src_coll = self._get_collection_from_request(request)
 			# check if cardcollection contains cards:
@@ -87,7 +86,6 @@ class Game:
 				return False
 			# get rank of first chosen card:
 			rank = src_coll[request.indices[0]].rank
-			print "wants to play card of rank "+str(rank)
 			# iterate over indices:
 			for idx in request.indices:
 				# check if indices are valid and if rank of all cards is the same

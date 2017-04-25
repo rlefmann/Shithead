@@ -8,31 +8,31 @@ ranks = {0:"2",1:"3",2:"4",3:"5",4:"6",5:"7",6:"8",7:"9",8:"t",9:"j",10:"q",11:"
 suits = {0:"d",1:"h",2:"s",3:"c"}
 
 class Card:
+    """
+    A playing card, defined by its rank and suit.
+    """
+    def __init__(self, rank, suit):
 	"""
-	A playing card, defined by its rank and suit.
+	Creates a new playing card.
 	"""
-	def __init__(self, rank, suit):
-		"""
-		Creates a new playing card.
-		"""
-		self.rank = rank
-		self.suit = suit
-		
-	def __repr__(self):
-		"""
-		Uses the dictionaries above to create a read friendly string
-		representation of the card for printing to the screen.
-		"""
-		return ranks[self.rank] + suits[self.suit]
+	self.rank = rank
+	self.suit = suit
+	    
+    def __repr__(self):
+	"""
+	Uses the dictionaries above to create a read friendly string
+	representation of the card for printing to the screen.
+	"""
+	return ranks[self.rank] + suits[self.suit]
 
-	@property
-	def value(self):
-		"""
-		Creates a unique integer value for each pair of rank and suit
-		to compare the cards. This is for example necessary when finding
-		the player who begins the game.
-		"""
-		return self.rank*4 + self.suit
+    @property
+    def value(self):
+	"""
+	Creates a unique integer value for each pair of rank and suit
+	to compare the cards. This is for example necessary when finding
+	the player who begins the game.
+	"""
+	return self.rank*4 + self.suit
     
 # TODO: we most certainly need to implement the cardstrings method for some specific collections. We can then use the result for __repr__
     
@@ -119,16 +119,18 @@ class CardCollection(object):
         return len(self._cards)
         
     def cardstrings(self):
-		"""
-		Returns a list of string representations of the cards in the
-		collection. If the collection is hidden, "??"s are put in the
-		list instead of the actual card rank and value.
-		"""
-		if self._visible:
-		    return [str(c) for c in self._cards]
-		else:
-		    return ["??" for c in self._cards]
-		
+	"""
+	Returns a list of string representations of the cards in the
+	collection. If the collection is hidden, "??"s are put in the
+	list instead of the actual card rank and value.
+	"""
+	if self._visible:
+	    return [str(c) for c in self._cards]
+	else:
+	    return ["??" for c in self._cards]
+    
+    def __repr__(self):
+	return str(self.cardstrings())
     
 class Hand(CardCollection):
     """
@@ -187,6 +189,7 @@ class Pile(CardCollection):
 	    if len(self._cards)>0:
 		    res[-1] = str(self._cards[-1])
 
+
 class DrawPile(Pile):
     """
     A draw pile is a pile of cards that is placed face down.
@@ -197,11 +200,6 @@ class DrawPile(Pile):
     """
     def __init__(self):
         super(DrawPile, self).__init__(False) # The deck is hidden
-        # create cards:
-        #tuples = itertools.product(range(5),range(4)) # TODO: change back to 13
-        #for t in tuples:
-         #   c = Card(t[0],t[1])
-          #  self._cards.append(c)
 
     def shuffle(self):
         """

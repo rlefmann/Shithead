@@ -71,9 +71,6 @@ class Controller:
 	def _on_request_play(self, req):
 		if self.game.is_possible_action(req):
 			self.game.play(req)
-			print self.game._players[0].hand
-			print self.game._players[0].upcards
-			print self.game._players[0].downcards
 			if self.game.winner() != -1:
 				print "we have a winrar!"
 			self.view.cursor._unhighlight_all() # TODO:
@@ -82,7 +79,6 @@ class Controller:
 			if req.src == SourceCollection.HAND:
 				self.view.update_phand(self.game.phand)
 			elif req.src == SourceCollection.UPCARDS:
-				print "upcards: "+str(self.game.pupcards)
 				self.view.update_pupcards(self.game.pupcards)
 			else:
 				self.view.update_pdowncards(self.game.pdowncards)

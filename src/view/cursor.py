@@ -64,7 +64,6 @@ class Cursor(pg.sprite.Sprite):
 		group = self._spritegroups[groupidx]
 		if not self._is_valid_idx(cardidx, group):
 			raise ValueError("called the _move method with an invalid cardidx")
-		print "move to "+str(groupidx)+","+str(cardidx)+ " of "+str(len(group))
 		self.rect.x = group[cardidx].xpos
 		self.rect.y = group[cardidx].ypos
 		self._groupidx = groupidx
@@ -89,10 +88,8 @@ class Cursor(pg.sprite.Sprite):
 		if len(group) == 0:
 			raise Exception("cannot place the cursor, because the group is empty")
 		elif isinstance(group, LaidOutCards):
-			print "empty slots: "+str(group.empty_slots)
 			while cardidx in group.empty_slots:
 				cardidx += 1
-				print "len: "+str(len(group))
 				if cardidx >= len(group):
 					raise Exception("cannot place the cursor, because all slots in the group are empty") # TODO: deal with empty groups
 		return groupidx, cardidx
@@ -177,7 +174,6 @@ class Cursor(pg.sprite.Sprite):
 		#sprite = self.cursprite
 		if not self.cursprite.highlighted:
 			self._selected_indices.append(self._cardidx)
-			print "selected: "+str(self._selected_indices)+" of "+str(len(self.curgroup))
 		else:
 			self._selected_indices.remove(self._cardidx)
 		self.cursprite.sethighlighted(not self.cursprite.highlighted)
@@ -187,17 +183,13 @@ class Cursor(pg.sprite.Sprite):
 			self._inactive_groups.remove(groupidx)
 		else:
 			self._inactive_groups.append(groupidx)
-			
-	def set_inactive(self, groupidx):
-		if groupidx in self._inactive_groups:
-			print "warning: group is already inactive"
-		else:
-			self._inactive_groups.append(groupidx)
-		
-	def set_active(self, groupidx):
+
+	def set_inactive(self, groupidx): 
 		if groupidx not in self._inactive_groups:
-			print "warning: group was not inactive"
-		else:
+			self._inactive_groups.append(groupidx)
+
+	def set_active(self, groupidx):
+		if groupidx in self._inactive_groups:
 			self._inactive_groups.remove(groupidx)
 
 	def is_blocked(self):
