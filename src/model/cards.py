@@ -52,13 +52,13 @@ class CardCollection(object):
     
     Attributes:
         cards (list of Card): This is where the cards are stored
-        hidden (boolean): Determines wether the cards are visible to the
+        visible (boolean): Determines wether the cards are visible to the
             player or not. Influences for example what happens, if you
             print the cards
     """
-    def __init__(self, hidden = False):
+    def __init__(self, visible = True):
         self._cards = []
-        self._hidden = hidden
+        self._visible = visible
 
     def __getitem__(self,idx):
 		"""
@@ -123,11 +123,11 @@ class CardCollection(object):
 		collection. If the collection is hidden, "??"s are put in the
 		list instead of the actual card rank and value.
 		"""
-		if self._hidden:
-			return ["??" for c in self._cards]
-		return [str(c) for c in self._cards]
-        
-    
+		if self._visible:
+		    return [str(c) for c in self._cards]
+		else:
+		    return ["??" for c in self._cards]
+		
     
 class Hand(CardCollection):
     """
@@ -151,26 +151,13 @@ class Hand(CardCollection):
         super(Hand, self).add(newcards)
         self.sort()
 
-    # TODO: this seems to be the same as in CardCollection
-    #~ def __repr__(self):
-        #~ """
-        #~ Returns a string representation of the cards in the hand.
-        #~ If the cards are hidden a string representation of a list of 
-        #~ ?? entries of appropriate length is returned. 
-        #~ """
-        #~ if self._hidden:
-            #~ return str(["??"]*len(self))
-        #~ else:
-            #~ return str(self._cards)
 
-
-class Stack(CardCollection):
+class Pile(CardCollection):
     """
-    A generic stack of cards. This is the basis for the deck, the
-    discard pile and the graveyard.
+    A generic pile of cards. This is the basis for discard piles and drawpiles.
 
-    If a stack is hidden, no card is visible. If not, you can see
-    only the last card of the deck.
+    If a pile is hidden, no card is visible. If it is visible, you can see
+    only its last card.
     """
     def __repr__(self):
         """
@@ -181,7 +168,7 @@ class Stack(CardCollection):
         """
         if len(self._cards) == 0:
             filler = "  "
-        elif self._hidden:
+        elif not self._visible:
             filler = "??"
         else:
             # string representation of the last card.
@@ -199,14 +186,14 @@ class Stack(CardCollection):
 	    if len(self._cards)>0:
 		    res[-1] = str(self._cards[-1])
 
-class Deck(Stack):
+class Deck(Pile):
     """
     The initial deck of cards. This CardCollection is different from the
     others because when creating it, all the cards for the game are
     set up, too.
     """
     def __init__(self):
-        super(Deck, self).__init__(True) # The deck is hidden
+        super(Deck, self).__init__(False) # The deck is hidden
         # create cards:
         tuples = itertools.product(range(5),range(4)) # TODO: change back to 13
         for t in tuples:
@@ -237,7 +224,7 @@ class Deck(Stack):
 			
 
 
-class DiscardPile(Stack):
+class DiscardPile(Pile):
     """
     You can either play cards of the same rank or you have to take the whole
     pile.
@@ -250,7 +237,7 @@ class DiscardPile(Stack):
         allindices = range(len(self._cards)) 
         return self.remove(allindices)
     
-class Graveyard(Stack):
+class Graveyard(Pile):
     """
     This is where burned cards from the discard pile go. Eventually we do not
     need to have a data structure for this and could just let the cards disappear,
@@ -265,11 +252,11 @@ class UpDownCards(CardCollection):
     This CardCollection is different from the others, because each card has a
     fixed position, that is not changed if a card is added or removed.
     """
-    def __init__(self, numcards, hidden=False):
+    def __init__(self, numcards, visible=True):
         """
         Creates numcards slots, which are filled with None entries.
         """
-        super(self.__class__, self).__init__(hidden)
+        super(self.__class__, self).__init__(visible)
         if numcards<=0:
             raise ValueError("the number of cards must be positive")
         # add none entries:
@@ -305,7 +292,7 @@ class UpDownCards(CardCollection):
 	for card in self._cards:
 	    if card == None:
 		res.append("xx")
-	    elif self._hidden:
+	    elif not self._visible:
 		res.append("??")
 	    else:
 		res.append(str(card))

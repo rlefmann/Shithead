@@ -13,9 +13,9 @@ class Player:
 			villain: True, if the Player is villain, False if he is hero
 		"""
 		self.hero = hero
-		self.hand = Hand(not hero) # if villain, then the hand is hidden
-		self.upcards = UpDownCards(num_up_down, hidden = False)
-		self.downcards = UpDownCards(num_up_down, hidden = True)
+		self.hand = Hand(hero) # if villain, then the hand is hidden
+		self.upcards = UpDownCards(num_up_down, visible = True)
+		self.downcards = UpDownCards(num_up_down, visible = False)
 
 
 class Game:
