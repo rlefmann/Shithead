@@ -1,6 +1,6 @@
 from model.settings import Settings
 from model.game import *
-from model.ai import *
+#from model.ai import *
 
 from view.mainwindow import *
 
@@ -25,7 +25,7 @@ class Controller:
 		self.game = Game(settings)
 		# create the ai that simulates the opponent player:
 		# TODO: maybe other ai's should be allowed, too
-		self.ai = StraightforwardAI(self.game)
+		#self.ai = StraightforwardAI(self.game) # TODO: uncomment
 		self.view = MainWindow()
 		# set the listener function:
 		self.view.listener = self.on_request
@@ -71,7 +71,7 @@ class Controller:
 	def _on_request_play(self, req):
 		if self.game.is_possible_action(req):
 			self.game.play(req)
-			self.view.reset_cursor()
+			self.view.cursor._unhighlight_all() # TODO:
 			# update view:
 			self.view.update_discardpile(self.game.discardpile)
 			if req.src == SourceCollection.HAND:
@@ -80,10 +80,14 @@ class Controller:
 				self.view.update_pupcards(self.game.pupcards)
 			else:
 				self.view.update_pdowncards(self.game.pdowncards)
+			self.view.reset_cursor()
 
 	def _on_request_take(self, req):
 		if self.game.is_possible_action(req):
 			self.game.take()
-			self.view.reset_cursor()
+			#self.view.set_inactive(3) # the discard pile becomes inactive
+			#self.view.set_active(0) # the hand becomes active again
+			self.view.cursor._unhighlight_all() # TODO:
 			self.view.update_discardpile(self.game.discardpile)
 			self.view.update_phand(self.game.curhand)
+			self.view.reset_cursor()

@@ -1,5 +1,5 @@
 from game import Game
-from action import *
+from requests import *
 
 
 class AI(object):
@@ -26,9 +26,9 @@ class StraightforwardAI(AI):
 			raise Error("the computer player is always player 1, but it is player 0s turn")
 		smallestplayable = self.findsmallestplayableindices()
 		if len(smallestplayable) == 0:
-			return Action(AType.TAKE)
+			return RequestTake()
 		else:
-			return Action(AType.PLAY, smallestplayable)
+			return RequestPlay(AType.PLAY, smallestplayable)
 		
 	def findsmallestplayableindices(self):
 		"""

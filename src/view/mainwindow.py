@@ -42,7 +42,8 @@ class MainWindow:
 	def _create_cursor(self):
 		spritegroups_with_cursor = [self.phand, self.pup, self.pdown, self.dpile]
 		self.cursor = Cursor(spritegroups_with_cursor)
-		self.cursor.toggle_inactive(2) # downcards inactive
+		#self.cursor.set_inactive(1) # upcards inactive
+		#self.cursor.set_inactive(2) # downcards inactive
 		# This is the spritegroup necessary to display the cursor:
 		self.current_cursor = pg.sprite.Group()
 		self.current_cursor.add(self.cursor)

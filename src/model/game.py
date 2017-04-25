@@ -86,8 +86,8 @@ class Game:
 			if len(src_coll) == 0:
 				return False
 			# get rank of first chosen card:
-			print src_coll[request.indices[0]]
 			rank = src_coll[request.indices[0]].rank
+			print "wants to play card of rank "+str(rank)
 			# iterate over indices:
 			for idx in request.indices:
 				# check if indices are valid and if rank of all cards is the same
@@ -118,11 +118,11 @@ class Game:
 		Note that the validity of the move is NOT checked. You have to
 		use is_possible_action first.
 		"""
-		print "play! "+str(playreq.indices)
 		# get the cardcollection specified by the src of the request:
 		src_coll = self._get_collection_from_request(playreq)
 		# put cards from src_coll to discardpile:
 		cards = src_coll.remove(playreq.indices)
+		print "player plays "+str(cards)
 		self._discardpile.add(cards)
 		rank = cards[0].rank
 		if rank == self._settings["BURN"]:
