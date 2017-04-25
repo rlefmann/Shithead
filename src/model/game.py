@@ -150,6 +150,15 @@ class Game:
 		hand.add(cards)
 		self._minval = 0
 		
+	def winner(self):
+		"""
+		Returns 0 if hero has won, 1 if villain has won and -1 if no one has won yet.
+		"""
+		for pidx, p in enumerate(self._players):
+			if len(p.hand) == 0 and p.upcards.cards.count(None) == len(p.upcards) and p.downcards.cards.count(None) == len(p.downcards):
+				return pidx
+		return -1
+		
 	@property
 	def phand(self):
 		"""Returns the players hand as a list of cardstrings."""

@@ -265,7 +265,7 @@ class UpDownCards(CardCollection):
         super(self.__class__, self).__init__(hidden)
         if numcards<=0:
             raise ValueError("the number of cards must be positive")
-        # add none entries (probably not necessary):
+        # add none entries:
         super(self.__class__, self).add([None]*numcards)
         self.numcards = numcards
         
@@ -290,19 +290,8 @@ class UpDownCards(CardCollection):
         """
         Returns a string representation of the cards in the slots.
         None entries are represented by xx, hidden cards by ??.
-        # TODO: use cardstrings method for this!
         """
-        res = "["
-        for card in self.cards:
-            if card == None:
-                res += "xx, "
-            elif self.hidden:
-                res += "??, "
-            else:
-                res += str(card)
-                res += ", "
-        res = res[:-2] + "]" # remove the last comma and whitespace
-        return res
+        return str(self.cardstrings())
         
     def cardstrings(self):
 		res = []
@@ -313,7 +302,6 @@ class UpDownCards(CardCollection):
 				res.append("??")
 			else:
 				res.append(str(card))
-		print "cardstrings updown: "+str(res)
 		return res
 
         
