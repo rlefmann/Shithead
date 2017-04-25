@@ -3,25 +3,25 @@ from constants import *
 import pygame as pg
 
 
-class HiddenCardSprite(pg.sprite.Sprite):
-	"""
-	A card of which you can only see the back.
-	"""
-	def __init__(self, xpos, ypos):
-		super(HiddenCardSprite,self).__init__()
-		self.image = pg.image.load("./img/cards/back.png").convert()
-		self.image = pg.transform.scale(self.image, CARDSIZE)
-		self.rect = self.image.get_rect()
-		self.rect.x = xpos
-		self.rect.y = ypos
+#~ class HiddenCardSprite(pg.sprite.Sprite):
+	#~ """
+	#~ A card of which you can only see the back.
+	#~ """
+	#~ def __init__(self, xpos, ypos):
+		#~ super(HiddenCardSprite,self).__init__()
+		#~ self.image = pg.image.load("./img/cards/back.png").convert()
+		#~ self.image = pg.transform.scale(self.image, CARDSIZE)
+		#~ self.rect = self.image.get_rect()
+		#~ self.rect.x = xpos
+		#~ self.rect.y = ypos
 
-	@property
-	def xpos(self):
-		return self.rect.x
+	#~ @property
+	#~ def xpos(self):
+		#~ return self.rect.x
 
-	@property
-	def ypos(self):
-		return self.rect.y
+	#~ @property
+	#~ def ypos(self):
+		#~ return self.rect.y
 	
 
 class CardSprite(pg.sprite.Sprite):
@@ -29,13 +29,14 @@ class CardSprite(pg.sprite.Sprite):
 	A card of which you can see the rank and suit.
 	It can be either highlighted or unhighlighted (=visible). If the card is visible, the highlighted attribute is false.
 	"""
-	def __init__(self, cardstr, xpos, ypos, highlighted=False):
+	def __init__(self, cardstr, xpos, ypos, hidden=False, highlighted=False):
 		"""
 		Attributes:
 			cardstr: a string representation of the card, eg "qh" for the queen of hearts
 		"""
 		super(CardSprite,self).__init__()
 		self.cardstr = cardstr
+		self._hidden = hidden
 		self.highlighted = highlighted
 
 		# The images dictionary assigns to each value of highlighted (true or false) an image
@@ -75,7 +76,10 @@ class CardSprite(pg.sprite.Sprite):
 			filepath += "./img/cards/"
 		else:
 			filepath += "./img/highlighted/"
-		filepath += self.cardstr
+		if not self._hidden:
+			filepath += self.cardstr
+		else:
+			filepath += "back"
 		filepath += ".png"
 		return filepath
 

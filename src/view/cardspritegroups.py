@@ -80,7 +80,7 @@ class SpreadCards(CardSpriteGroup):
 			if self.visible:
 				c = CardSprite(cardstr,curxpos,self.ypos)
 			else:
-				c = HiddenCardSprite(curxpos,self.ypos)
+				c = CardSprite("??",curxpos,self.ypos,hidden=True)
 			self.spritelist.append(c)
 			self.add(c)
 			if self.alignment == Align.LEFT:
@@ -143,7 +143,7 @@ class LaidOutCards(CardSpriteGroup):
 				self.spritelist.append(c)
 				self.add(c)
 			else:
-				c = HiddenCardSprite(curxpos,self.ypos)
+				c = CardSprite("??", curxpos, self.ypos, hidden = True)
 				self.spritelist.append(c)
 				self.add(c)
 			curxpos += (CARDWIDTH+MARGIN)
@@ -166,7 +166,7 @@ class CardStack(CardSpriteGroup):
 			if self.visible:
 				c = CardSprite(cards[-1], self.xpos, self.ypos)
 			else:
-				c = HiddenCardSprite(self.xpos, self.ypos)
+				c = CardSprite("??", self.xpos, self.ypos, hidden=True)
 			self.spritelist.append(c)
 			self.add(c)
 				
