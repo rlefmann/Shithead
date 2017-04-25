@@ -25,7 +25,8 @@ class Card:
 		"""
 		return ranks[self.rank] + suits[self.suit]
 
-	def getvalue(self):
+	@property
+	def value(self):
 		"""
 		Creates a unique integer value for each pair of rank and suit
 		to compare the cards. This is for example necessary when finding
@@ -141,7 +142,7 @@ class Hand(CardCollection):
         Sorts the cards in the hand in increasing order by their
         value.
         """
-        self.cards.sort(key = lambda c: c.getvalue())
+        self.cards.sort(key = lambda c: c.value)
 
     def add(self, newcards):
         """

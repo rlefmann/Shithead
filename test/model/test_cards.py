@@ -7,7 +7,7 @@ class CardTest(unittest.TestCase):
     """
     def test_card1(self):
         c = Card(10,3)
-        self.assertEqual(c.getvalue(), 43)
+        self.assertEqual(c.value, 43)
         self.assertEqual(c.__repr__(), "qc")
         # The repr function returns a KeyError when the rank or suit are
         # smaller than 0 or larger than 12/3
