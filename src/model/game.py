@@ -155,7 +155,7 @@ class Game:
 		Returns 0 if hero has won, 1 if villain has won and -1 if no one has won yet.
 		"""
 		for pidx, p in enumerate(self._players):
-			if len(p.hand) == 0 and p.upcards.cards.count(None) == len(p.upcards) and p.downcards.cards.count(None) == len(p.downcards):
+			if len(p.hand) == 0 and p.upcards.isempty() and p.downcards.isempty():
 				return pidx
 		return -1
 		

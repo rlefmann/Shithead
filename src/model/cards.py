@@ -57,14 +57,14 @@ class CardCollection(object):
             print the cards
     """
     def __init__(self, hidden = False):
-        self.cards = []
-        self.hidden = hidden
+        self._cards = []
+        self._hidden = hidden
 
     def __getitem__(self,idx):
 		"""
 		For accessing the elements of the CardCollection via square brackets.
 		"""
-		return self.cards[idx]
+		return self._cards[idx]
         
     def add(self, cards):
         """
@@ -73,7 +73,7 @@ class CardCollection(object):
         Args:
             cards (list of Card): the new cards, that should be added.
         """
-        self.cards.extend(cards)
+        self._cards.extend(cards)
         
     def remove(self, indices):
         """
@@ -94,7 +94,7 @@ class CardCollection(object):
         removed_cards = []
         # last index first to avoid messing the indices up by removing elements
         for idx in sorted(indices, reverse=True): 
-            c = self.cards[idx]
+            c = self._cards[idx]
             if c == None:
                 raise ValueError("remove: index %d contains no card" % idx)
             removed_cards.append(c)
@@ -108,14 +108,14 @@ class CardCollection(object):
         Args:
             idx (Int): the index of the card that should be deleted.
         """
-        del self.cards[idx]
+        del self._cards[idx]
         
     def __len__(self):
         """
         The number of cards in the CardCollection is simply the length
         of self.cards.
         """
-        return len(self.cards)
+        return len(self._cards)
         
     def cardstrings(self):
 		"""
@@ -123,9 +123,9 @@ class CardCollection(object):
 		collection. If the collection is hidden, "??"s are put in the
 		list instead of the actual card rank and value.
 		"""
-		if self.hidden:
-			return ["??" for c in self.cards]
-		return [str(c) for c in self.cards]
+		if self._hidden:
+			return ["??" for c in self._cards]
+		return [str(c) for c in self._cards]
         
     
     
@@ -142,7 +142,7 @@ class Hand(CardCollection):
         Sorts the cards in the hand in increasing order by their
         value.
         """
-        self.cards.sort(key = lambda c: c.value)
+        self._cards.sort(key = lambda c: c.value)
 
     def add(self, newcards):
         """
@@ -151,16 +151,17 @@ class Hand(CardCollection):
         super(Hand, self).add(newcards)
         self.sort()
 
-    def __repr__(self):
-        """
-        Returns a string representation of the cards in the hand.
-        If the cards are hidden a string representation of a list of 
-        ?? entries of appropriate length is returned. 
-        """
-        if self.hidden:
-            return str(["??"]*len(self))
-        else:
-            return str(self.cards)
+    # TODO: this seems to be the same as in CardCollection
+    #~ def __repr__(self):
+        #~ """
+        #~ Returns a string representation of the cards in the hand.
+        #~ If the cards are hidden a string representation of a list of 
+        #~ ?? entries of appropriate length is returned. 
+        #~ """
+        #~ if self._hidden:
+            #~ return str(["??"]*len(self))
+        #~ else:
+            #~ return str(self._cards)
 
 
 class Stack(CardCollection):
@@ -178,20 +179,25 @@ class Stack(CardCollection):
         stack is empty, hidden or visible. Also the number of cards
         in the stack is displayed.
         """
-        if len(self.cards) == 0:
+        if len(self._cards) == 0:
             filler = "  "
-        elif self.hidden:
+        elif self._hidden:
             filler = "??"
         else:
             # string representation of the last card.
-            filler = str(self.cards[-1])
+            filler = str(self._cards[-1])
         # display the filler and how many cards the stack contains
-        return "[%s], %d cards" % (filler, len(self.cards))
+        return "[%s], %d cards" % (filler, len(self._cards))
 
 	def cardstrings(self):
-		res = ["??" for c in self.cards]
-		if len(self.cards)>0:
-			res[-1] = str(self.cards[-1])
+	    # first set all to ??:
+	    res = ["??" for c in self._cards]
+	    # then change the last one to the card value, because it
+	    # is the only card that is visible (in case of the deck
+	    # which inherits from Stack, the top card cannot be seen
+	    # and therefore it has its own cardstrings method):
+	    if len(self._cards)>0:
+		    res[-1] = str(self._cards[-1])
 
 class Deck(Stack):
     """
@@ -205,13 +211,13 @@ class Deck(Stack):
         tuples = itertools.product(range(5),range(4)) # TODO: change back to 13
         for t in tuples:
             c = Card(t[0],t[1])
-            self.cards.append(c)
+            self._cards.append(c)
 
     def shuffle(self):
         """
         Shuffle the cards of the deck.
         """
-        shuffle(self.cards)
+        shuffle(self._cards)
         
     def draw(self, numcards=1):
 		"""
@@ -225,7 +231,7 @@ class Deck(Stack):
 			# left in the deck:
 			if len(self) == 0:
 				break
-			c = self.cards.pop()
+			c = self._cards.pop()
 			drawn.append(c)
 		return drawn
 			
@@ -241,7 +247,7 @@ class DiscardPile(Stack):
         Take the whole pile. This method is used when a player has to take it
         and when the DiscardPile is burnt.
         """
-        allindices = range(len(self.cards)) 
+        allindices = range(len(self._cards)) 
         return self.remove(allindices)
     
 class Graveyard(Stack):
@@ -276,7 +282,7 @@ class UpDownCards(CardCollection):
         be equal to numcards
         """
         if len(newcards) == self.numcards:
-            self.cards = newcards
+            self._cards = newcards
         else:
             raise Exception("the number of cards must be equal to %d" % self.numcards)
             
@@ -285,7 +291,7 @@ class UpDownCards(CardCollection):
         Instead of deleting the entry with del, it is replaced by a None entry.
         This allows to use the generic remove method in CardCollection.
         """
-        self.cards[idx] = None
+        self._cards[idx] = None
         
     def __repr__(self):
         """
@@ -295,16 +301,21 @@ class UpDownCards(CardCollection):
         return str(self.cardstrings())
         
     def cardstrings(self):
-		res = []
-		for card in self.cards:
-			if card == None:
-				res.append("xx")
-			elif self.hidden:
-				res.append("??")
-			else:
-				res.append(str(card))
-		return res
-
+	res = []
+	for card in self._cards:
+	    if card == None:
+		res.append("xx")
+	    elif self._hidden:
+		res.append("??")
+	    else:
+		res.append(str(card))
+	return res
+	
+    def isempty(self):
+	"""
+	UpDownCards is empty, if every slot is None.
+	"""
+	return self._cards.count(None) == len(self._cards)
         
 if __name__ == "__main__":
     c1 = Card(10,3)
