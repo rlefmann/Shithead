@@ -41,6 +41,7 @@ class CardCollection(object):
     A collection of zero or more cards. This is the base class for specific
     collections like hands, stacks, or the deck of the game.
     
+    # TODO: change
     Inheritance hierarchy:
     -CardCollection
         -Hand
@@ -186,19 +187,21 @@ class Pile(CardCollection):
 	    if len(self._cards)>0:
 		    res[-1] = str(self._cards[-1])
 
-class Deck(Pile):
+class DrawPile(Pile):
     """
+    A draw pile is a pile of cards that is placed face down.
+    
     The initial deck of cards. This CardCollection is different from the
     others because when creating it, all the cards for the game are
     set up, too.
     """
     def __init__(self):
-        super(Deck, self).__init__(False) # The deck is hidden
+        super(DrawPile, self).__init__(False) # The deck is hidden
         # create cards:
-        tuples = itertools.product(range(5),range(4)) # TODO: change back to 13
-        for t in tuples:
-            c = Card(t[0],t[1])
-            self._cards.append(c)
+        #tuples = itertools.product(range(5),range(4)) # TODO: change back to 13
+        #for t in tuples:
+         #   c = Card(t[0],t[1])
+          #  self._cards.append(c)
 
     def shuffle(self):
         """
@@ -207,27 +210,38 @@ class Deck(Pile):
         shuffle(self._cards)
         
     def draw(self, numcards=1):
-		"""
-		Draws numcards many cards from the end of the deck.
-		The process stops if there are no cards left in the deck,
-		but no error is thrown.
-		"""
-		drawn = []
-		for _ in range(numcards):
-			# you can only draw another card if there are still cards
-			# left in the deck:
-			if len(self) == 0:
-				break
-			c = self._cards.pop()
-			drawn.append(c)
-		return drawn
-			
+	"""
+	Draws numcards many cards from the end of the deck.
+	The process stops if there are no cards left in the deck,
+	but no error is thrown.
+	"""
+	drawn = []
+	for _ in range(numcards):
+	    # you can only draw another card if there are still cards
+	    # left in the deck:
+	    if len(self) == 0:
+		break
+	    c = self._cards.pop()
+	    drawn.append(c)
+	return drawn
+    
+    @classmethod
+    def create_deck(cls):
+	"""
+	The deck is a special draw pile that contains all of the cards in the beginning of the game. This class method creates the deck with all of its cards.
+	"""
+	drawpile = cls()
+	# create cards:
+        tuples = itertools.product(range(5),range(4)) # TODO: change back to 13
+        for t in tuples:
+            c = Card(t[0],t[1])
+            drawpile._cards.append(c)
+	return drawpile
 
 
 class DiscardPile(Pile):
     """
-    You can either play cards of the same rank or you have to take the whole
-    pile.
+    A discard pile is a pile of cards that is placed face up, such that you can see the top card (but not the cards underneath it).
     """
     def removeall(self):
         """
@@ -236,7 +250,9 @@ class DiscardPile(Pile):
         """
         allindices = range(len(self._cards)) 
         return self.remove(allindices)
-    
+
+
+# TODO: is this really necessary?
 class Graveyard(Pile):
     """
     This is where burned cards from the discard pile go. Eventually we do not
@@ -247,10 +263,9 @@ class Graveyard(Pile):
     # TODO: probably should not inherit from stack, but from CardCollection
     
     
-class UpDownCards(CardCollection):
+class CardRow(CardCollection):
     """
-    This CardCollection is different from the others, because each card has a
-    fixed position, that is not changed if a card is added or removed.
+    A CardRow object is a set of a fixed number of places, each of which can be None or hold a Card. Either all of the cards are visible (this is the case for the upcards in Shithead) or all of the cards are hidden (this is the case for the downcards).
     """
     def __init__(self, numcards, visible=True):
         """
@@ -300,7 +315,7 @@ class UpDownCards(CardCollection):
 	
     def isempty(self):
 	"""
-	UpDownCards is empty, if every slot is None.
+	CardRow is empty, if every slot is None.
 	"""
 	return self._cards.count(None) == len(self._cards)
         
@@ -309,7 +324,7 @@ if __name__ == "__main__":
     c2 = Card(8,0)
     c3 = Card(11,2)
     
-    upcards = UpDownCards(3)
+    upcards = CardRow(3)
     upcards.add([c1,c2,c3])
     upcards.remove([0,2])
     print upcards

@@ -14,8 +14,8 @@ class Player:
 		"""
 		self.hero = hero
 		self.hand = Hand(hero) # if villain, then the hand is hidden
-		self.upcards = UpDownCards(num_up_down, visible = True)
-		self.downcards = UpDownCards(num_up_down, visible = False)
+		self.upcards = CardRow(num_up_down, visible = True)
+		self.downcards = CardRow(num_up_down, visible = False)
 
 
 class Game:
@@ -27,7 +27,7 @@ class Game:
 		self._settings = settings
 		
 		# create and shuffle deck:
-		self._deck = Deck()
+		self._deck = DrawPile.create_deck()
 		self._deck.shuffle()
 		
 		# create other card collections:
