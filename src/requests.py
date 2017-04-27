@@ -59,7 +59,6 @@ class RequestPlay(Request):
 			raise Exception("a play request requires at least one index")
 		self.src = src
 		self.indices = indices
-		
 
 class RequestTake(Request):
 	"""
@@ -68,3 +67,15 @@ class RequestTake(Request):
 	"""
 	def __init__(self):
 		self.name = "request take"
+
+
+class RequestTakeUpcards(Request):
+	"""
+	This is a request by the view to the model to take cards of the same
+	rank from the upcards into the players hand.
+	"""
+	def __init__(self, indices):
+		self.name = "request take upcards"
+		if len(indices) == 0:
+			raise Exception("a take upcards request requires at least one index")
+		self.indices = indices

@@ -83,13 +83,22 @@ class Controller:
 			else:
 				self.view.update_pdowncards(self.game.pdowncards)
 			self.view.reset_cursor()
+		elif req.src == SourceCollection.DOWNCARDS:
+			# automatically take all the cards from the discard pile:
+			self.game.take()
+			# additionally take the downcard you wanted to play:
+			self.game.take_downcard(req.indices[0])
+			self.view.cursor._unhighlight_all() # TODO:
+			self.view.update_phand(self.game.phand)
+			self.view.update_pdowncards(self.game.pdowncards)
+			self.view.update_discardpile(self.game.discardpile)
+			self.view.reset_cursor()
 			
-
 	def _on_request_take(self, req):
 		if self.game.is_possible_action(req):
+			if self.game.curplayer.playing_from_upcards():
+				print "here we need to take some upcards, too"
 			self.game.take()
-			#self.view.set_inactive(3) # the discard pile becomes inactive
-			#self.view.set_active(0) # the hand becomes active again
 			self.view.cursor._unhighlight_all() # TODO:
 			self.view.update_discardpile(self.game.discardpile)
 			self.view.update_phand(self.game.curhand)

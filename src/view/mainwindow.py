@@ -42,11 +42,9 @@ class MainWindow:
 	def _create_cursor(self):
 		spritegroups_with_cursor = [self.phand, self.pup, self.pdown, self.dpile]
 		self.cursor = Cursor(spritegroups_with_cursor)
-		#self.cursor.set_inactive(1) # upcards inactive
-		#self.cursor.set_inactive(2) # downcards inactive
 		# This is the spritegroup necessary to display the cursor:
-		self.current_cursor = pg.sprite.Group()
-		self.current_cursor.add(self.cursor)
+		self.cursor_group = pg.sprite.Group()
+		self.cursor_group.add(self.cursor)
 		# TODO: this can be put into a global spritegroup
 		
 	def run(self):
@@ -93,7 +91,7 @@ class MainWindow:
 				# send request to controller:
 				if req:
 					self.listener(req)
-				self._redraw()	
+				self._redraw()
 	
 	def update_phand(self, cardstrs):
 		"""
@@ -146,7 +144,7 @@ class MainWindow:
 		self.vhand.draw(self.screen)
 		self.vdown.draw(self.screen)
 		self.vup.draw(self.screen)
-		self.current_cursor.draw(self.screen)
+		self.cursor_group.draw(self.screen)
 		# draw the new frame:
 		pg.display.flip()
 

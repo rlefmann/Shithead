@@ -13,4 +13,6 @@
 * Discardpile doesn not disappear when it contains no more cards
 * Hidden Card sprites cannot be highlighted
 
+## Other
 
+* cursor methods should not be called from the controller but only within the view
