@@ -48,7 +48,7 @@ class Game:
 		villain = Player(settings["NCARDS_UPDOWN"], False)
 		self._players = (hero,villain)
 		
-		self._initialdeal()
+		self._deal()
 		
 		# the minimal value that can be played
 		# (in the beginning every card can be played):
@@ -57,8 +57,74 @@ class Game:
 		self._curplayer = self._findfirstplayer()
 		self._curplayer = 0 # TODO: remove
 
+	def is_possible_move(self, request):
+		"""
+		Checks whether a request a player has chosen is possible or not.
+		"""
+		if not isinstance(request, Request):
+			raise Exception("something other than a request was sent to is_possible_move")
+		elif isinstance(request, RequestTake):
+			# the discard pile must contain cards
+			return len(self._discardpile) > 0
+		elif isinstance(request, RequestPlay):
+			return self._is_possible_play(request)
+		elif isinstance(request, RequestTakeUpcards):
+			return self._is_possible_take_upcards(request)
+		else:
+			raise TypeError("the game class can only handle take and play requests")
+
+	def play(self, playreq):
+		"""
+		Places the cards specified in the playreq on the discard pile.
+		Note that the validity of the move is NOT checked. You have to
+		use is_possible_move first.
+		"""
+		# get the cardcollection specified by the src of the request:
+		src_coll = self._get_collection_from_request(playreq)
+		# put cards from src_coll to discardpile:
+		cards = src_coll.remove(playreq.indices)
+		print "player plays "+str(cards)
+		self._discardpile.add(cards)
+		rank = cards[0].rank
+		if rank == self._settings["BURN"]:
+			dead_cards = self._discardpile.removeall()
+			self._graveyard.add(dead_cards)
+			self._minval = 0
+		# adjust minval:
+		elif rank != self._settings["INVISIBLE"]: # dont adjust minval if a invisible card is played
+			self._minval = rank
+		print "new minval: "+str(self._minval) # TODO; remove
+		# redraw if src_coll was the players hand and there are cards
+		# left in the deck:
+		if src_coll == self.curplayer.hand:
+			numcards_missing = self._settings["NCARDS_HAND"] - len(src_coll)
+			if numcards_missing > 0:
+				cards = self._deck.draw(numcards_missing)
+				src_coll.add(cards)
+				print "player has redrawn "+str(len(cards))+" cards"
+			# sort hand:
+			src_coll.sort()
+			
+	def take(self):
+		"""
+		Take all the cards from the discard pile into the current
+		players hand.
+		"""
+		cards = self._discardpile.removeall()
+		hand = self.curplayer.hand
+		hand.add(cards)
+		self._minval = 0
+
+	def take_downcard(self, idx):
+		card = self.curplayer.downcards.remove([idx])
+		self.curplayer.hand.add(card)
+	
+	def take_upcards(self, indices):
+		cards = self.curplayer.downcards.remove(indices)
+		self.curplayer.hand.add(cards)
+
 		
-	def _initialdeal(self):
+	def _deal(self):
 		"""
 		Distributes the initial number of cards specified in the settings
 		to the players hands, upcards and downcards.
@@ -78,21 +144,7 @@ class Game:
 		# TODO: implement
 		return 0
 
-	def is_possible_action(self, request):
-		"""
-		Checks whether a request a player has chosen is possible or not.
-		"""
-		if not isinstance(request, Request):
-			raise Exception("something other than a request was sent to is_possible_action")
-		elif isinstance(request, RequestTake):
-			# the discard pile must contain cards
-			return len(self._discardpile) > 0
-		elif isinstance(request, RequestPlay):
-			return self._is_possible_play(request)
-		elif isinstance(request, RequestTakeUpcards):
-			return self._is_possible_take_upcards(request)
-		else:
-			raise TypeError("the game class can only handle take and play requests")
+
 
 	def _is_possible_take_upcards(self, request):
 		if not self.curplayer.playing_from_upcards():
@@ -121,15 +173,16 @@ class Game:
 				print "cards at indices have different ranks"
 				return False
 		return True
-	
+
 	def _is_possible_play(self, request):
 		# get the cardcollection specified by the src of the request:
 		src_coll = self._get_collection_from_request(request)
-		if not self._is_correct_source(src_coll):
+		if not self._is_allowed_source(src_coll):
 			return False
 		elif not self._is_allowed_card_indexlist(src_coll, request.indices):
 			return False
 		# check if cards are playable
+		rank = src_coll[request.indices[0]].rank
 		return rank >= self._minval or rank == self._settings["INVISIBLE"] or rank == self._settings["BURN"]
 			
 	def _is_allowed_source(self, src_coll):
@@ -157,72 +210,7 @@ class Game:
 		else:
 			return self.curplayer.downcards
 
-	def play(self, playreq):
-		"""
-		Places the cards specified in the playreq on the discard pile.
-		Note that the validity of the move is NOT checked. You have to
-		use is_possible_action first.
-		"""
-		# get the cardcollection specified by the src of the request:
-		src_coll = self._get_collection_from_request(playreq)
-		# put cards from src_coll to discardpile:
-		cards = src_coll.remove(playreq.indices)
-		print "player plays "+str(cards)
-		self._discardpile.add(cards)
-		rank = cards[0].rank
-		if rank == self._settings["BURN"]:
-			dead_cards = self._discardpile.removeall()
-			self._graveyard.add(dead_cards)
-			self._minval = 0
-		# adjust minval:
-		elif rank != self._settings["INVISIBLE"]: # dont adjust minval if a invisible card is played
-			self._minval = rank
-		print "new minval: "+str(self._minval) # TODO; remove
-		# redraw if src_coll was the players hand and there are cards
-		# left in the deck:
-		if src_coll == self.curplayer.hand:
-			numcards_missing = self._settings["NCARDS_HAND"] - len(src_coll)
-			if numcards_missing > 0:
-				cards = self._deck.draw(numcards_missing)
-				src_coll.add(cards)
-				print "player has redrawn "+str(len(cards))+" cards"
-			# sort hand:
-			src_coll.sort()
 
-	def take(self):
-		"""
-		Take all the cards from the discard pile into the current
-		players hand.
-		"""
-		cards = self._discardpile.removeall()
-		hand = self.curplayer.hand
-		hand.add(cards)
-		self._minval = 0
-
-	def take_downcard(self, idx):
-		card = self.curplayer.downcards.remove([idx])
-		self.curplayer.hand.add(card)
-	
-	def take_upcards(self, indices):
-		cards = self.curplayer.downcards.remove(indices)
-		self.curplayer.hand.add(cards)
-
-	# TODO: remove
-	def take_updown(self, indices):
-		"""
-		If you do not have any cards in your hand and you have to or want
-		to take the discard pile you can take (an) additional card(s):
-		(1) if you are playing your downcards and they do not match the 
-		discard pile you have to add that card to your hand, too
-		(2) if you are playing your upcards, you can choose a set of cards
-		of same rank from them.
-		"""
-		if self.curplayer.playing_from_downcards():
-			print "take downcard"
-		elif self.curplayer.playing_from_upcards():
-			 print "take upcards"
-		else:
-			raise Exception("take_updown: you can only take cards from upcards or downcards")
 		
 	def winner(self):
 		"""

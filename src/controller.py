@@ -52,6 +52,8 @@ class Controller:
 			self._on_request_play(request)
 		elif isinstance(request, RequestTake):
 			self._on_request_take(request)
+		elif isinstance(request, RequestTakeUpcards):
+			self._on_request_take_upcards(request)
 		else:
 			raise Exception("the controller can't handle this request")
 
@@ -69,7 +71,7 @@ class Controller:
 		self.view.update_discardpile(self.game.discardpile)
 		
 	def _on_request_play(self, req):
-		if self.game.is_possible_action(req):
+		if self.game.is_possible_move(req):
 			self.game.play(req)
 			if self.game.winner() != -1:
 				print "we have a winrar!"
@@ -95,7 +97,7 @@ class Controller:
 			self.view.reset_cursor()
 			
 	def _on_request_take(self, req):
-		if self.game.is_possible_action(req):
+		if self.game.is_possible_move(req):
 			if self.game.curplayer.playing_from_upcards():
 				print "here we need to take some upcards, too"
 			self.game.take()
@@ -103,3 +105,7 @@ class Controller:
 			self.view.update_discardpile(self.game.discardpile)
 			self.view.update_phand(self.game.curhand)
 			self.view.reset_cursor()
+			
+	def _on_request_take_upcards(self, req):
+		if self.game.is_possible_move(req):
+			print "TODO" # TODO
