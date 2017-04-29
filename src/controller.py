@@ -73,7 +73,7 @@ class Controller:
 	def _on_request_play(self, req):
 		if self.game.is_possible_move(req):
 			self.game.play(req)
-			if self.game.winner() != -1:
+			if self.game.is_win() != -1:
 				print "we have a winrar!"
 			self.view.cursor._unhighlight_all() # TODO:
 			# update view:
@@ -98,7 +98,7 @@ class Controller:
 			
 	def _on_request_take(self, req):
 		if self.game.is_possible_move(req):
-			if self.game.curplayer.playing_from_upcards():
+			if self.game.curplayer.is_playing_from_upcards():
 				print "here we need to take some upcards, too"
 			self.game.take()
 			self.view.cursor._unhighlight_all() # TODO:

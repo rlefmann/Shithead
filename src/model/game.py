@@ -17,13 +17,13 @@ class Player:
 		self.upcards = CardRow(num_up_down, visible = True)
 		self.downcards = CardRow(num_up_down, visible = False)
 		
-	def playing_from_hand(self):
+	def is_playing_from_hand(self):
 		return len(self.hand) > 0
 	
-	def playing_from_upcards(self):
+	def is_playing_from_upcards(self):
 		return len(self.hand) == 0 and not self.upcards.isempty()
 		
-	def playing_from_downcards(self):
+	def is_playing_from_downcards(self):
 		return len(self.hand) == 0 and self.upcards.isempty() and not self.downcards.isempty()
 
 
@@ -123,7 +123,15 @@ class Game:
 		cards = self.curplayer.downcards.remove(indices)
 		self.curplayer.hand.add(cards)
 
-		
+	def is_win(self): # TODO: we can add the player as an argument and only return for the current player
+		"""
+		Returns 0 if hero has won, 1 if villain has won and -1 if no one has won yet.
+		"""
+		for pidx, p in enumerate(self._players):
+			if len(p.hand) == 0 and p.upcards.isempty() and p.downcards.isempty():
+				return pidx
+		return -1
+
 	def _deal(self):
 		"""
 		Distributes the initial number of cards specified in the settings
@@ -141,13 +149,18 @@ class Game:
 			self._players[i].upcards.add(upcards)
 
 	def _findfirstplayer(self):
-		# TODO: implement
+		"""
+		Determines which player starts the game. Looks for the player
+		who's hand contains the smallest card which is not a special card.
+		If every player does only have special cards, the lowest special
+		card begins.
+
+		Returns 0, if hero starts and 1 otherwise.
+		"""
 		return 0
 
-
-
 	def _is_possible_take_upcards(self, request):
-		if not self.curplayer.playing_from_upcards():
+		if not self.curplayer.is_playing_from_upcards():
 			print "player does not play from upcards"
 			return False
 		src_coll = self.curplayer.upcards
@@ -191,11 +204,11 @@ class Game:
 		can be chosen currently. For example you cannot play upcards if
 		you still have cards in your hand
 		"""
-		if src_coll == self.curplayer.hand and self.curplayer.playing_from_hand():
+		if src_coll == self.curplayer.hand and self.curplayer.is_playing_from_hand():
 			return True
-		elif src_coll == self.curplayer.upcards and self.curplayer.playing_from_upcards():
+		elif src_coll == self.curplayer.upcards and self.curplayer.is_playing_from_upcards():
 			return True
-		elif src_coll == self.curplayer.downcards and self.curplayer.playing_from_downcards():
+		elif src_coll == self.curplayer.downcards and self.curplayer.is_playing_from_downcards():
 			return True
 		return False
 
@@ -211,16 +224,6 @@ class Game:
 			return self.curplayer.downcards
 
 
-		
-	def winner(self):
-		"""
-		Returns 0 if hero has won, 1 if villain has won and -1 if no one has won yet.
-		"""
-		for pidx, p in enumerate(self._players):
-			if len(p.hand) == 0 and p.upcards.isempty() and p.downcards.isempty():
-				return pidx
-		return -1
-		
 	@property
 	def phand(self):
 		"""Returns the players hand as a list of cardstrings."""

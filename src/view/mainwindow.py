@@ -4,6 +4,7 @@ from constants import *
 from ..requests import *
 from cardspritegroups import *
 from cursor import *
+from textbox import Textbox
 
 class MainWindow:
 	"""
@@ -22,31 +23,6 @@ class MainWindow:
 		self._create_sprites()
 		#self.update()
 
-	def _create_sprites(self):
-		"""
-		"""
-		# we start at the bottom with the player hand, downcards and upcards:
-		self.phand = SpreadCards(PHAND_X, PHAND_Y)
-		self.pdown = LaidOutCards(PDOWN_X,PDOWN_Y,alignment=Align.LEFT,visible=False)
-		self.pup = LaidOutCards(PUP_X,PUP_Y,alignment=Align.LEFT,visible=True)
-		
-		# deck and discardpile:
-		self.deck = CardStack(DECK_X,DECK_Y,visible=False)
-		self.dpile = CardStack(DPILE_X,DPILE_Y,visible=True)
-		
-		# now we display villains hand, downcards and upcards:
-		self.vhand = SpreadCards(VHAND_X, VHAND_Y, alignment=Align.RIGHT, visible=False)
-		self.vdown = LaidOutCards(VDOWN_X,VDOWN_Y,alignment=Align.RIGHT,visible=False)
-		self.vup = LaidOutCards(VUP_X,VUP_Y,alignment=Align.RIGHT,visible=True)
-		
-	def _create_cursor(self):
-		spritegroups_with_cursor = [self.phand, self.pup, self.pdown, self.dpile]
-		self.cursor = Cursor(spritegroups_with_cursor)
-		# This is the spritegroup necessary to display the cursor:
-		self.cursor_group = pg.sprite.Group()
-		self.cursor_group.add(self.cursor)
-		# TODO: this can be put into a global spritegroup
-		
 	def run(self):
 		"""
 		The main loop of the game and handling of key presses.
@@ -130,7 +106,41 @@ class MainWindow:
 	def update_discardpile(self, cardstrs):
 		"""Updates the discardpile with a new list of cardstrings."""
 		self.dpile.update(cardstrs)
-	
+
+	def reset_cursor(self):
+		self.cursor.reset()
+
+	def set_mode(self, gmode):
+		pass
+
+	def _create_sprites(self):
+		"""
+		"""
+		# we start at the bottom with the player hand, downcards and upcards:
+		self.phand = SpreadCards(PHAND_X, PHAND_Y)
+		self.pdown = LaidOutCards(PDOWN_X,PDOWN_Y,alignment=Align.LEFT,visible=False)
+		self.pup = LaidOutCards(PUP_X,PUP_Y,alignment=Align.LEFT,visible=True)
+		
+		# deck and discardpile:
+		self.deck = CardStack(DECK_X,DECK_Y,visible=False)
+		self.dpile = CardStack(DPILE_X,DPILE_Y,visible=True)
+
+		# Group for various game elements that are not CardSpriteroups:
+		self.other_group = pg.sprite.Group()
+		self.msgbox = Textbox(DECK_X,VUP_Y,100,20,18,(180,70,70))
+		self.other_group.add(self.msgbox)
+		
+		# now we display villains hand, downcards and upcards:
+		self.vhand = SpreadCards(VHAND_X, VHAND_Y, alignment=Align.RIGHT, visible=False)
+		self.vdown = LaidOutCards(VDOWN_X,VDOWN_Y,alignment=Align.RIGHT,visible=False)
+		self.vup = LaidOutCards(VUP_X,VUP_Y,alignment=Align.RIGHT,visible=True)
+		
+	def _create_cursor(self):
+		spritegroups_with_cursor = [self.phand, self.pup, self.pdown, self.dpile]
+		self.cursor = Cursor(spritegroups_with_cursor)
+		self.other_group.add(self.cursor)
+		# TODO: this can be put into a global spritegroup
+
 	def _redraw(self):
 		"""
 		Updates all the spritegroups and redraws the screen:
@@ -144,10 +154,6 @@ class MainWindow:
 		self.vhand.draw(self.screen)
 		self.vdown.draw(self.screen)
 		self.vup.draw(self.screen)
-		self.cursor_group.draw(self.screen)
+		self.other_group.draw(self.screen)
 		# draw the new frame:
 		pg.display.flip()
-
-	def reset_cursor(self):
-		self.cursor.reset()
-

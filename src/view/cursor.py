@@ -137,7 +137,7 @@ class Cursor(pg.sprite.Sprite):
 			sprite.sethighlighted(False)
 		self._selected_indices = []
 		
-	def _set_group_activeness(self):
+	def _set_group_activeness(self): # This should get a GameMode and set the groups accordingly
 		for idx, group in enumerate(self._spritegroups):
 			if len(group) == 0 or group.spritelist.count(None) == len(group): # the first is redundant
 				self.set_inactive(idx)
