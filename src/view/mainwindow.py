@@ -5,6 +5,7 @@ from ..requests import *
 from cardspritegroups import *
 from cursor import *
 from textbox import Textbox
+from ..gamemode import GameMode
 
 class MainWindow:
 	"""
@@ -21,7 +22,6 @@ class MainWindow:
 		# determines whether the main loop (see method run) is executed further. Will be set to false by the controller, when a QuitRequest is send.
 		self.running = True
 		self._create_sprites()
-		#self.update()
 
 	def run(self):
 		"""
@@ -111,7 +111,10 @@ class MainWindow:
 		self.cursor.reset()
 
 	def set_mode(self, gmode):
-		pass
+		self.cursor.mode = gmode
+
+	def show_message(self, msg):
+		self.msgbox.text = msg
 
 	def _create_sprites(self):
 		"""
@@ -127,8 +130,8 @@ class MainWindow:
 
 		# Group for various game elements that are not CardSpriteroups:
 		self.other_group = pg.sprite.Group()
-		self.msgbox = Textbox(DECK_X,VUP_Y,100,20,18,(180,70,70))
-		self.other_group.add(self.msgbox)
+		self.msgbox = Textbox(DECK_X,DECK_Y-MARGIN-40,2*(CARDWIDTH+MARGIN),20,18,WHITE,RED)
+		#self.other_group.add(self.msgbox)
 		
 		# now we display villains hand, downcards and upcards:
 		self.vhand = SpreadCards(VHAND_X, VHAND_Y, alignment=Align.RIGHT, visible=False)
@@ -136,8 +139,7 @@ class MainWindow:
 		self.vup = LaidOutCards(VUP_X,VUP_Y,alignment=Align.RIGHT,visible=True)
 		
 	def _create_cursor(self):
-		spritegroups_with_cursor = [self.phand, self.pup, self.pdown, self.dpile]
-		self.cursor = Cursor(spritegroups_with_cursor)
+		self.cursor = Cursor(self.phand, self.pup, self.pdown, self.dpile)
 		self.other_group.add(self.cursor)
 		# TODO: this can be put into a global spritegroup
 
@@ -146,6 +148,7 @@ class MainWindow:
 		Updates all the spritegroups and redraws the screen:
 		"""
 		self.screen.fill(GREEN)
+		self.msgbox.update(self.screen)
 		self.phand.draw(self.screen)
 		self.pdown.draw(self.screen)
 		self.pup.draw(self.screen)

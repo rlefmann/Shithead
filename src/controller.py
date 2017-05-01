@@ -74,7 +74,7 @@ class Controller:
 		if self.game.is_possible_move(req):
 			self.game.play(req)
 			if self.game.is_win() != -1:
-				print "we have a winrar!"
+				self.view.show_message("we have a winner!")
 			self.view.cursor._unhighlight_all() # TODO:
 			# update view:
 			self.view.update_discardpile(self.game.discardpile)
@@ -84,7 +84,8 @@ class Controller:
 				self.view.update_pupcards(self.game.pupcards)
 			else:
 				self.view.update_pdowncards(self.game.pdowncards)
-			self.view.reset_cursor()
+			#self.view.reset_cursor() # TODO
+			self._change_mode()
 		elif req.src == SourceCollection.DOWNCARDS:
 			# automatically take all the cards from the discard pile:
 			self.game.take()
@@ -95,17 +96,32 @@ class Controller:
 			self.view.update_pdowncards(self.game.pdowncards)
 			self.view.update_discardpile(self.game.discardpile)
 			self.view.reset_cursor()
+			self.view.show_message("downcard doesnt fit")
+			self._change_mode()
 			
 	def _on_request_take(self, req):
 		if self.game.is_possible_move(req):
 			if self.game.curplayer.is_playing_from_upcards():
+				self.view.show_message("take upcards, too")
+				self.view.set_mode(GameMode.TAKE_UPCARDS)
 				print "here we need to take some upcards, too"
 			self.game.take()
 			self.view.cursor._unhighlight_all() # TODO:
 			self.view.update_discardpile(self.game.discardpile)
 			self.view.update_phand(self.game.curhand)
-			self.view.reset_cursor()
+			self.view._change_mode()
 			
 	def _on_request_take_upcards(self, req):
 		if self.game.is_possible_move(req):
 			print "TODO" # TODO
+
+	def _change_mode(self):
+		"""
+		Changes the GameMode by looking into the players hand, upcards and downcards.
+		"""
+		if len(self.game.phand) > 0:
+			self.view.set_mode(GameMode.HAND)
+		elif len(self.game.pupcards) > 0:
+			self.view.set_mode(GameMode.UPCARDS)
+		elif len(self.game.pdowncards) > 0:
+			self.view.set_mode(GameMode.DOWNCARDS)

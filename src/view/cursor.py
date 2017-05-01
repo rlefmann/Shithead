@@ -2,17 +2,16 @@ import pygame as pg
 
 from constants import *
 from cardspritegroups import CardSpriteGroup, CardStack, LaidOutCards, SpreadCards
+from ..gamemode import GameMode
 
 class Cursor(pg.sprite.Sprite):
 	"""
 	A cursor for selecting cards from a CardSpriteGroup.
 	The CardSpriteGroup
 	"""
-	def __init__(self, spritegroups):
+	def __init__(self, handgroup, upgroup, downgroup, dpilegroup):
 		super(Cursor, self).__init__()
-		if len(spritegroups) == 0:
-			raise ValueError("you need to give the CursorManager at least 1 SpriteGroup")
-		self._spritegroups = spritegroups
+		self._spritegroups = [handgroup, upgroup, downgroup, dpilegroup]
 		# index of the current group:
 		self._groupidx = 0
 		# index of the card the cursor is pointing to:
@@ -36,8 +35,27 @@ class Cursor(pg.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		
 		#self._move(0,0) # TODO: is this okay (idx=0)?
-		self.reset()
-		
+		#self.reset()
+		self._mode = GameMode.HAND
+
+	@property
+	def mode(self):
+		return self._mode
+
+	@mode.setter
+	def mode(self, gmode):
+		self._mode = gmode
+		if gmode == GameMode.HAND:
+			self._set_active([0,3])
+		elif gmode == GameMode.UPCARDS:
+			self._set_active([1,3])
+		elif gmode == GameMode.DOWNCARDS:
+			self._set_active([2,3])
+		elif gmode == GameMode.TAKE_UPCARDS:
+			self.set_active([1])
+		groupidx, cardidx = self._first_allowed_pos()
+		self._move(groupidx, cardidx)
+	
 	@property
 	def curgroup(self):
 		return self._spritegroups[self._groupidx]
@@ -50,6 +68,39 @@ class Cursor(pg.sprite.Sprite):
 	def selected_indices(self):
 		return self._selected_indices
 
+	def moveleft(self):
+		"""
+		Moves the cursor one position to the left.
+		"""
+		if self._cardidx > 0:
+			if isinstance(self.curgroup, SpreadCards):
+				self._move(self._groupidx, self._cardidx-1)
+			elif isinstance(self.curgroup, LaidOutCards):
+				# move the cursor one position to the left, but skip empty slots:
+				#emptyslots = self.curgroup.empty_slots
+				i = self._cardidx - 1
+				#while i in emptyslots:
+				while self.curgroup[i] == None:
+					i-=1
+				if i>=0:
+					self._move(self._groupidx, i)
+
+	def moveright(self):
+		"""
+		Moves the cursor one position to the right.
+		"""
+		if self._cardidx < len(self.curgroup)-1:
+			if isinstance(self.curgroup, SpreadCards):
+				self._move(self._groupidx, self._cardidx+1)
+			elif isinstance(self.curgroup, LaidOutCards):
+				# move the cursor one position to the left, but skip empty slots:
+				emptyslots = self.curgroup.empty_slots
+				i = self._cardidx + 1
+				while i in emptyslots:
+					i+=1
+				if i < len(self.curgroup):
+					self._move(self._groupidx, i)
+	
 	def next_group(self):
 		if not self.is_blocked():
 			self._groupidx = (self._groupidx+1)%len(self._spritegroups)
@@ -97,38 +148,7 @@ class Cursor(pg.sprite.Sprite):
 	def _is_valid_idx(self,idx,lst):
 		return 0<=idx<len(lst)
 
-	def moveleft(self):
-		"""
-		Moves the cursor one position to the left.
-		"""
-		if self._cardidx > 0:
-			if isinstance(self.curgroup, SpreadCards):
-				self._move(self._groupidx, self._cardidx-1)
-			elif isinstance(self.curgroup, LaidOutCards):
-				# move the cursor one position to the left, but skip empty slots:
-				#emptyslots = self.curgroup.empty_slots
-				i = self._cardidx - 1
-				#while i in emptyslots:
-				while self.curgroup[i] == None:
-					i-=1
-				if i>=0:
-					self._move(self._groupidx, i)
 
-	def moveright(self):
-		"""
-		Moves the cursor one position to the right.
-		"""
-		if self._cardidx < len(self.curgroup)-1:
-			if isinstance(self.curgroup, SpreadCards):
-				self._move(self._groupidx, self._cardidx+1)
-			elif isinstance(self.curgroup, LaidOutCards):
-				# move the cursor one position to the left, but skip empty slots:
-				emptyslots = self.curgroup.empty_slots
-				i = self._cardidx + 1
-				while i in emptyslots:
-					i+=1
-				if i < len(self.curgroup):
-					self._move(self._groupidx, i)
 				
 	# TODO: this should be a accessible method
 	def _unhighlight_all(self):
@@ -137,17 +157,17 @@ class Cursor(pg.sprite.Sprite):
 			sprite.sethighlighted(False)
 		self._selected_indices = []
 		
-	def _set_group_activeness(self): # This should get a GameMode and set the groups accordingly
-		for idx, group in enumerate(self._spritegroups):
-			if len(group) == 0 or group.spritelist.count(None) == len(group): # the first is redundant
-				self.set_inactive(idx)
-			else:
-				self.set_active(idx)
-		if self._is_active(0):
-			self.set_inactive(1)
-			self.set_inactive(2)
-		elif self._is_active(1):
-			self.set_inactive(2)
+	#~ def _set_group_activeness(self): # This should get a GameMode and set the groups accordingly
+		#~ for idx, group in enumerate(self._spritegroups):
+			#~ if len(group) == 0 or group.spritelist.count(None) == len(group): # the first is redundant
+				#~ self.set_inactive(idx)
+			#~ else:
+				#~ self.set_active(idx)
+		#~ if self._is_active(0):
+			#~ self.set_inactive(1)
+			#~ self.set_inactive(2)
+		#~ elif self._is_active(1):
+			#~ self.set_inactive(2)
 			
 	def _is_active(self, groupidx):
 		return groupidx not in self._inactive_groups
@@ -178,19 +198,18 @@ class Cursor(pg.sprite.Sprite):
 			self._selected_indices.remove(self._cardidx)
 		self.cursprite.sethighlighted(not self.cursprite.highlighted)
 
-	def toggle_inactive(self, groupidx):
-		if groupidx in self._inactive_groups:
-			self._inactive_groups.remove(groupidx)
-		else:
-			self._inactive_groups.append(groupidx)
+	#~ def set_inactive(self, indices):
+		#~ for groupidx in indices:
+			#~ if groupidx<0 or groupidx>=len(self._spritegroups):
+				#~ raise ValueError("bad group index for set_inactive")
+			#~ elif groupidx not in self._inactive_groups:
+				#~ self._inactive_groups.append(groupidx)
 
-	def set_inactive(self, groupidx): 
-		if groupidx not in self._inactive_groups:
-			self._inactive_groups.append(groupidx)
-
-	def set_active(self, groupidx):
-		if groupidx in self._inactive_groups:
-			self._inactive_groups.remove(groupidx)
+	def _set_active(self, indices):
+		self._inactive_groups = []
+		for groupidx in range(len(self._spritegroups)):
+			if groupidx not in indices:
+				self._inactive_groups.append(groupidx)
 
 	def is_blocked(self):
 		"""
