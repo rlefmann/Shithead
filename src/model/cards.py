@@ -262,67 +262,67 @@ class Graveyard(Pile):
     
     
 class CardRow(CardCollection):
-    """
-    A CardRow object is a set of a fixed number of places, each of which can be None or hold a Card. Either all of the cards are visible (this is the case for the upcards in Shithead) or all of the cards are hidden (this is the case for the downcards).
-    """
-    def __init__(self, numcards, visible=True):
-        """
-        Creates numcards slots, which are filled with None entries.
-        """
-        super(self.__class__, self).__init__(visible)
-        if numcards<=0:
-            raise ValueError("the number of cards must be positive")
-        # add none entries:
-        super(self.__class__, self).add([None]*numcards)
-        self.numcards = numcards
-        
-    def add(self, newcards):
-        """
-        We only have to add cards once and the number of cards added must
-        be equal to numcards
-        """
-        if len(newcards) == self.numcards:
-            self._cards = newcards
-        else:
-            raise Exception("the number of cards must be equal to %d" % self.numcards)
-            
-    def delete(self, idx):
-        """
-        Instead of deleting the entry with del, it is replaced by a None entry.
-        This allows to use the generic remove method in CardCollection.
-        """
-        self._cards[idx] = None
-        
-    def __repr__(self):
-        """
-        Returns a string representation of the cards in the slots.
-        None entries are represented by xx, hidden cards by ??.
-        """
-        return str(self.cardstrings())
-        
-    def cardstrings(self):
-	res = []
-	for card in self._cards:
-	    if card == None:
-		res.append("xx")
-	    elif not self._visible:
-		res.append("??")
-	    else:
-		res.append(str(card))
-	return res
-	
-    def isempty(self):
 	"""
-	CardRow is empty, if every slot is None.
+	A CardRow object is a set of a fixed number of places, each of which can be None or hold a Card. Either all of the cards are visible (this is the case for the upcards in Shithead) or all of the cards are hidden (this is the case for the downcards).
 	"""
-	return self._cards.count(None) == len(self._cards)
-        
+	def __init__(self, numcards, visible=True):
+		"""
+		Creates numcards slots, which are filled with None entries.
+		"""
+		super(self.__class__, self).__init__(visible)
+		if numcards<=0:
+			raise ValueError("the number of cards must be positive")
+		# add none entries:
+		super(self.__class__, self).add([None]*numcards)
+		self.numcards = numcards
+
+	def add(self, newcards):
+		"""
+		We only have to add cards once and the number of cards added must
+		be equal to numcards
+		"""
+		if len(newcards) == self.numcards:
+			self._cards = newcards
+		else:
+			raise Exception("the number of cards must be equal to %d" % self.numcards)
+
+	def delete(self, idx):
+		"""
+		Instead of deleting the entry with del, it is replaced by a None entry.
+		This allows to use the generic remove method in CardCollection.
+		"""
+		self._cards[idx] = None
+
+	def __repr__(self):
+		"""
+		Returns a string representation of the cards in the slots.
+		None entries are represented by xx, hidden cards by ??.
+		"""
+		return str(self.cardstrings())
+
+	def cardstrings(self):
+		res = []
+		for card in self._cards:
+			if card == None:
+				res.append("xx")
+			elif not self._visible:
+				res.append("??")
+			else:
+				res.append(str(card))
+		return res
+
+	def isempty(self):
+		"""
+		CardRow is empty, if every slot is None.
+		"""
+		return self._cards.count(None) == len(self._cards)
+
 if __name__ == "__main__":
-    c1 = Card(10,3)
-    c2 = Card(8,0)
-    c3 = Card(11,2)
-    
-    upcards = CardRow(3)
-    upcards.add([c1,c2,c3])
-    upcards.remove([0,2])
-    print upcards
+	c1 = Card(10,3)
+	c2 = Card(8,0)
+	c3 = Card(11,2)
+
+	upcards = CardRow(3)
+	upcards.add([c1,c2,c3])
+	upcards.remove([0,2])
+	print upcards

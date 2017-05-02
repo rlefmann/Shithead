@@ -97,13 +97,20 @@ class Game:
 		# redraw if src_coll was the players hand and there are cards
 		# left in the deck:
 		if src_coll == self.curplayer.hand:
-			numcards_missing = self._settings["NCARDS_HAND"] - len(src_coll)
-			if numcards_missing > 0:
-				cards = self._deck.draw(numcards_missing)
-				src_coll.add(cards)
-				print "player has redrawn "+str(len(cards))+" cards"
-			# sort hand:
-			src_coll.sort()
+			self.redraw() # TODO: this should be inside the controller
+
+	def redraw(self):
+		"""
+		If the player has less than the number of cards he started the
+		game with left in his hand, he redraws the missing number of
+		cards or whatever is left in the deck.
+		"""
+		numcards_missing = self._settings["NCARDS_HAND"] - len(self.curplayer.hand)
+		if numcards_missing > 0:
+			cards = self._deck.draw(numcards_missing)
+			self.curplayer.hand.add(cards)
+			print "player has redrawn "+str(len(cards))+" cards"
+			self.curplayer.hand.sort()
 			
 	def take(self):
 		"""
@@ -160,9 +167,9 @@ class Game:
 		return 0
 
 	def _is_possible_take_upcards(self, request):
-		if not self.curplayer.is_playing_from_upcards():
-			print "player does not play from upcards"
-			return False
+		#if not self.curplayer.is_playing_from_upcards():
+		#	print "player does not play from upcards"
+		#	return False
 		src_coll = self.curplayer.upcards
 		return self._is_allowed_card_indexlist(src_coll, request.indices)
 

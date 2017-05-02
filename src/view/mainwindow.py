@@ -22,6 +22,8 @@ class MainWindow:
 		# determines whether the main loop (see method run) is executed further. Will be set to false by the controller, when a QuitRequest is send.
 		self.running = True
 		self._create_sprites()
+		self.cursor = None
+		self._gmode = GameMode.HAND
 
 	def run(self):
 		"""
@@ -53,8 +55,11 @@ class MainWindow:
 				elif event.type == pg.KEYDOWN and event.key == pg.K_RETURN:
 					indices = self.cursor.selected_indices
 					if len(indices) > 0:
-						g = self.cursor.curgroup 
-						if g == self.phand:
+						g = self.cursor.curgroup
+						if self.cursor.mode == GameMode.TAKE_UPCARDS:
+							print "!!!!!"
+							req = RequestTakeUpcards(indices)
+						elif g == self.phand:
 							req = RequestPlay(SourceCollection.HAND, indices)
 						elif g == self.pup:
 							req = RequestPlay(SourceCollection.UPCARDS, indices)
@@ -107,11 +112,33 @@ class MainWindow:
 		"""Updates the discardpile with a new list of cardstrings."""
 		self.dpile.update(cardstrs)
 
-	def reset_cursor(self):
-		self.cursor.reset()
-
-	def set_mode(self, gmode):
-		self.cursor.mode = gmode
+	def update(self, gmode, **kwargs):
+		if self.cursor:
+			self.cursor.unhighlight_all() # TODO: necessary?
+		for kw in kwargs:
+			cardstrs = kwargs[kw]
+			if kw == "phand":
+				self.phand.update(cardstrs)
+			elif kw == "pupcards":
+				self.pup.update(cardstrs)
+			elif kw == "pdowncards":
+				self.pdown.update(cardstrs)
+			elif kw == "vhand":
+				self.vhand.update(cardstrs)
+			elif kw == "vupcards":
+				self.vup.update(cardstrs)
+			elif kw == "vdowncards":
+				self.vdown.update(cardstrs)
+			elif kw == "deck":
+				self.deck.update(cardstrs)
+			elif kw == "discardpile":
+				self.dpile.update(cardstrs)
+			else:
+				raise AttributeError("the keyword {} is not allowed".format(kw))
+		if self.cursor:
+			self.cursor.mode = gmode
+			print "set mode to {}".format(gmode)
+			self.cursor.reset()
 
 	def show_message(self, msg):
 		self.msgbox.text = msg

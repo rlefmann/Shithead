@@ -33,10 +33,7 @@ class Cursor(pg.sprite.Sprite):
 		self.image = self._images[False]
 		
 		self.rect = self.image.get_rect()
-		
-		#self._move(0,0) # TODO: is this okay (idx=0)?
-		#self.reset()
-		self._mode = GameMode.HAND
+		self.mode = GameMode.HAND
 
 	@property
 	def mode(self):
@@ -52,7 +49,7 @@ class Cursor(pg.sprite.Sprite):
 		elif gmode == GameMode.DOWNCARDS:
 			self._set_active([2,3])
 		elif gmode == GameMode.TAKE_UPCARDS:
-			self.set_active([1])
+			self._set_active([1])
 		groupidx, cardidx = self._first_allowed_pos()
 		self._move(groupidx, cardidx)
 	
@@ -102,12 +99,23 @@ class Cursor(pg.sprite.Sprite):
 					self._move(self._groupidx, i)
 	
 	def next_group(self):
-		if not self.is_blocked():
+		if len(self._selected_indices) == 0: # cursor is blocked to the current group if at least one sprite is highlighted. If the cursor is blocked it cannot switch between groups anymore
 			self._groupidx = (self._groupidx+1)%len(self._spritegroups)
 			if len(self.curgroup) == 0 or self._groupidx in self._inactive_groups:
 				self.next_group()
 			else:
 				self._move(self._groupidx,0) # this must be the first non-empty
+
+	def toggle_highlighted(self):
+		"""
+		Highlights the currently selected CardSprite.
+		"""
+		#sprite = self.cursprite
+		if not self.cursprite.highlighted:
+			self._selected_indices.append(self._cardidx)
+		else:
+			self._selected_indices.remove(self._cardidx)
+		self.cursprite.sethighlighted(not self.cursprite.highlighted)
 
 	def _move(self, groupidx, cardidx):
 		if not self._is_valid_idx(groupidx, self._spritegroups):
@@ -148,27 +156,15 @@ class Cursor(pg.sprite.Sprite):
 	def _is_valid_idx(self,idx,lst):
 		return 0<=idx<len(lst)
 
-
-				
-	# TODO: this should be a accessible method
-	def _unhighlight_all(self):
+	def unhighlight_all(self):
+		"""
+		Unhighights all highlighted cards.
+		"""
 		for idx in self._selected_indices:
 			sprite = self.curgroup[idx]
 			sprite.sethighlighted(False)
 		self._selected_indices = []
-		
-	#~ def _set_group_activeness(self): # This should get a GameMode and set the groups accordingly
-		#~ for idx, group in enumerate(self._spritegroups):
-			#~ if len(group) == 0 or group.spritelist.count(None) == len(group): # the first is redundant
-				#~ self.set_inactive(idx)
-			#~ else:
-				#~ self.set_active(idx)
-		#~ if self._is_active(0):
-			#~ self.set_inactive(1)
-			#~ self.set_inactive(2)
-		#~ elif self._is_active(1):
-			#~ self.set_inactive(2)
-			
+
 	def _is_active(self, groupidx):
 		return groupidx not in self._inactive_groups
 
@@ -180,41 +176,11 @@ class Cursor(pg.sprite.Sprite):
 		TODO: what happens if all the slots are empty?
 		TODO: does this make sense or should we also jump back to group 0?
 		"""
-		# remove highlighting:
-		#self._unhighlight_all() 
-		# set groups inactive:
-		self._set_group_activeness()
 		groupidx, cardidx = self._first_allowed_pos()
 		self._move(groupidx, cardidx)
-
-	def toggle_highlighted(self):
-		"""
-		Highlights the currently selected CardSprite.
-		"""
-		#sprite = self.cursprite
-		if not self.cursprite.highlighted:
-			self._selected_indices.append(self._cardidx)
-		else:
-			self._selected_indices.remove(self._cardidx)
-		self.cursprite.sethighlighted(not self.cursprite.highlighted)
-
-	#~ def set_inactive(self, indices):
-		#~ for groupidx in indices:
-			#~ if groupidx<0 or groupidx>=len(self._spritegroups):
-				#~ raise ValueError("bad group index for set_inactive")
-			#~ elif groupidx not in self._inactive_groups:
-				#~ self._inactive_groups.append(groupidx)
 
 	def _set_active(self, indices):
 		self._inactive_groups = []
 		for groupidx in range(len(self._spritegroups)):
 			if groupidx not in indices:
 				self._inactive_groups.append(groupidx)
-
-	def is_blocked(self):
-		"""
-		The cursor is blocked to the current group if at least one
-		sprite is highlighted. If the cursor is blocked it cannot
-		switch between groups anymore:
-		"""
-		return len(self._selected_indices) > 0

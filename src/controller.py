@@ -58,70 +58,77 @@ class Controller:
 			raise Exception("the controller can't handle this request")
 
 	def _on_request_initial_board(self):
-		# update heroes hand, upcards and downcards:
-		self.view.update_phand(self.game.phand)
-		self.view.update_pupcards(self.game.pupcards)
-		self.view.update_pdowncards(self.game.pdowncards)
-		# update villains hand, upcards and downcards:
-		self.view.update_vhand(self.game.vhand)
-		self.view.update_vupcards(self.game.vupcards)
-		self.view.update_vdowncards(self.game.vdowncards)
-		# update deck and discardpile:
-		self.view.update_deck(self.game.deck)
-		self.view.update_discardpile(self.game.discardpile)
+		self.view.update(GameMode.HAND,
+			# update heroes hand, upcards and downcards:
+			phand=self.game.phand,
+			pupcards=self.game.pupcards,
+			pdowncards=self.game.pdowncards,
+			# update villains hand, upcards and downcards:
+			vhand=self.game.vhand,
+			vupcards=self.game.vupcards,
+			vdowncards=self.game.vdowncards,
+			# update deck and discardpile:
+			deck=self.game.deck,
+			discardpile=self.game.discardpile)
 		
 	def _on_request_play(self, req):
 		if self.game.is_possible_move(req):
 			self.game.play(req)
 			if self.game.is_win() != -1:
 				self.view.show_message("we have a winner!")
-			self.view.cursor._unhighlight_all() # TODO:
+			nextmode = self._find_next_mode()
 			# update view:
-			self.view.update_discardpile(self.game.discardpile)
 			if req.src == SourceCollection.HAND:
-				self.view.update_phand(self.game.phand)
+				self.view.update(nextmode,
+					phand=self.game.phand,
+					discardpile=self.game.discardpile)
 			elif req.src == SourceCollection.UPCARDS:
-				self.view.update_pupcards(self.game.pupcards)
+				self.view.update(nextmode,
+					pupcards=self.game.pupcards,
+					discardpile=self.game.discardpile)
 			else:
-				self.view.update_pdowncards(self.game.pdowncards)
-			#self.view.reset_cursor() # TODO
-			self._change_mode()
+				self.view.update(nextmode,
+					pdowncards=self.game.pdowncards,
+					discardpile=self.game.discardpile)
 		elif req.src == SourceCollection.DOWNCARDS:
 			# automatically take all the cards from the discard pile:
 			self.game.take()
 			# additionally take the downcard you wanted to play:
 			self.game.take_downcard(req.indices[0])
-			self.view.cursor._unhighlight_all() # TODO:
-			self.view.update_phand(self.game.phand)
-			self.view.update_pdowncards(self.game.pdowncards)
-			self.view.update_discardpile(self.game.discardpile)
-			self.view.reset_cursor()
+			self.view.update(GameMode.HAND,
+				phand=self.game.phand,
+				pdowncards=self.game.pdowncards,
+				discardpile=self.game.discardpile)
 			self.view.show_message("downcard doesnt fit")
-			self._change_mode()
 			
 	def _on_request_take(self, req):
 		if self.game.is_possible_move(req):
-			if self.game.curplayer.is_playing_from_upcards():
-				self.view.show_message("take upcards, too")
-				self.view.set_mode(GameMode.TAKE_UPCARDS)
-				print "here we need to take some upcards, too"
+			plays_from_up = self.game.curplayer.is_playing_from_upcards()
 			self.game.take()
-			self.view.cursor._unhighlight_all() # TODO:
-			self.view.update_discardpile(self.game.discardpile)
-			self.view.update_phand(self.game.curhand)
-			self.view._change_mode()
-			
+			if plays_from_up:
+				self.view.show_message("take upcards, too")
+				self.view.update(GameMode.TAKE_UPCARDS,
+					phand=self.game.curhand,
+					discardpile=self.game.discardpile)
+			else:
+				nextmode = self._find_next_mode()
+				self.view.update(nextmode,
+					phand=self.game.curhand,
+					discardpile=self.game.discardpile)
+
 	def _on_request_take_upcards(self, req):
 		if self.game.is_possible_move(req):
 			print "TODO" # TODO
 
-	def _change_mode(self):
+	def _find_next_mode(self):
 		"""
-		Changes the GameMode by looking into the players hand, upcards and downcards.
+		Finds the next GameMode by looking into the players hand, upcards and downcards.
+		NB: this does not handle the GameMode TAKE_UPCARDS, which must be
+		dealt with separately.
 		"""
 		if len(self.game.phand) > 0:
-			self.view.set_mode(GameMode.HAND)
-		elif len(self.game.pupcards) > 0:
-			self.view.set_mode(GameMode.UPCARDS)
-		elif len(self.game.pdowncards) > 0:
-			self.view.set_mode(GameMode.DOWNCARDS)
+			return GameMode.HAND
+		elif not all(item == "xx" for item in self.game.pupcards):
+			return GameMode.UPCARDS
+		elif not all(item == "xx" for item in self.game.pdowncards):
+			return GameMode.DOWNCARDS
