@@ -130,8 +130,10 @@ class MainWindow:
 				self.vdown.update(cardstrs)
 			elif kw == "deck":
 				self.deck.update(cardstrs)
+				self.deckcounter.text = str(len(cardstrs))
 			elif kw == "discardpile":
 				self.dpile.update(cardstrs)
+				self.dpilecounter.text = str(len(cardstrs))
 			else:
 				raise AttributeError("the keyword {} is not allowed".format(kw))
 
@@ -157,8 +159,10 @@ class MainWindow:
 		
 		# deck and discardpile:
 		self.deck = CardStack(DECK_X,DECK_Y,visible=False)
+		self.deckcounter = Textbox(DECK_X+int(CARDWIDTH/2)-10, DECK_Y+int(CARDHEIGHT/2)-10, 20, 20, 18, WHITE, BLUE)
 		self.dpile = CardStack(DPILE_X,DPILE_Y,visible=True)
-
+		self.dpilecounter = Textbox(DPILE_X+int(CARDWIDTH/2)-10, DPILE_Y+int(CARDHEIGHT/2)-10, 20, 20, 18, WHITE, BLUE)
+		
 		# Group for various game elements that are not CardSpriteroups:
 		self.other_group = pg.sprite.Group()
 		self.msgbox = Textbox(DECK_X,DECK_Y-MARGIN-40,2*(CARDWIDTH+MARGIN),20,18,WHITE,RED)
@@ -189,5 +193,7 @@ class MainWindow:
 		self.vdown.draw(self.screen)
 		self.vup.draw(self.screen)
 		self.other_group.draw(self.screen)
+		self.deckcounter.update(self.screen)
+		self.dpilecounter.update(self.screen)
 		# draw the new frame:
 		pg.display.flip()

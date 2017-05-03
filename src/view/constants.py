@@ -37,6 +37,7 @@ GREEN	= (0,100,0)
 WHITE	= (255,255,255)
 BLACK	= (0,0,0)
 RED		= (214,31,48) # the same red as the card backs
+BLUE	= (95,120,160)
 
 # OTHER:
 TITLE = "Shithead"
