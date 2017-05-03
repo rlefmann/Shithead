@@ -76,11 +76,15 @@ class Controller:
 			self.game.play(req)
 			if self.game.is_win() != -1:
 				self.view.show_message("we have a winner!")
+				print "winning condition"
+				self.view.update(GameMode.FINISHED)
 			nextmode = self._find_next_mode()
+			print "find next mode returned {}".format(nextmode)
 			# update view:
 			if req.src == SourceCollection.HAND:
 				self.view.update(nextmode,
 					phand=self.game.phand,
+					deck=self.game.deck,
 					discardpile=self.game.discardpile)
 			elif req.src == SourceCollection.UPCARDS:
 				self.view.update(nextmode,
@@ -118,7 +122,12 @@ class Controller:
 
 	def _on_request_take_upcards(self, req):
 		if self.game.is_possible_move(req):
-			print "TODO" # TODO
+			self.game.take_upcards(req.indices)
+			self.view.update(GameMode.HAND,
+				phand=self.game.curhand, # TODO: this should update also computer players hand
+				pupcards=self.game.pupcards)
+			self.view.show_message("")
+				
 
 	def _find_next_mode(self):
 		"""
@@ -132,3 +141,5 @@ class Controller:
 			return GameMode.UPCARDS
 		elif not all(item == "xx" for item in self.game.pdowncards):
 			return GameMode.DOWNCARDS
+		else:
+			return GameMode.FINISHED

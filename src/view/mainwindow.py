@@ -57,7 +57,6 @@ class MainWindow:
 					if len(indices) > 0:
 						g = self.cursor.curgroup
 						if self.cursor.mode == GameMode.TAKE_UPCARDS:
-							print "!!!!!"
 							req = RequestTakeUpcards(indices)
 						elif g == self.phand:
 							req = RequestPlay(SourceCollection.HAND, indices)
@@ -135,10 +134,15 @@ class MainWindow:
 				self.dpile.update(cardstrs)
 			else:
 				raise AttributeError("the keyword {} is not allowed".format(kw))
+
 		if self.cursor:
+			self._gmode = gmode
 			self.cursor.mode = gmode
+			if gmode == GameMode.FINISHED:
+				self.other_group.remove(self.cursor)
+			else:
+				self.cursor.reset()
 			print "set mode to {}".format(gmode)
-			self.cursor.reset()
 
 	def show_message(self, msg):
 		self.msgbox.text = msg

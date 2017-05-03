@@ -127,7 +127,7 @@ class Game:
 		self.curplayer.hand.add(card)
 	
 	def take_upcards(self, indices):
-		cards = self.curplayer.downcards.remove(indices)
+		cards = self.curplayer.upcards.remove(indices)
 		self.curplayer.hand.add(cards)
 
 	def is_win(self): # TODO: we can add the player as an argument and only return for the current player

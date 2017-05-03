@@ -42,17 +42,26 @@ class Cursor(pg.sprite.Sprite):
 	@mode.setter
 	def mode(self, gmode):
 		self._mode = gmode
+		print "set cursor mode to {}".format(gmode)
 		if gmode == GameMode.HAND:
 			self._set_active([0,3])
 		elif gmode == GameMode.UPCARDS:
 			self._set_active([1,3])
 		elif gmode == GameMode.DOWNCARDS:
-			self._set_active([2,3])
+			self._set_active([2]) # you must try to play a downcard
 		elif gmode == GameMode.TAKE_UPCARDS:
 			self._set_active([1])
+		elif gmode == GameMode.FINISHED:
+			self._set_active([])
+			return
+		print "this gets run. terrible!"
 		groupidx, cardidx = self._first_allowed_pos()
 		self._move(groupidx, cardidx)
-	
+
+	@property
+	def deactivated(self):
+		return self._mode == GameMode.FINISHED
+
 	@property
 	def curgroup(self):
 		return self._spritegroups[self._groupidx]
@@ -69,7 +78,7 @@ class Cursor(pg.sprite.Sprite):
 		"""
 		Moves the cursor one position to the left.
 		"""
-		if self._cardidx > 0:
+		if not self.deactivated and self._cardidx > 0:
 			if isinstance(self.curgroup, SpreadCards):
 				self._move(self._groupidx, self._cardidx-1)
 			elif isinstance(self.curgroup, LaidOutCards):
@@ -86,7 +95,7 @@ class Cursor(pg.sprite.Sprite):
 		"""
 		Moves the cursor one position to the right.
 		"""
-		if self._cardidx < len(self.curgroup)-1:
+		if not self.deactivated and self._cardidx < len(self.curgroup)-1:
 			if isinstance(self.curgroup, SpreadCards):
 				self._move(self._groupidx, self._cardidx+1)
 			elif isinstance(self.curgroup, LaidOutCards):
@@ -99,30 +108,31 @@ class Cursor(pg.sprite.Sprite):
 					self._move(self._groupidx, i)
 	
 	def next_group(self):
-		if len(self._selected_indices) == 0: # cursor is blocked to the current group if at least one sprite is highlighted. If the cursor is blocked it cannot switch between groups anymore
+		if not self.deactivated and len(self._selected_indices) == 0: # cursor is blocked to the current group if at least one sprite is highlighted. If the cursor is blocked it cannot switch between groups anymore
 			self._groupidx = (self._groupidx+1)%len(self._spritegroups)
 			if len(self.curgroup) == 0 or self._groupidx in self._inactive_groups:
 				self.next_group()
 			else:
-				self._move(self._groupidx,0) # this must be the first non-empty
+				self._move(self._groupidx,self.curgroup.first_nonempty_slot()) # this must be the first non-empty
 
 	def toggle_highlighted(self):
 		"""
 		Highlights the currently selected CardSprite.
 		"""
 		#sprite = self.cursprite
-		if not self.cursprite.highlighted:
-			self._selected_indices.append(self._cardidx)
-		else:
-			self._selected_indices.remove(self._cardidx)
-		self.cursprite.sethighlighted(not self.cursprite.highlighted)
+		if not self.deactivated:
+			if not self.cursprite.highlighted:
+				self._selected_indices.append(self._cardidx)
+			else:
+				self._selected_indices.remove(self._cardidx)
+			self.cursprite.sethighlighted(not self.cursprite.highlighted)
 
 	def _move(self, groupidx, cardidx):
 		if not self._is_valid_idx(groupidx, self._spritegroups):
 			raise ValueError("called the _move method with an invalid groupidx")
 		group = self._spritegroups[groupidx]
 		if not self._is_valid_idx(cardidx, group):
-			raise ValueError("called the _move method with an invalid cardidx")
+			raise ValueError("called the _move method with an invalid cardidx {}".format(cardidx))
 		self.rect.x = group[cardidx].xpos
 		self.rect.y = group[cardidx].ypos
 		self._groupidx = groupidx
@@ -136,6 +146,8 @@ class Cursor(pg.sprite.Sprite):
 			
 			
 	def _first_allowed_pos(self):
+		if self.deactivated:
+			return -1,-1
 		groupidx, cardidx = 0,0
 		# find groupidx:
 		while groupidx in self._inactive_groups:

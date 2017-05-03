@@ -5,3 +5,4 @@ class GameMode(Enum):
 	UPCARDS = 2
 	DOWNCARDS = 3
 	TAKE_UPCARDS = 4
+	FINISHED = 5

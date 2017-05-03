@@ -47,6 +47,14 @@ class CardSpriteGroup(pg.sprite.OrderedUpdates):
 		are allowed.
 		"""
 		return True
+
+	def first_nonempty_slot(self):
+		pos = 0
+		while self.spritelist[pos] == None:
+			pos+=1
+			if pos >= len(self.spritelist):
+				return -1
+		return pos
 		
 	def update(self, cards):
 		# TODO: do we have to implement this?
@@ -115,7 +123,7 @@ class LaidOutCards(CardSpriteGroup):
 		The alignment can be either left, right or center.
 		"""
 		return alignment in [Align.LEFT, Align.CENTER, Align.RIGHT]
-	
+
 	def update(self, cards):
 		# empty the sprite list:
 		self.spritelist = []
