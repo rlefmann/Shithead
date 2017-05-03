@@ -1,5 +1,6 @@
 from cards import *
 from ..requests import *
+from ..gamemode import *
 
 class Player:
 	"""
@@ -57,6 +58,7 @@ class Game:
 		self._curplayer = self._findfirstplayer()
 		self._curplayer = 0 # TODO: remove
 		self._lastplayed = [] # the cardstring representation of the last cards that were played
+		self._mode = GameMode.HAND
 
 	def is_possible_move(self, request):
 		"""
@@ -123,6 +125,8 @@ class Game:
 		hand = self.curplayer.hand
 		hand.add(cards)
 		self._minval = 0
+		if self.curplayer.is_playing_from_upcards():
+			self._mode = GameMode.TAKE_UPCARDS
 
 	def take_downcard(self, idx):
 		card = self.curplayer.downcards.remove([idx])
@@ -137,7 +141,27 @@ class Game:
 		Returns 0 if the current player has won the game.
 		"""
 		p = self.curplayer
-		return len(p.hand) == 0 and p.upcards.isempty() and p.downcards.isempty()
+		if len(p.hand) == 0 and p.upcards.isempty() and p.downcards.isempty():
+			self._mode = GameMode.FINISHED
+			return True
+		return False
+
+	def switch_player(self):
+		"""
+		Switches to the next player and sets the GameMode depending on
+		his cards.
+		"""
+		self._curplayer = (self._curplayer+1)%2
+		# set the mode correctly:
+		if len(self.curplayer.hand) > 0:
+			self._mode = GameMode.HAND
+		elif not self.curplayer.upcards.isempty():
+			self._mode = GameMode.UPCARDS
+		elif not self.curplayer.upcards.isempty():
+			self._mode = GameMode.DOWNCARDS
+		else:
+			self._mode = GameMode.FINISHED
+			print "this should never be reached"
 
 	def _deal(self):
 		"""
@@ -230,7 +254,6 @@ class Game:
 		else:
 			return self.curplayer.downcards
 
-
 	@property
 	def phand(self):
 		"""Returns the players hand as a list of cardstrings."""
@@ -291,3 +314,7 @@ class Game:
 	@property
 	def lastplayed(self):
 		return self._lastplayed
+
+	@property
+	def mode(self):
+		return self._mode

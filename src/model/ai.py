@@ -22,9 +22,9 @@ class StraightforwardAI(AI):
 		super(StraightforwardAI, self).__init__(game)
 
 	def think(self):
-		if self.game.curplayer == 0:
+		if self.game._curplayer == 0:
 			raise Exception("the computer player is always player 1, but it is player 0s turn")
-		smallestplayable = self.findsmallestplayableindices()
+		src_collection, smallestplayable = self.findsmallestplayableindices()
 		if len(smallestplayable) == 0:
 			return RequestTake()
 		else:
@@ -35,6 +35,7 @@ class StraightforwardAI(AI):
 		Finds the index of the smallest playable card, or indices,
 		if there are several cards with the same rank
 		"""
+		src_coll = self.game.curplayer # TODO: here: get collection depending on gamemode
 		pcards = self.game.players[1].hand
 
 		# create a order which is different 

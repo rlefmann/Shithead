@@ -109,7 +109,7 @@ class Controller:
 		if self.game.is_possible_move(req):
 			plays_from_up = self.game.curplayer.is_playing_from_upcards()
 			self.game.take()
-			if plays_from_up:
+			if plays_from_up: # TODO: if self.game.mode == GameMode.UPCARDS
 				self.view.show_message("take upcards, too")
 				self.view.update(GameMode.TAKE_UPCARDS,
 					phand=self.game.curhand,
@@ -143,3 +143,6 @@ class Controller:
 			return GameMode.DOWNCARDS
 		else:
 			return GameMode.FINISHED
+
+	def _villainmove(self):
+		pass # TODO
