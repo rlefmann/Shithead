@@ -57,8 +57,12 @@ class Game:
 		# the player whos turn it is right now:
 		self._curplayer = self._findfirstplayer()
 		self._curplayer = 0 # TODO: remove
-		self._lastplayed = [] # the cardstring representation of the last cards that were played
+		# the cardstring representation of the last cards that were played:
+		self._lastplayed = []
+		# the current game mode:
 		self._mode = GameMode.HAND
+		# the lower card was played and the game direction is reversed:
+		self._lower = False
 
 	def is_possible_move(self, request):
 		"""
@@ -253,6 +257,24 @@ class Game:
 			return self.curplayer.upcards
 		else:
 			return self.curplayer.downcards
+
+	def _is_burn(self, rank): # TODO: maybe we can just look at the top cards of the pile and dont need the rank
+		"""
+		Checks whether the cards in the discard pile get burned. This
+		happens if either the burn card is played or four cards of
+		equal rank lie on top of the discard pile.
+		"""
+		if rank == self._settings["BURN"]:
+			return True
+		num_same_rank = 0
+		pos = -1
+		if len(self._discardpile) > 0:
+			while self._discardpile[pos].rank == rank:
+				num_same_rank += 1
+				pos -= 1
+			if num_same_rank == 4:
+				return True
+		return False
 
 	@property
 	def phand(self):

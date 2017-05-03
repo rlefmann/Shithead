@@ -159,14 +159,13 @@ class MainWindow:
 		
 		# deck and discardpile:
 		self.deck = CardStack(DECK_X,DECK_Y,visible=False)
-		self.deckcounter = Textbox(DECKCOUNTER_X, DECKCOUNTER_Y, 20, 20, 18, WHITE, BLUE)
+		self.deckcounter = Textbox(DECKCOUNTER_X, DECKCOUNTER_Y, COUNTERWIDTH, COUNTERHEIGHT, 18, WHITE, BLUE)
 		self.dpile = CardStack(DPILE_X,DPILE_Y,visible=True)
-		self.dpilecounter = Textbox(DPILECOUNTER_X, DPILECOUNTER_Y, 20, 20, 18, WHITE, BLUE)
+		self.dpilecounter = Textbox(DPILECOUNTER_X, DPILECOUNTER_Y, COUNTERWIDTH, COUNTERHEIGHT, 18, WHITE, BLUE)
 		
 		# Group for various game elements that are not CardSpriteroups:
 		self.other_group = pg.sprite.Group()
 		self.msgbox = Textbox(DECK_X,DECK_Y-MARGIN-40,2*(CARDWIDTH+MARGIN),20,18,WHITE,RED)
-		#self.other_group.add(self.msgbox)
 		
 		# now we display villains hand, downcards and upcards:
 		self.vhand = SpreadCards(VHAND_X, VHAND_Y, alignment=Align.RIGHT, visible=False)
