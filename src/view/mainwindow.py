@@ -159,9 +159,9 @@ class MainWindow:
 		
 		# deck and discardpile:
 		self.deck = CardStack(DECK_X,DECK_Y,visible=False)
-		self.deckcounter = Textbox(DECK_X+int(CARDWIDTH/2)-10, DECK_Y+int(CARDHEIGHT/2)-10, 20, 20, 18, WHITE, BLUE)
+		self.deckcounter = Textbox(DECKCOUNTER_X, DECKCOUNTER_Y, 20, 20, 18, WHITE, BLUE)
 		self.dpile = CardStack(DPILE_X,DPILE_Y,visible=True)
-		self.dpilecounter = Textbox(DPILE_X+int(CARDWIDTH/2)-10, DPILE_Y+int(CARDHEIGHT/2)-10, 20, 20, 18, WHITE, BLUE)
+		self.dpilecounter = Textbox(DPILECOUNTER_X, DPILECOUNTER_Y, 20, 20, 18, WHITE, BLUE)
 		
 		# Group for various game elements that are not CardSpriteroups:
 		self.other_group = pg.sprite.Group()
