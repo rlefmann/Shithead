@@ -56,6 +56,7 @@ class Game:
 		# the player whos turn it is right now:
 		self._curplayer = self._findfirstplayer()
 		self._curplayer = 0 # TODO: remove
+		self._lastplayed = [] # the cardstring representation of the last cards that were played
 
 	def is_possible_move(self, request):
 		"""
@@ -85,6 +86,7 @@ class Game:
 		cards = src_coll.remove(playreq.indices)
 		print "player plays "+str(cards)
 		self._discardpile.add(cards)
+		self._lastplayed = [str(c) for c in cards]
 		rank = cards[0].rank
 		if rank == self._settings["BURN"]:
 			dead_cards = self._discardpile.removeall()
@@ -132,12 +134,10 @@ class Game:
 
 	def is_win(self): # TODO: we can add the player as an argument and only return for the current player
 		"""
-		Returns 0 if hero has won, 1 if villain has won and -1 if no one has won yet.
+		Returns 0 if the current player has won the game.
 		"""
-		for pidx, p in enumerate(self._players):
-			if len(p.hand) == 0 and p.upcards.isempty() and p.downcards.isempty():
-				return pidx
-		return -1
+		p = self.curplayer
+		return len(p.hand) == 0 and p.upcards.isempty() and p.downcards.isempty()
 
 	def _deal(self):
 		"""
@@ -264,6 +264,7 @@ class Game:
 	@property
 	def deck(self):
 		"""Returns the deck as a list of cardstrings"""
+		#print type(self._deck.cardstrings())
 		return self._deck.cardstrings()
 
 	@property
@@ -286,4 +287,7 @@ class Game:
 	@property
 	def curplayer(self):
 		return self._players[self._curplayer]
-		
+
+	@property
+	def lastplayed(self):
+		return self._lastplayed

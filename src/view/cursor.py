@@ -42,7 +42,6 @@ class Cursor(pg.sprite.Sprite):
 	@mode.setter
 	def mode(self, gmode):
 		self._mode = gmode
-		print "set cursor mode to {}".format(gmode)
 		if gmode == GameMode.HAND:
 			self._set_active([0,3])
 		elif gmode == GameMode.UPCARDS:
@@ -53,8 +52,7 @@ class Cursor(pg.sprite.Sprite):
 			self._set_active([1])
 		elif gmode == GameMode.FINISHED:
 			self._set_active([])
-			return
-		print "this gets run. terrible!"
+			return # do not update the cursor when finished
 		groupidx, cardidx = self._first_allowed_pos()
 		self._move(groupidx, cardidx)
 

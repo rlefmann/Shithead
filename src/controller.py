@@ -70,16 +70,16 @@ class Controller:
 			# update deck and discardpile:
 			deck=self.game.deck,
 			discardpile=self.game.discardpile)
+		self.view.show_message("Good Luck")
 		
 	def _on_request_play(self, req):
 		if self.game.is_possible_move(req):
 			self.game.play(req)
-			if self.game.is_win() != -1:
+			self.view.show_message("hero played {}".format(self.game.lastplayed))
+			if self.game.is_win():
 				self.view.show_message("we have a winner!")
-				print "winning condition"
 				self.view.update(GameMode.FINISHED)
 			nextmode = self._find_next_mode()
-			print "find next mode returned {}".format(nextmode)
 			# update view:
 			if req.src == SourceCollection.HAND:
 				self.view.update(nextmode,
