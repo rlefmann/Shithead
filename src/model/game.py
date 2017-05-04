@@ -72,7 +72,7 @@ class Game:
 			raise Exception("something other than a request was sent to is_possible_move")
 		elif isinstance(request, RequestTake):
 			# the discard pile must contain cards
-			return len(self._discardpile) > 0
+			return self._is_possible_take()
 		elif isinstance(request, RequestPlay):
 			return self._is_possible_play(request)
 		elif isinstance(request, RequestTakeUpcards):
@@ -87,9 +87,9 @@ class Game:
 		use is_possible_move first.
 		"""
 		# get the cardcollection specified by the src of the request:
-		src_coll = self._get_collection_from_request(playreq)
-		# put cards from src_coll to discardpile:
-		cards = src_coll.remove(playreq.indices)
+		playsrc = self._get_playsrc(playreq)
+		# put cards from playsrc to discardpile:
+		cards = playsrc.remove(playreq.indices)
 		print "player plays "+str(cards)
 		self._discardpile.add(cards)
 		self._lastplayed = [str(c) for c in cards]
@@ -102,9 +102,9 @@ class Game:
 		elif rank != self._settings["INVISIBLE"]: # dont adjust minval if a invisible card is played
 			self._minval = rank
 		print "new minval: "+str(self._minval) # TODO; remove
-		# redraw if src_coll was the players hand and there are cards
+		# redraw if playsrc was the players hand and there are cards
 		# left in the deck:
-		if src_coll == self.curplayer.hand:
+		if playsrc == self.curplayer.hand:
 			self.redraw() # TODO: this should be inside the controller
 
 	def redraw(self):
@@ -125,11 +125,12 @@ class Game:
 		Take all the cards from the discard pile into the current
 		players hand.
 		"""
+		plays_from_up = self.curplayer.is_playing_from_upcards()
 		cards = self._discardpile.removeall()
 		hand = self.curplayer.hand
 		hand.add(cards)
 		self._minval = 0
-		if self.curplayer.is_playing_from_upcards():
+		if plays_from_up:
 			self._mode = GameMode.TAKE_UPCARDS
 
 	def take_downcard(self, idx):
@@ -155,17 +156,16 @@ class Game:
 		Switches to the next player and sets the GameMode depending on
 		his cards.
 		"""
-		self._curplayer = (self._curplayer+1)%2
+		#self._curplayer = (self._curplayer+1)%2 # TODO: uncomment!
 		# set the mode correctly:
 		if len(self.curplayer.hand) > 0:
 			self._mode = GameMode.HAND
 		elif not self.curplayer.upcards.isempty():
 			self._mode = GameMode.UPCARDS
-		elif not self.curplayer.upcards.isempty():
+		elif not self.curplayer.downcards.isempty():
 			self._mode = GameMode.DOWNCARDS
 		else:
-			self._mode = GameMode.FINISHED
-			print "this should never be reached"
+			self._mode = GameMode.FINISHED # TODO: maybe we can make the win check obsolete!
 
 	def _deal(self):
 		"""
@@ -195,59 +195,67 @@ class Game:
 		return 0
 
 	def _is_possible_take_upcards(self, request):
-		#if not self.curplayer.is_playing_from_upcards():
-		#	print "player does not play from upcards"
-		#	return False
-		src_coll = self.curplayer.upcards
-		return self._is_allowed_card_indexlist(src_coll, request.indices)
+		if self._mode != GameMode.TAKE_UPCARDS:
+			print "player does not play from upcards"
+			return False
+		takesrc = self.curplayer.upcards
+		return self._is_allowed_card_indexlist(takesrc, request.indices)
 
-	def _is_allowed_card_indexlist(self, src_coll, indices):
+	def _is_allowed_card_indexlist(self, playsrc, indices):
 		"""
 		Checks whether a list of indices has length greater than 0, all
-		indices are valid for the provided src_coll and the rank of the
-		cards at the indices in src_coll is the same.
+		indices are valid for the provided playsrc and the rank of the
+		cards at the indices in playsrc is the same.
 		"""
 		if len(indices) == 0:
 			print "indices must contain at least one index"
 		rank = None
 		for idx in indices:
 			# check if indices are valid:
-			if idx<0 or idx>=len(src_coll):
+			if idx<0 or idx>=len(playsrc):
 				print "bad index "+str(idx)
 				return False
 			elif rank == None: # get rank of first chosen card
-				rank = src_coll[indices[0]].rank
-			elif src_coll[idx].rank != rank:
+				rank = playsrc[indices[0]].rank
+			elif playsrc[idx].rank != rank:
 				print "cards at indices have different ranks"
 				return False
 		return True
 
 	def _is_possible_play(self, request):
 		# get the cardcollection specified by the src of the request:
-		src_coll = self._get_collection_from_request(request)
-		if not self._is_allowed_source(src_coll):
+		playsrc = self._get_playsrc(request)
+		if self._mode in [GameMode.FINISHED, GameMode.TAKE_UPCARDS]:
 			return False
-		elif not self._is_allowed_card_indexlist(src_coll, request.indices):
+		if not self._is_allowed_source(playsrc):
+			return False
+		elif not self._is_allowed_card_indexlist(playsrc, request.indices):
 			return False
 		# check if cards are playable
-		rank = src_coll[request.indices[0]].rank
+		rank = playsrc[request.indices[0]].rank
 		return rank >= self._minval or rank == self._settings["INVISIBLE"] or rank == self._settings["BURN"]
-			
-	def _is_allowed_source(self, src_coll):
+		
+	def _is_possible_take(self):
+		if self._mode in [GameMode.FINISHED, GameMode.TAKE_UPCARDS]:
+			return False
+		else:
+			return len(self._discardpile) > 0
+
+	def _is_allowed_source(self, src_coll): # TODO: use SourceCollection for this?
 		"""
 		Checks if the collection from which a player wants to play card
 		can be chosen currently. For example you cannot play upcards if
 		you still have cards in your hand
 		"""
-		if src_coll == self.curplayer.hand and self.curplayer.is_playing_from_hand():
+		if src_coll == self.curplayer.hand and self.curplayer.is_playing_from_hand() and self._mode == GameMode.HAND:
 			return True
-		elif src_coll == self.curplayer.upcards and self.curplayer.is_playing_from_upcards():
+		elif src_coll == self.curplayer.upcards and self.curplayer.is_playing_from_upcards() and self._mode == GameMode.UPCARDS:
 			return True
-		elif src_coll == self.curplayer.downcards and self.curplayer.is_playing_from_downcards():
+		elif src_coll == self.curplayer.downcards and self.curplayer.is_playing_from_downcards() and self._mode == GameMode.DOWNCARDS:
 			return True
 		return False
 
-	def _get_collection_from_request(self, request):
+	def _get_playsrc(self, request):
 		"""
 		Get the cardcollection specified by the src of the request
 		"""
