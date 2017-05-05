@@ -94,7 +94,7 @@ class Game:
 		self._discardpile.add(cards)
 		self._lastplayed = [str(c) for c in cards]
 		rank = cards[0].rank
-		if rank == self._settings["BURN"]:
+		if self._is_burn(rank):
 			dead_cards = self._discardpile.removeall()
 			self._graveyard.add(dead_cards)
 			self._minval = 0
@@ -274,14 +274,9 @@ class Game:
 		"""
 		if rank == self._settings["BURN"]:
 			return True
-		num_same_rank = 0
-		pos = -1
-		if len(self._discardpile) > 0:
-			while self._discardpile[pos].rank == rank:
-				num_same_rank += 1
-				pos -= 1
-			if num_same_rank == 4:
-				return True
+		if len(self._discardpile) > 3:
+			# look at the last 4 cards of the discardpile and check if they all have the same rank
+			return all(c.rank == rank for c in self._discardpile[-4:])
 		return False
 
 	@property

@@ -18,7 +18,7 @@ class Settings(dict):
 			self.load(filepath)
 		# set default values:
 		else:
-			self["NCARDS_HAND"] = 4
+			self["NCARDS_HAND"] = 10
 			self["NCARDS_UPDOWN"] = 3
 			self["LOWER"] = 7 # Nines are lower
 			self["SKIP"] = 5 # On Sevens the next player has to skip

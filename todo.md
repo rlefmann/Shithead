@@ -2,12 +2,12 @@
 
 ## Gameplay
 
+* Burn if the top 4 cards of the discard pile have the same rank
 
 ## Cursor
 
-* If you can't switch the group, the cursor jumps to position 0 of the current group
+* If you can't switch the group, the cursor jumps to position 0 of the current group. Should this be changed?
 
 ## Other
 
-* cursor methods should not be called from the controller but only within the view
 * rename _is_possible_play to _can_play
