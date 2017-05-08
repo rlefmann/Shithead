@@ -236,7 +236,7 @@ class DrawPile(Pile):
 		"""
 		drawpile = cls()
 		# create cards:
-		tuples = itertools.product(range(13),range(4)) # TODO: change back to 13
+		tuples = itertools.product(range(5),range(4)) # TODO: change back to 13
 		for t in tuples:
 			c = Card(t[0],t[1])
 			drawpile._cards.append(c)

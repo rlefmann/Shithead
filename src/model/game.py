@@ -63,33 +63,68 @@ class Game:
 		self._mode = GameMode.HAND
 		# the lower card was played and the game direction is reversed:
 		self._lower = False
+		
+	def can_play_handcards(self, indices):
+		if not self._mode == GameMode.HAND:
+			return False
+		playsrc = self.curplayer.hand
+		return self._can_play(playsrc, indices)
 
+	def can_play_upcards(self, indices):
+		if not self._mode == GameMode.UPCARDS:
+			return False
+		playsrc = self.curplayer.upcards
+		return self._can_play(playsrc, indices)
+		
+	def can_play_downcards(self, indices):
+		if not self._mode == GameMode.DOWNCARDS:
+			return False
+		elif len(indices) != 1: # you can only play one downcard at a time
+			return False
+		playsrc = self.curplayer.downcards
+		return self._can_play(playsrc, indices)
+		
 	def is_possible_move(self, request):
 		"""
 		Checks whether a request a player has chosen is possible or not.
 		"""
 		if not isinstance(request, Request):
 			raise Exception("something other than a request was sent to is_possible_move")
-		elif isinstance(request, RequestTake):
+		elif isinstance(request, RequestMove) and request.move == Move.TAKE:
 			# the discard pile must contain cards
 			return self._is_possible_take()
-		elif isinstance(request, RequestPlay):
-			return self._is_possible_play(request)
-		elif isinstance(request, RequestTakeUpcards):
+		elif isinstance(request, RequestMove) and request.move in [Move.PLAY_HAND, Move.PLAY_UPCARDS, Move.PLAY_DOWNCARDS]:
+			return self._can_play(request)
+		elif isinstance(request, RequestMove) and request.move == Move.TAKE_UPCARDS:
 			return self._is_possible_take_upcards(request)
 		else:
 			raise TypeError("the game class can only handle take and play requests")
 
-	def play(self, playreq):
+	def play_handcards(self, indices):
+		playsrc = self.curplayer.hand
+		self._play(playsrc, indices)
+		# redraw if playsrc was the players hand and there are cards
+		# left in the deck:
+		self.redraw() # TODO: this should be inside the controller
+		
+	def play_upcards(self, indices):
+		playsrc = self.curplayer.upcards
+		self._play(playsrc, indices)
+		
+	def play_downcards(self, indices):
+		playsrc = self.curplayer.downcards
+		self._play(playsrc, indices)
+
+	def _play(self, playsrc, indices):
 		"""
 		Places the cards specified in the playreq on the discard pile.
 		Note that the validity of the move is NOT checked. You have to
 		use is_possible_move first.
 		"""
 		# get the cardcollection specified by the src of the request:
-		playsrc = self._get_playsrc(playreq)
+		#playsrc = self._get_playsrc(playreq)
 		# put cards from playsrc to discardpile:
-		cards = playsrc.remove(playreq.indices)
+		cards = playsrc.remove(indices)
 		print "player plays "+str(cards)
 		self._discardpile.add(cards)
 		self._lastplayed = [str(c) for c in cards]
@@ -102,10 +137,6 @@ class Game:
 		elif rank != self._settings["INVISIBLE"]: # dont adjust minval if a invisible card is played
 			self._minval = rank
 		print "new minval: "+str(self._minval) # TODO; remove
-		# redraw if playsrc was the players hand and there are cards
-		# left in the deck:
-		if playsrc == self.curplayer.hand:
-			self.redraw() # TODO: this should be inside the controller
 
 	def redraw(self):
 		"""
@@ -222,17 +253,11 @@ class Game:
 				return False
 		return True
 
-	def _is_possible_play(self, request):
-		# get the cardcollection specified by the src of the request:
-		playsrc = self._get_playsrc(request)
-		if self._mode in [GameMode.FINISHED, GameMode.TAKE_UPCARDS]:
-			return False
-		if not self._is_allowed_source(playsrc):
-			return False
-		elif not self._is_allowed_card_indexlist(playsrc, request.indices):
+	def _can_play(self, playsrc, indices):
+		if not self._is_allowed_card_indexlist(playsrc, indices):
 			return False
 		# check if cards are playable
-		rank = playsrc[request.indices[0]].rank
+		rank = playsrc[indices[0]].rank
 		return rank >= self._minval or rank == self._settings["INVISIBLE"] or rank == self._settings["BURN"]
 		
 	def _is_possible_take(self):
@@ -259,9 +284,9 @@ class Game:
 		"""
 		Get the cardcollection specified by the src of the request
 		"""
-		if request.src == SourceCollection.HAND:
+		if request.move == Move.PLAY_HAND:
 			return self.curplayer.hand
-		elif request.src == SourceCollection.UPCARDS:
+		elif request.move == Move.PLAY_UPCARDS:
 			return self.curplayer.upcards
 		else:
 			return self.curplayer.downcards

@@ -2,6 +2,40 @@ Classes
 =======
 :toc: left
 
+## Module Game
+
+### Public Methods
+
+* can_play_handcards(indices)
+* can_play_upcards(indices)
+* can_play_downcards(indices)
+* play_handcards(indices)
+* play_upcards(indices)
+* play_downcards(indices)
+* can_take()
+* can_take_upcards(indices)
+* take()
+* take_upcards(indices)
+* take_downcard()
+* redraw()
+* is_win()
+* switch_player()
+
+Also the `Game` class has several properties for returning cardstring
+representations of the various `CardCollections`:
+
+* curhand
+* curupcards
+* curdowncards
+* phand
+* pupcards
+* pdowncards
+* vhand
+* vupcards
+* vdowncards
+* deck
+* discardpile
+
 ## Module cards
 
 ### Card

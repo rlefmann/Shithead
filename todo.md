@@ -2,7 +2,7 @@
 
 ## Gameplay
 
-* Burn if the top 4 cards of the discard pile have the same rank
+* change AI code
 
 ## Cursor
 

@@ -423,6 +423,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
+<li><a href="#_module_game">Module Game</a>
+<ul class="sectlevel2">
+<li><a href="#_public_methods">Public Methods</a></li>
+</ul>
+</li>
 <li><a href="#_module_cards">Module cards</a>
 <ul class="sectlevel2">
 <li><a href="#_card">Card</a></li>
@@ -438,6 +443,101 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div id="content">
+<div class="sect1">
+<h2 id="_module_game">Module Game</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_public_methods">Public Methods</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>can_play_handcards(indices)</p>
+</li>
+<li>
+<p>can_play_upcards(indices)</p>
+</li>
+<li>
+<p>can_play_downcards(indices)</p>
+</li>
+<li>
+<p>play_handcards(indices)</p>
+</li>
+<li>
+<p>play_upcards(indices)</p>
+</li>
+<li>
+<p>play_downcards(indices)</p>
+</li>
+<li>
+<p>can_take()</p>
+</li>
+<li>
+<p>can_take_upcards(indices)</p>
+</li>
+<li>
+<p>take()</p>
+</li>
+<li>
+<p>take_upcards(indices)</p>
+</li>
+<li>
+<p>take_downcard()</p>
+</li>
+<li>
+<p>redraw()</p>
+</li>
+<li>
+<p>is_win()</p>
+</li>
+<li>
+<p>switch_player()</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Also the <code>Game</code> class has several properties for returning cardstring
+representations of the various <code>CardCollections</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>curhand</p>
+</li>
+<li>
+<p>curupcards</p>
+</li>
+<li>
+<p>curdowncards</p>
+</li>
+<li>
+<p>phand</p>
+</li>
+<li>
+<p>pupcards</p>
+</li>
+<li>
+<p>pdowncards</p>
+</li>
+<li>
+<p>vhand</p>
+</li>
+<li>
+<p>vupcards</p>
+</li>
+<li>
+<p>vdowncards</p>
+</li>
+<li>
+<p>deck</p>
+</li>
+<li>
+<p>discardpile</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="_module_cards">Module cards</h2>
 <div class="sectionbody">
@@ -532,7 +632,7 @@ cards are visible to him, if it is a computer opponent you cannot see any of the
 </div>
 <div class="paragraph">
 <p>The deck is a special draw pile that contains all of the cards in the
-beginning of the game. A deck is created via the class method <code>create_deck</code>, so that we can do</p>
+beginning of the game. A deck is created via the class method <code>create_deck</code>, such that that we can do</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -557,7 +657,7 @@ beginning of the game. A deck is created via the class method <code>create_deck<
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-26 00:34:09 CEST
+Last updated 2017-05-08 12:42:34 CEST
 </div>
 </div>
 </body>

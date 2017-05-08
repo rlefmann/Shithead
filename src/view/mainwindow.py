@@ -57,15 +57,15 @@ class MainWindow:
 					if len(indices) > 0:
 						g = self.cursor.curgroup
 						if self.cursor.mode == GameMode.TAKE_UPCARDS:
-							req = RequestTakeUpcards(indices)
+							req = RequestMove.take_upcards(indices)
 						elif g == self.phand:
-							req = RequestPlay(SourceCollection.HAND, indices)
+							req = RequestMove.play_from_hand(indices)
 						elif g == self.pup:
-							req = RequestPlay(SourceCollection.UPCARDS, indices)
+							req = RequestMove.play_from_upcards(indices)
 						elif g == self.pdown:
-							req = RequestPlay(SourceCollection.DOWNCARDS, indices)
+							req = RequestMove.play_from_downcards(indices)
 						elif g == self.dpile:
-							req = RequestTake()
+							req = RequestMove.take()
 						else:
 							raise Exception("you cannot do this!") # TODO: more descriptive message
 				# send request to controller:

@@ -47,14 +47,21 @@ class Controller:
 			self.view.running = False
 		elif isinstance(request, RequestInitialBoard):
 			self._on_request_initial_board()
-		elif isinstance(request, RequestPlay):
-			self._on_request_play(request)
-		elif isinstance(request, RequestTake):
-			self._on_request_take(request)
-		elif isinstance(request, RequestTakeUpcards):
-			self._on_request_take_upcards(request)
+		elif isinstance(request, RequestMove):
+			if request.move == Move.PLAY_HAND:
+				self._on_request_play_handcards(request.indices)
+			elif request.move == Move.PLAY_UPCARDS:
+				self._on_request_play_upcards(request.indices)
+			elif request.move == Move.PLAY_DOWNCARDS:
+				self._on_request_play_downcards(request.indices)
+			elif request.move == Move.TAKE:
+				self._on_request_take(request)
+			elif request.move == Move.TAKE_UPCARDS:
+				self._on_request_take_upcards(request)
+			else:
+				raise Exception("the controller can't handle the move {}".format(request.move))
 		else:
-			raise Exception("the controller can't handle this request")
+			raise Exception("the controller can't handle the request {}".format(request.name))
 
 	def _on_request_initial_board(self):
 		self.view.update(self.game.mode,
@@ -70,31 +77,46 @@ class Controller:
 			deck=self.game.deck,
 			discardpile=self.game.discardpile)
 		self.view.show_message("Good Luck")
-		
-	def _on_request_play(self, req):
-		if self.game.is_possible_move(req):
-			self.game.play(req)
-			self.view.show_message("hero played {}".format(self.game.lastplayed))
-			if self.game.is_win():
-				self.view.show_message("we have a winner!")
-				self.view.update(GameMode.FINISHED)
-			self.game.switch_player()
-			# update view:
-			if req.src == SourceCollection.HAND:
-				self.view.update(self.game.mode,phand=self.game.phand,deck=self.game.deck,discardpile=self.game.discardpile)
-			elif req.src == SourceCollection.UPCARDS:
-				self.view.update(self.game.mode,pupcards=self.game.pupcards,discardpile=self.game.discardpile)
-			else:
-				self.view.update(self.game.mode,pdowncards=self.game.pdowncards,discardpile=self.game.discardpile)
-		elif req.src == SourceCollection.DOWNCARDS:
+	
+	def _on_request_play_handcards(self, indices):
+		if self.game.can_play_handcards(indices):
+			self.game.play_handcards(indices)
+			self._after_play()
+			self.view.update(self.game.mode,phand=self.game.phand,deck=self.game.deck,discardpile=self.game.discardpile)
+
+	def _on_request_play_upcards(self, indices):
+		if self.game.can_play_upcards(indices):
+			self.game.play_upcards(indices)
+			self._after_play()
+			self.view.update(self.game.mode,pupcards=self.game.pupcards,discardpile=self.game.discardpile)
+
+	def _on_request_play_downcards(self, indices):
+		if self.game.can_play_downcards(indices):
+			self.game.play_downcards(indices)
+			self._after_play()
+			self.view.update(self.game.mode,pdowncards=self.game.pdowncards,discardpile=self.game.discardpile)
+		elif len(indices) == 1: # failed to play downcard
 			# automatically take all the cards from the discard pile:
 			self.game.take()
 			# additionally take the downcard you wanted to play:
-			self.game.take_downcard(req.indices[0])
+			self.game.take_downcard(indices[0])
 			self.game.switch_player()
 			self.view.update(self.game.mode,phand=self.game.phand,pdowncards=self.game.pdowncards,discardpile=self.game.discardpile)
 			self.view.show_message("downcard doesnt fit")
-			
+
+	def _after_play(self):
+		"""
+		After a player has played a card, the following things happen.
+		"""
+		# show a message what cards were played:
+		self.view.show_message("hero played {}".format(self.game.lastplayed))
+		# check if the game is finished:
+		if self.game.is_win():
+			self.view.show_message("we have a winner!")
+			self.view.update(GameMode.FINISHED)
+		# switch the player:
+		self.game.switch_player()
+
 	def _on_request_take(self, req):
 		if self.game.is_possible_move(req):
 			plays_from_up = self.game.curplayer.is_playing_from_upcards()
