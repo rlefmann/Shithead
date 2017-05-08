@@ -50,3 +50,4 @@ BLUE	= (95,120,160)
 # OTHER:
 TITLE = "Shithead"
 FRAMERATE = 30
+PAUSE = 0.3

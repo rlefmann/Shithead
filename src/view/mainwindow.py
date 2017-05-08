@@ -1,11 +1,12 @@
 import pygame as pg
+from time import sleep # TODO
 
 from constants import *
 from ..requests import *
 from cardspritegroups import *
 from cursor import *
 from textbox import Textbox
-from ..gamemode import GameMode
+from viewmode import ViewMode
 
 class MainWindow:
 	"""
@@ -23,7 +24,7 @@ class MainWindow:
 		self.running = True
 		self._create_sprites()
 		self.cursor = None
-		self._gmode = GameMode.HAND
+		self._vmode = ViewMode.HERO_PLAYS_HAND
 
 	def run(self):
 		"""
@@ -56,16 +57,16 @@ class MainWindow:
 					indices = self.cursor.selected_indices
 					if len(indices) > 0:
 						g = self.cursor.curgroup
-						if self.cursor.mode == GameMode.TAKE_UPCARDS:
-							req = RequestMove.take_upcards(indices)
+						if self.cursor.mode == ViewMode.HERO_TAKES_UPCARDS:
+							req = RequestMove.take_upcards(0, indices)
 						elif g == self.phand:
-							req = RequestMove.play_from_hand(indices)
+							req = RequestMove.play_from_hand(0, indices)
 						elif g == self.pup:
-							req = RequestMove.play_from_upcards(indices)
+							req = RequestMove.play_from_upcards(0, indices)
 						elif g == self.pdown:
-							req = RequestMove.play_from_downcards(indices)
+							req = RequestMove.play_from_downcards(0, indices)
 						elif g == self.dpile:
-							req = RequestMove.take()
+							req = RequestMove.take(0)
 						else:
 							raise Exception("you cannot do this!") # TODO: more descriptive message
 				# send request to controller:
@@ -111,7 +112,7 @@ class MainWindow:
 		"""Updates the discardpile with a new list of cardstrings."""
 		self.dpile.update(cardstrs)
 
-	def update(self, gmode, **kwargs):
+	def update(self, vmode, **kwargs):
 		if self.cursor:
 			self.cursor.unhighlight_all() # TODO: necessary?
 		for kw in kwargs:
@@ -137,14 +138,18 @@ class MainWindow:
 			else:
 				raise AttributeError("the keyword {} is not allowed".format(kw))
 
+		self._vmode = vmode
 		if self.cursor:
-			self._gmode = gmode
-			self.cursor.mode = gmode
-			if gmode == GameMode.FINISHED:
+			self.cursor.mode = vmode
+			if vmode == ViewMode.FINISHED or vmode == ViewMode.VILLAIN_MOVE:
 				self.other_group.remove(self.cursor)
 			else:
+				self.other_group.add(self.cursor)
 				self.cursor.reset()
-			print "set mode to {}".format(gmode)
+			self._redraw()
+			if vmode == ViewMode.VILLAIN_MOVE:
+				sleep(1)
+
 
 	def show_message(self, msg):
 		self.msgbox.text = msg

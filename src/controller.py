@@ -1,7 +1,9 @@
 from model.settings import Settings
 from model.game import *
-#from model.ai import *
+from model.ai import StraightforwardAI
+from gamemode import GameMode
 
+from view.viewmode import ViewMode
 from view.mainwindow import *
 
 class Controller:
@@ -25,7 +27,7 @@ class Controller:
 		self.game = Game(settings)
 		# create the ai that simulates the opponent player:
 		# TODO: maybe other ai's should be allowed, too
-		#self.ai = StraightforwardAI(self.game) # TODO: uncomment
+		self.ai = StraightforwardAI(self.game) # TODO: uncomment
 		self.view = MainWindow()
 		# set the listener function:
 		self.view.listener = self.on_request
@@ -40,101 +42,165 @@ class Controller:
 		if not isinstance(request, Request):
 			raise Exception("something other than a request was send to the controller")
 
-		print request.name
-
 		# handle the different requests:
 		if isinstance(request, RequestQuit):
 			self.view.running = False
 		elif isinstance(request, RequestInitialBoard):
 			self._on_request_initial_board()
+		elif isinstance(request, RequestAIMove):
+			self._villainmove()
 		elif isinstance(request, RequestMove):
 			if request.move == Move.PLAY_HAND:
-				self._on_request_play_handcards(request.indices)
+				self._on_request_play_handcards(request.playeridx, request.indices)
 			elif request.move == Move.PLAY_UPCARDS:
-				self._on_request_play_upcards(request.indices)
+				self._on_request_play_upcards(request.playeridx, request.indices)
 			elif request.move == Move.PLAY_DOWNCARDS:
-				self._on_request_play_downcards(request.indices)
+				self._on_request_play_downcards(request.playeridx, request.indices)
 			elif request.move == Move.TAKE:
-				self._on_request_take(request)
+				self._on_request_take(request.playeridx)
 			elif request.move == Move.TAKE_UPCARDS:
-				self._on_request_take_upcards(request)
+				self._on_request_take_upcards(request.playeridx, request.indices)
 			else:
 				raise Exception("the controller can't handle the move {}".format(request.move))
 		else:
 			raise Exception("the controller can't handle the request {}".format(request.name))
 
 	def _on_request_initial_board(self):
-		self.view.update(self.game.mode,
-			# update heroes hand, upcards and downcards:
-			phand=self.game.phand,
-			pupcards=self.game.pupcards,
-			pdowncards=self.game.pdowncards,
-			# update villains hand, upcards and downcards:
-			vhand=self.game.vhand,
-			vupcards=self.game.vupcards,
-			vdowncards=self.game.vdowncards,
-			# update deck and discardpile:
-			deck=self.game.deck,
-			discardpile=self.game.discardpile)
+		self._update_view()
+		#~ self.view.update(self.game.mode,
+			#~ # update heroes hand, upcards and downcards:
+			#~ phand=self.game.phand,
+			#~ pupcards=self.game.pupcards,
+			#~ pdowncards=self.game.pdowncards,
+			#~ # update villains hand, upcards and downcards:
+			#~ vhand=self.game.vhand,
+			#~ vupcards=self.game.vupcards,
+			#~ vdowncards=self.game.vdowncards,
+			#~ # update deck and discardpile:
+			#~ deck=self.game.deck,
+			#~ discardpile=self.game.discardpile)
 		self.view.show_message("Good Luck")
 	
-	def _on_request_play_handcards(self, indices):
-		if self.game.can_play_handcards(indices):
-			self.game.play_handcards(indices)
-			self._after_play()
-			self.view.update(self.game.mode,phand=self.game.phand,deck=self.game.deck,discardpile=self.game.discardpile)
+	def _on_request_play_handcards(self, pidx, indices):
+		if self.game.can_play_handcards(pidx, indices):
+			self.game.play_handcards(pidx, indices)
+			#self._update_view()
+			self._after_play(pidx)
+			#self.view.update(self.game.mode,phand=self.game.phand,deck=self.game.deck,discardpile=self.game.discardpile)
 
-	def _on_request_play_upcards(self, indices):
-		if self.game.can_play_upcards(indices):
-			self.game.play_upcards(indices)
-			self._after_play()
-			self.view.update(self.game.mode,pupcards=self.game.pupcards,discardpile=self.game.discardpile)
+	def _on_request_play_upcards(self, pidx, indices):
+		if self.game.can_play_upcards(pidx, indices):
+			self.game.play_upcards(pidx, indices)
+			#self._update_view()
+			self._after_play(pidx)
+			#self.view.update(self.game.mode,pupcards=self.game.pupcards,discardpile=self.game.discardpile)
+			
 
-	def _on_request_play_downcards(self, indices):
-		if self.game.can_play_downcards(indices):
-			self.game.play_downcards(indices)
-			self._after_play()
-			self.view.update(self.game.mode,pdowncards=self.game.pdowncards,discardpile=self.game.discardpile)
+	def _on_request_play_downcards(self, pidx, indices):
+		if self.game.can_play_downcards(pidx, indices):
+			self.game.play_downcards(pidx, indices)
+			#self._update_view()
+			self._after_play(pidx)
+			#self.view.update(self.game.mode,pdowncards=self.game.pdowncards,discardpile=self.game.discardpile)
 		elif len(indices) == 1: # failed to play downcard
 			# automatically take all the cards from the discard pile:
 			self.game.take()
 			# additionally take the downcard you wanted to play:
 			self.game.take_downcard(indices[0])
-			self.game.switch_player()
-			self.view.update(self.game.mode,phand=self.game.phand,pdowncards=self.game.pdowncards,discardpile=self.game.discardpile)
+			#self.game.switch_player()
+			#self.view.update(self.game.mode,phand=self.game.phand,pdowncards=self.game.pdowncards,discardpile=self.game.discardpile)
+			self._update_view()
 			self.view.show_message("downcard doesnt fit")
+			if self.game.curplayeridx == 1:
+				self._villainmove()
 
-	def _after_play(self):
+	def _after_play(self, pidx):
 		"""
 		After a player has played a card, the following things happen.
 		"""
 		# show a message what cards were played:
-		self.view.show_message("hero played {}".format(self.game.lastplayed))
+		if pidx == 0:
+			self.view.show_message("hero played {}".format(self.game.lastplayed))
+		else:
+			self.view.show_message("villain played {}".format(self.game.lastplayed))
 		# check if the game is finished:
-		if self.game.is_win():
-			self.view.show_message("we have a winner!")
-			self.view.update(GameMode.FINISHED)
-		# switch the player:
-		self.game.switch_player()
-
-	def _on_request_take(self, req):
-		if self.game.can_take():
-			plays_from_up = self.game.curplayer.is_playing_from_upcards() # TODO: necessary?
-			self.game.take()
-			if self.game.mode == GameMode.TAKE_UPCARDS:
-				self.view.show_message("take upcards, too")
+		if self.game.has_won(pidx):
+			if pidx == 0:
+				self.view.show_message("hero wins!")
 			else:
-				self.game.switch_player()
-			self.view.update(self.game.mode,phand=self.game.curhand,discardpile=self.game.discardpile)
+				self.view.show_message("villain wins!")
+			self.view.update(ViewMode.FINISHED)
+			self._update_view()
+			return
+		self._update_view()
+		if self.game.curplayeridx == 1:
+			self._villainmove()
+			#self.game.switch_player()
+		
+	def _on_request_take(self, pidx):
+		if self.game.can_take(pidx):
+			#plays_from_up = self.game.curplayer.is_playing_from_upcards() # TODO: necessary?
+			turn_ended = self.game.take()
+			#if self.game.mode == GameMode.TAKE_UPCARDS:
+			if not turn_ended:
+				self.view.show_message("take upcards, too")
+				if self.game.curplayeridx == 1:
+					self._villainmove()
+			#else:
+				#self.game.switch_player()
+			if pidx == 0:
+				self.view.show_message("hero takes")
+			else:
+				self.view.show_message("villain takes")
+			self._update_view()
+			if self.game.curplayeridx == 1:
+				self._villainmove()
+			#self.view.update(self.game.mode,phand=self.game.curhand,discardpile=self.game.discardpile)
 
-	def _on_request_take_upcards(self, req):
-		if self.game.can_take_upcards(req.indices):
-			self.game.take_upcards(req.indices)
-			self.view.update(GameMode.HAND,
-				phand=self.game.curhand, # TODO: this should update also computer players hand
-				pupcards=self.game.pupcards)
+	def _on_request_take_upcards(self, pidx, indices): # TODO: remove req
+		if self.game.can_take_upcards(pidx, indices):
+			self.game.take_upcards(indices)
+			self._update_view()
 			self.view.show_message("")
-			self.game.switch_player()
+			if self.game.curplayeridx == 1:
+				self._villainmove()
 
 	def _villainmove(self):
-		pass # TODO
+		req = self.ai.think()
+		if not isinstance(req, RequestMove):
+			raise TypeError("ai should always return a move request, but got {}.".format(type(req)))
+		self.on_request(req)
+
+	def _update_view(self):
+		if self.game.curplayeridx == 1:
+			m = ViewMode.VILLAIN_MOVE
+		elif self.game.mode == GameMode.HAND:
+			m = ViewMode.HERO_PLAYS_HAND
+		elif self.game.mode == GameMode.UPCARDS:
+			m = ViewMode.HERO_PLAYS_UPCARDS
+		elif self.game.mode == GameMode.DOWNCARDS:
+			m = ViewMode.HERO_PLAYS_DOWNCARDS
+		elif self.game.mode == GameMode.TAKE_UPCARDS:
+			m = ViewMode.HERO_TAKES_UPCARDS
+		else:
+			m = ViewMode.FINISHED
+		
+		self.view.update(m,
+			phand = self.game.phand,
+			pupcards = self.game.pupcards,
+			pdowncards = self.game.pdowncards,
+			vhand = self.game.vhand,
+			vupcards = self.game.vupcards,
+			vdowncards = self.game.vdowncards,
+			deck = self.game.deck,
+			discardpile = self.game.discardpile
+		)
+
+	def next_player(self): # TODO: remove?
+		self.game.switch_player()
+		if self.game.curplayeridx == 1:
+			# villain move:
+			req = self.ai.think()
+			if not isinstance(req, RequestMove):
+				raise TypeError("ai should always return a move request, but got {}.".format(type(req)))
+			self.on_request(req)

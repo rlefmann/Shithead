@@ -54,8 +54,8 @@ class Game:
 		# (in the beginning every card can be played):
 		self._minval = 0
 		# the player whos turn it is right now:
-		self._curplayer = self._findfirstplayer()
-		self._curplayer = 0 # TODO: remove
+		self._playeridx = self._findfirstplayer()
+		self._playeridx = 0 # TODO: remove
 		# the cardstring representation of the last cards that were played:
 		self._lastplayed = []
 		# the current game mode:
@@ -63,53 +63,80 @@ class Game:
 		# the lower card was played and the game direction is reversed:
 		self._lower = False
 		
-	def can_play_handcards(self, indices):
-		if not self._mode == GameMode.HAND:
+	def can_play_handcards(self, playeridx, indices):
+		if playeridx != self._playeridx:
+			return False
+		elif not self._mode == GameMode.HAND:
 			return False
 		playsrc = self.curplayer.hand
 		return self._can_play(playsrc, indices)
 
-	def can_play_upcards(self, indices):
-		if not self._mode == GameMode.UPCARDS:
+	def can_play_upcards(self, playeridx, indices):
+		if playeridx != self._playeridx:
+			return False
+		elif not self._mode == GameMode.UPCARDS:
 			return False
 		playsrc = self.curplayer.upcards
 		return self._can_play(playsrc, indices)
 		
-	def can_play_downcards(self, indices):
-		if not self._mode == GameMode.DOWNCARDS:
+	def can_play_downcards(self, playeridx, indices):
+		if playeridx != self._playeridx:
+			return False
+		elif not self._mode == GameMode.DOWNCARDS:
 			return False
 		elif len(indices) != 1: # you can only play one downcard at a time
 			return False
 		playsrc = self.curplayer.downcards
 		return self._can_play(playsrc, indices)
 
-	def can_take(self):
-		if self._mode in [GameMode.FINISHED, GameMode.TAKE_UPCARDS]:
+	def can_take(self, playeridx):
+		if playeridx != self._playeridx:
+			return False
+		elif self._mode in [GameMode.FINISHED, GameMode.TAKE_UPCARDS]:
 			return False
 		else:
 			return len(self._discardpile) > 0
 
-	def can_take_upcards(self, indices):
-		if self._mode != GameMode.TAKE_UPCARDS:
-			print "player does not play from upcards"
+	def can_take_upcards(self, playeridx, indices):
+		if playeridx != self._playeridx:
+			return False
+		elif self._mode != GameMode.TAKE_UPCARDS:
 			return False
 		takesrc = self.curplayer.upcards
 		return self._is_allowed_card_indexlist(takesrc, indices)
 
-	def play_handcards(self, indices):
-		playsrc = self.curplayer.hand
-		self._play(playsrc, indices)
-		# redraw if playsrc was the players hand and there are cards
-		# left in the deck:
+	def play_handcards(self, pidx, indices):
+		"""
+		Returns whether the turn has ended or not.
+		"""
+		playsrc = self._players[pidx].hand
+		turn_ended = self._play(playsrc, indices)
+		# redraw if there are cards left in the deck:
 		self.redraw() # TODO: this should be inside the controller
+		# switch player if the discardpile was not cleared or a skip card was played:
+		if turn_ended:
+			self._switch_player()
+		else:
+			self._determine_game_mode()
+		return turn_ended
+
+	def play_upcards(self, pidx, indices):
+		playsrc = self._players[pidx].upcards
+		turn_ended = self._play(playsrc, indices)
+		if turn_ended:
+			self._switch_player()
+		else:
+			self._determine_game_mode()
+		return turn_ended
 		
-	def play_upcards(self, indices):
-		playsrc = self.curplayer.upcards
-		self._play(playsrc, indices)
-		
-	def play_downcards(self, indices):
-		playsrc = self.curplayer.downcards
-		self._play(playsrc, indices)
+	def play_downcards(self, pidx, indices):
+		playsrc = self._players[pidx].downcards
+		turn_ended = self._play(playsrc, indices)
+		if turn_ended:
+			self._switch_player()
+		else:
+			self._determine_game_mode()
+		return turn_ended
 
 	def take(self):
 		"""
@@ -117,37 +144,49 @@ class Game:
 		players hand.
 		"""
 		plays_from_up = self.curplayer.is_playing_from_upcards()
+		plays_from_down = self.curplayer.is_playing_from_downcards()
 		cards = self._discardpile.removeall()
 		hand = self.curplayer.hand
 		hand.add(cards)
 		self._minval = 0
 		if plays_from_up:
 			self._mode = GameMode.TAKE_UPCARDS
+			return False
+		elif not plays_from_down:
+			self._switch_player()
+			return True
 
 	def take_upcards(self, indices):
 		cards = self.curplayer.upcards.remove(indices)
 		self.curplayer.hand.add(cards)
+		self._switch_player()
+		return True
 
 	def take_downcard(self, idx):
 		card = self.curplayer.downcards.remove([idx])
 		self.curplayer.hand.add(card)
+		self._switch_player()
+		return True
 
-	def is_win(self): # TODO: we can add the player as an argument and only return for the current player
+	def has_won(self, pidx): # TODO: we can add the player as an argument and only return for the current player
 		"""
-		Returns 0 if the current player has won the game.
+		Returns True if the specified player has won the game.
 		"""
-		p = self.curplayer
+		p = self._players[pidx]
 		if len(p.hand) == 0 and p.upcards.isempty() and p.downcards.isempty():
 			self._mode = GameMode.FINISHED
 			return True
 		return False
 
-	def switch_player(self):
+	def _switch_player(self):
 		"""
 		Switches to the next player and sets the GameMode depending on
 		his cards.
 		"""
-		#self._curplayer = (self._curplayer+1)%2 # TODO: uncomment!
+		self._playeridx = (self._playeridx+1)%2 # TODO: uncomment!
+		self._determine_game_mode()
+
+	def _determine_game_mode(self):
 		# set the mode correctly:
 		if len(self.curplayer.hand) > 0:
 			self._mode = GameMode.HAND
@@ -168,7 +207,6 @@ class Game:
 		if numcards_missing > 0:
 			cards = self._deck.draw(numcards_missing)
 			self.curplayer.hand.add(cards)
-			print "player has redrawn "+str(len(cards))+" cards"
 			self.curplayer.hand.sort()
 
 
@@ -205,7 +243,10 @@ class Game:
 			return False
 		# check if cards are playable
 		rank = playsrc[indices[0]].rank
-		return rank >= self._minval or rank == self._settings["INVISIBLE"] or rank == self._settings["BURN"]
+		if self._minval == self._settings["LOWER"]: # LOWER-Card is on top or highest non skipcard
+			return rank <= self._minval or rank == self._settings["INVISIBLE"] or rank == self._settings["BURN"]
+		else:
+			return rank >= self._minval or rank == self._settings["INVISIBLE"] or rank == self._settings["BURN"]
 
 	def _play(self, playsrc, indices):
 		"""
@@ -215,7 +256,6 @@ class Game:
 		"""
 		# put cards from playsrc to discardpile:
 		cards = playsrc.remove(indices)
-		print "player plays "+str(cards)
 		self._discardpile.add(cards)
 		self._lastplayed = [str(c) for c in cards]
 		rank = cards[0].rank
@@ -223,10 +263,18 @@ class Game:
 			dead_cards = self._discardpile.removeall()
 			self._graveyard.add(dead_cards)
 			self._minval = 0
+			turn_ended = False
+			#self._determine_game_mode()
 		# adjust minval:
+		elif rank == self._settings["SKIP"]:
+			self._minval = rank
+			turn_ended = False
 		elif rank != self._settings["INVISIBLE"]: # dont adjust minval if a invisible card is played
 			self._minval = rank
-		print "new minval: "+str(self._minval) # TODO; remove
+			turn_ended = True
+		else:
+			turn_ended = True
+		return turn_ended
 
 	def _is_allowed_card_indexlist(self, playsrc, indices):
 		"""
@@ -235,17 +283,15 @@ class Game:
 		cards at the indices in playsrc is the same.
 		"""
 		if len(indices) == 0:
-			print "indices must contain at least one index"
+			return False
 		rank = None
 		for idx in indices:
 			# check if indices are valid:
 			if idx<0 or idx>=len(playsrc):
-				print "bad index "+str(idx)
 				return False
 			elif rank == None: # get rank of first chosen card
 				rank = playsrc[indices[0]].rank
 			elif playsrc[idx].rank != rank:
-				print "cards at indices have different ranks"
 				return False
 		return True
 
@@ -295,7 +341,6 @@ class Game:
 	@property
 	def deck(self):
 		"""Returns the deck as a list of cardstrings"""
-		#print type(self._deck.cardstrings())
 		return self._deck.cardstrings()
 
 	@property
@@ -305,19 +350,23 @@ class Game:
 
 	@property
 	def curhand(self):
-		return self._players[self._curplayer].hand.cardstrings()
+		return self._players[self._playeridx].hand.cardstrings()
 
 	@property
 	def curupcards(self):
-		return self._players[self._curplayer].upcards.cardstrings()
+		return self._players[self._playeridx].upcards.cardstrings()
 
 	@property
 	def curdowncards(self):
-		return self._players[self._curplayer].downcards.cardstrings()
+		return self._players[self._playeridx].downcards.cardstrings()
 
 	@property
 	def curplayer(self):
-		return self._players[self._curplayer]
+		return self._players[self._playeridx]
+		
+	@property
+	def curplayeridx(self):
+		return self._playeridx
 
 	@property
 	def lastplayed(self):

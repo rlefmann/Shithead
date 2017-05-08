@@ -31,49 +31,54 @@ class Move(Enum):
 	TAKE_UPCARDS = 5
 
 class RequestMove(Request):
-	def __init__(self, move, indices):
+	def __init__(self, playeridx, move, indices):
 		self.name = "request move"
 		if not isinstance(move, Move):
 			raise TypeError("the move parameter must be of type Move")
+		self.playeridx = playeridx
 		self.move = move
 		self.indices = indices
 
 	@classmethod
-	def play_from_hand(cls, indices):
+	def play_from_hand(cls, playeridx, indices):
 		if len(indices) == 0:
 			raise Exception("a play request requires at least one index")
-		return cls(Move.PLAY_HAND, indices)
+		return cls(playeridx, Move.PLAY_HAND, indices)
 
 	@classmethod
-	def play_from_upcards(cls, indices):
+	def play_from_upcards(cls, playeridx, indices):
 		if len(indices) == 0:
 			raise Exception("a play request requires at least one index")
-		return cls(Move.PLAY_UPCARDS, indices)
+		return cls(playeridx, Move.PLAY_UPCARDS, indices)
 
 	@classmethod
-	def play_from_downcards(cls, indices):
+	def play_from_downcards(cls, playeridx, indices):
 		if len(indices) == 0:
 			raise Exception("a play request requires at least one index")
-		return cls(Move.PLAY_DOWNCARDS, indices)
+		return cls(playeridx, Move.PLAY_DOWNCARDS, indices)
 
 	@classmethod
-	def take(cls):
+	def take(cls, playeridx):
 		"""
 		This is a request by the view to the model to take all of the cards 
 		from the discard pile into the players hand.
 		"""
-		return cls(Move.TAKE, [])
+		return cls(playeridx, Move.TAKE, [])
 
 	@classmethod
-	def take_upcards(cls, indices):
+	def take_upcards(cls, playeridx, indices):
 		"""
 		This is a request by the view to the model to take cards of the same
 		rank from the upcards into the players hand.
 		"""
 		if len(indices) == 0:
 			raise Exception("a take upcards request requires at least one index")
-		return cls(Move.TAKE_UPCARDS, indices)
+		return cls(playeridx, Move.TAKE_UPCARDS, indices)
 
+
+class RequestAIMove(Request):
+	def __init__(self):
+		self.name = "request ai move"
 
 class RequestQuit(Request):
 	"""

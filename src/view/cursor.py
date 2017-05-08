@@ -2,7 +2,7 @@ import pygame as pg
 
 from constants import *
 from cardspritegroups import CardSpriteGroup, CardStack, LaidOutCards, SpreadCards
-from ..gamemode import GameMode
+from viewmode import ViewMode
 
 class Cursor(pg.sprite.Sprite):
 	"""
@@ -33,32 +33,33 @@ class Cursor(pg.sprite.Sprite):
 		self.image = self._images[False]
 		
 		self.rect = self.image.get_rect()
-		self.mode = GameMode.HAND
+		self.mode = ViewMode.HERO_PLAYS_HAND
 
 	@property
 	def mode(self):
 		return self._mode
 
 	@mode.setter
-	def mode(self, gmode):
-		self._mode = gmode
-		if gmode == GameMode.HAND:
+	def mode(self, vmode):
+		self._mode = vmode
+		if vmode == ViewMode.HERO_PLAYS_HAND:
 			self._set_active([0,3])
-		elif gmode == GameMode.UPCARDS:
+		elif vmode == ViewMode.HERO_PLAYS_UPCARDS:
 			self._set_active([1,3])
-		elif gmode == GameMode.DOWNCARDS:
+		elif vmode == ViewMode.HERO_PLAYS_DOWNCARDS:
 			self._set_active([2]) # you must try to play a downcard
-		elif gmode == GameMode.TAKE_UPCARDS:
+		elif vmode == ViewMode.HERO_TAKES_UPCARDS:
 			self._set_active([1])
-		elif gmode == GameMode.FINISHED:
+		elif vmode == ViewMode.FINISHED or vmode == ViewMode.VILLAIN_MOVE:
 			self._set_active([])
 			return # do not update the cursor when finished
 		groupidx, cardidx = self._first_allowed_pos()
-		self._move(groupidx, cardidx)
+		if groupidx != -1 and cardidx != -1:
+			self._move(groupidx, cardidx)
 
 	@property
 	def deactivated(self):
-		return self._mode == GameMode.FINISHED
+		return self._mode == ViewMode.FINISHED or self._mode == ViewMode.VILLAIN_MOVE
 
 	@property
 	def curgroup(self):
@@ -152,6 +153,7 @@ class Cursor(pg.sprite.Sprite):
 			groupidx += 1
 			if groupidx >= len(self._spritegroups): # there is no active group
 				raise Exception("cannot place the cursor, because all groups are inactive")
+		# "groupidx: {}".format(groupidx)
 		# find cardidx:
 		group = self._spritegroups[groupidx]
 		if len(group) == 0:
