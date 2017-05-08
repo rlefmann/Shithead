@@ -118,8 +118,8 @@ class Controller:
 		self.game.switch_player()
 
 	def _on_request_take(self, req):
-		if self.game.is_possible_move(req):
-			plays_from_up = self.game.curplayer.is_playing_from_upcards()
+		if self.game.can_take():
+			plays_from_up = self.game.curplayer.is_playing_from_upcards() # TODO: necessary?
 			self.game.take()
 			if self.game.mode == GameMode.TAKE_UPCARDS:
 				self.view.show_message("take upcards, too")
@@ -128,7 +128,7 @@ class Controller:
 			self.view.update(self.game.mode,phand=self.game.curhand,discardpile=self.game.discardpile)
 
 	def _on_request_take_upcards(self, req):
-		if self.game.is_possible_move(req):
+		if self.game.can_take_upcards(req.indices):
 			self.game.take_upcards(req.indices)
 			self.view.update(GameMode.HAND,
 				phand=self.game.curhand, # TODO: this should update also computer players hand

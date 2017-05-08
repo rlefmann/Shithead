@@ -1,5 +1,4 @@
 from cards import *
-from ..requests import *
 from ..gamemode import *
 
 class Player:
@@ -83,22 +82,19 @@ class Game:
 			return False
 		playsrc = self.curplayer.downcards
 		return self._can_play(playsrc, indices)
-		
-	def is_possible_move(self, request):
-		"""
-		Checks whether a request a player has chosen is possible or not.
-		"""
-		if not isinstance(request, Request):
-			raise Exception("something other than a request was sent to is_possible_move")
-		elif isinstance(request, RequestMove) and request.move == Move.TAKE:
-			# the discard pile must contain cards
-			return self._is_possible_take()
-		elif isinstance(request, RequestMove) and request.move in [Move.PLAY_HAND, Move.PLAY_UPCARDS, Move.PLAY_DOWNCARDS]:
-			return self._can_play(request)
-		elif isinstance(request, RequestMove) and request.move == Move.TAKE_UPCARDS:
-			return self._is_possible_take_upcards(request)
+
+	def can_take(self):
+		if self._mode in [GameMode.FINISHED, GameMode.TAKE_UPCARDS]:
+			return False
 		else:
-			raise TypeError("the game class can only handle take and play requests")
+			return len(self._discardpile) > 0
+
+	def can_take_upcards(self, indices):
+		if self._mode != GameMode.TAKE_UPCARDS:
+			print "player does not play from upcards"
+			return False
+		takesrc = self.curplayer.upcards
+		return self._is_allowed_card_indexlist(takesrc, indices)
 
 	def play_handcards(self, indices):
 		playsrc = self.curplayer.hand
@@ -115,42 +111,6 @@ class Game:
 		playsrc = self.curplayer.downcards
 		self._play(playsrc, indices)
 
-	def _play(self, playsrc, indices):
-		"""
-		Places the cards specified in the playreq on the discard pile.
-		Note that the validity of the move is NOT checked. You have to
-		use is_possible_move first.
-		"""
-		# get the cardcollection specified by the src of the request:
-		#playsrc = self._get_playsrc(playreq)
-		# put cards from playsrc to discardpile:
-		cards = playsrc.remove(indices)
-		print "player plays "+str(cards)
-		self._discardpile.add(cards)
-		self._lastplayed = [str(c) for c in cards]
-		rank = cards[0].rank
-		if self._is_burn(rank):
-			dead_cards = self._discardpile.removeall()
-			self._graveyard.add(dead_cards)
-			self._minval = 0
-		# adjust minval:
-		elif rank != self._settings["INVISIBLE"]: # dont adjust minval if a invisible card is played
-			self._minval = rank
-		print "new minval: "+str(self._minval) # TODO; remove
-
-	def redraw(self):
-		"""
-		If the player has less than the number of cards he started the
-		game with left in his hand, he redraws the missing number of
-		cards or whatever is left in the deck.
-		"""
-		numcards_missing = self._settings["NCARDS_HAND"] - len(self.curplayer.hand)
-		if numcards_missing > 0:
-			cards = self._deck.draw(numcards_missing)
-			self.curplayer.hand.add(cards)
-			print "player has redrawn "+str(len(cards))+" cards"
-			self.curplayer.hand.sort()
-			
 	def take(self):
 		"""
 		Take all the cards from the discard pile into the current
@@ -164,13 +124,13 @@ class Game:
 		if plays_from_up:
 			self._mode = GameMode.TAKE_UPCARDS
 
-	def take_downcard(self, idx):
-		card = self.curplayer.downcards.remove([idx])
-		self.curplayer.hand.add(card)
-	
 	def take_upcards(self, indices):
 		cards = self.curplayer.upcards.remove(indices)
 		self.curplayer.hand.add(cards)
+
+	def take_downcard(self, idx):
+		card = self.curplayer.downcards.remove([idx])
+		self.curplayer.hand.add(card)
 
 	def is_win(self): # TODO: we can add the player as an argument and only return for the current player
 		"""
@@ -197,6 +157,21 @@ class Game:
 			self._mode = GameMode.DOWNCARDS
 		else:
 			self._mode = GameMode.FINISHED # TODO: maybe we can make the win check obsolete!
+
+	def redraw(self):
+		"""
+		If the player has less than the number of cards he started the
+		game with left in his hand, he redraws the missing number of
+		cards or whatever is left in the deck.
+		"""
+		numcards_missing = self._settings["NCARDS_HAND"] - len(self.curplayer.hand)
+		if numcards_missing > 0:
+			cards = self._deck.draw(numcards_missing)
+			self.curplayer.hand.add(cards)
+			print "player has redrawn "+str(len(cards))+" cards"
+			self.curplayer.hand.sort()
+
+
 
 	def _deal(self):
 		"""
@@ -225,12 +200,33 @@ class Game:
 		"""
 		return 0
 
-	def _is_possible_take_upcards(self, request):
-		if self._mode != GameMode.TAKE_UPCARDS:
-			print "player does not play from upcards"
+	def _can_play(self, playsrc, indices):
+		if not self._is_allowed_card_indexlist(playsrc, indices):
 			return False
-		takesrc = self.curplayer.upcards
-		return self._is_allowed_card_indexlist(takesrc, request.indices)
+		# check if cards are playable
+		rank = playsrc[indices[0]].rank
+		return rank >= self._minval or rank == self._settings["INVISIBLE"] or rank == self._settings["BURN"]
+
+	def _play(self, playsrc, indices):
+		"""
+		Places the cards with the given indices from playsrc on the discard pile.
+		Note that the validity of the move is NOT checked. You have to
+		use the appropriate can_play_* method first.
+		"""
+		# put cards from playsrc to discardpile:
+		cards = playsrc.remove(indices)
+		print "player plays "+str(cards)
+		self._discardpile.add(cards)
+		self._lastplayed = [str(c) for c in cards]
+		rank = cards[0].rank
+		if self._is_burn(rank):
+			dead_cards = self._discardpile.removeall()
+			self._graveyard.add(dead_cards)
+			self._minval = 0
+		# adjust minval:
+		elif rank != self._settings["INVISIBLE"]: # dont adjust minval if a invisible card is played
+			self._minval = rank
+		print "new minval: "+str(self._minval) # TODO; remove
 
 	def _is_allowed_card_indexlist(self, playsrc, indices):
 		"""
@@ -252,44 +248,6 @@ class Game:
 				print "cards at indices have different ranks"
 				return False
 		return True
-
-	def _can_play(self, playsrc, indices):
-		if not self._is_allowed_card_indexlist(playsrc, indices):
-			return False
-		# check if cards are playable
-		rank = playsrc[indices[0]].rank
-		return rank >= self._minval or rank == self._settings["INVISIBLE"] or rank == self._settings["BURN"]
-		
-	def _is_possible_take(self):
-		if self._mode in [GameMode.FINISHED, GameMode.TAKE_UPCARDS]:
-			return False
-		else:
-			return len(self._discardpile) > 0
-
-	def _is_allowed_source(self, src_coll): # TODO: use SourceCollection for this?
-		"""
-		Checks if the collection from which a player wants to play card
-		can be chosen currently. For example you cannot play upcards if
-		you still have cards in your hand
-		"""
-		if src_coll == self.curplayer.hand and self.curplayer.is_playing_from_hand() and self._mode == GameMode.HAND:
-			return True
-		elif src_coll == self.curplayer.upcards and self.curplayer.is_playing_from_upcards() and self._mode == GameMode.UPCARDS:
-			return True
-		elif src_coll == self.curplayer.downcards and self.curplayer.is_playing_from_downcards() and self._mode == GameMode.DOWNCARDS:
-			return True
-		return False
-
-	def _get_playsrc(self, request):
-		"""
-		Get the cardcollection specified by the src of the request
-		"""
-		if request.move == Move.PLAY_HAND:
-			return self.curplayer.hand
-		elif request.move == Move.PLAY_UPCARDS:
-			return self.curplayer.upcards
-		else:
-			return self.curplayer.downcards
 
 	def _is_burn(self, rank): # TODO: maybe we can just look at the top cards of the pile and dont need the rank
 		"""
