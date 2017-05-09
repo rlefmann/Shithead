@@ -2,6 +2,8 @@
 
 The card game [Shithead](https://en.wikipedia.org/wiki/Shithead_(card_game)) implemented in Python and PyGame.
 
+![IMAGE](img/screenshot.png)
+
 ## Usage
 
 * Use the left and right arrow keys to move the cursor.
