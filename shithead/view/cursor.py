@@ -1,8 +1,11 @@
 import pygame as pg
+from os.path import join
 
 from shithead.view.constants import *
 from shithead.view.cardspritegroups import CardSpriteGroup, CardStack, LaidOutCards, SpreadCards
 from shithead.view.viewmode import ViewMode
+
+from shithead.util.resources import get_resource_path
 
 class Cursor(pg.sprite.Sprite):
 	"""
@@ -23,11 +26,13 @@ class Cursor(pg.sprite.Sprite):
 		
 		self._images = {}
 		# create cursor image for when the whole card is visible:
-		img = pg.image.load("./img/frame.png").convert_alpha()
+		filepath = get_resource_path(join("img","cursor", "cursor.png"))
+		img = pg.image.load(filepath).convert_alpha()
 		img = pg.transform.scale(img, CARDSIZE)
 		self._images[False] = img
 		# create cursor image for when the card is overlapped:
-		img = pg.image.load("./img/frameoverlap.png").convert_alpha()
+		filepath = get_resource_path(join("img","cursor", "cursor-narrow.png"))
+		img = pg.image.load(filepath).convert_alpha()
 		img = pg.transform.scale(img, CARDSIZE)
 		self._images[True] = img
 		self.image = self._images[False]

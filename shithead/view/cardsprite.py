@@ -1,7 +1,8 @@
 from shithead.view.constants import *
+from shithead.util.resources import get_resource_path
 
 import pygame as pg
-
+from os.path import join
 
 class CardSprite(pg.sprite.Sprite):
 	"""
@@ -52,15 +53,14 @@ class CardSprite(pg.sprite.Sprite):
 		"""
 		filepath = ""
 		if not highlighted:
-			filepath += "./img/cards/"
+			filepath = join("img","cards")
 		else:
-			filepath += "./img/highlighted/"
+			filepath = join("img","cards-highlighted")
 		if not self._hidden:
-			filepath += self.cardstr
+			filepath = join(filepath, self.cardstr+".png")
 		else:
-			filepath += "back"
-		filepath += ".png"
-		return filepath
+			filepath = join(filepath, "back.png")
+		return get_resource_path(filepath)
 
 	def sethighlighted(self,highlighted):
 		"""
