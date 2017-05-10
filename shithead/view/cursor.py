@@ -1,8 +1,8 @@
 import pygame as pg
 
-from constants import *
-from cardspritegroups import CardSpriteGroup, CardStack, LaidOutCards, SpreadCards
-from viewmode import ViewMode
+from shithead.view.constants import *
+from shithead.view.cardspritegroups import CardSpriteGroup, CardStack, LaidOutCards, SpreadCards
+from shithead.view.viewmode import ViewMode
 
 class Cursor(pg.sprite.Sprite):
 	"""

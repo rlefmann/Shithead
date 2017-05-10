@@ -3,7 +3,7 @@
 import os
 import pygame as pg
 
-from .controller import Controller
+from shithead.controller import Controller
 
 def main():
 	# open the window in the center of the screen:

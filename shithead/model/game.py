@@ -1,5 +1,6 @@
-from cards import *
-from ..gamemode import *
+from shithead.model.cards import *
+from shithead.model.settings import *
+from shithead.gamemode import *
 
 class Player:
 	"""

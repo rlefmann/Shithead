@@ -1,6 +1,6 @@
-from game import Game
-from ..requests import RequestMove
-from ..gamemode import GameMode
+from shithead.model.game import Game
+from shithead.requests import RequestMove
+from shithead.gamemode import GameMode
 
 
 class AI(object):

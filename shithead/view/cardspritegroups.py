@@ -1,8 +1,8 @@
 import pygame as pg
 from enum import Enum
 
-from cardsprite import *
-from constants import *
+from shithead.view.cardsprite import *
+from shithead.view.constants import *
 
 # a card sprite group has only got to be updated, if a card from it is removed or a new card is added
 

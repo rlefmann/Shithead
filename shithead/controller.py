@@ -1,10 +1,10 @@
-from model.settings import Settings
-from model.game import *
-from model.ai import StraightforwardAI
-from gamemode import GameMode
+from shithead.model.settings import Settings
+from shithead.model.game import *
+from shithead.model.ai import StraightforwardAI
+from shithead.gamemode import GameMode
 
-from view.viewmode import ViewMode
-from view.mainwindow import *
+from shithead.view.viewmode import ViewMode
+from shithead.view.mainwindow import *
 
 class Controller:
 	"""

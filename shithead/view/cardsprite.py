@@ -1,4 +1,4 @@
-from constants import *
+from shithead.view.constants import *
 
 import pygame as pg
 

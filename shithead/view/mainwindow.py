@@ -1,12 +1,12 @@
 import pygame as pg
 from time import sleep # TODO
 
-from constants import *
-from ..requests import *
-from cardspritegroups import *
-from cursor import *
-from textbox import Textbox
-from viewmode import ViewMode
+from shithead.view.constants import *
+from shithead.requests import *
+from shithead.view.cardspritegroups import *
+from shithead.view.cursor import *
+from shithead.view.textbox import Textbox
+from shithead.view.viewmode import ViewMode
 
 class MainWindow:
 	"""
