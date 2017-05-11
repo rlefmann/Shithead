@@ -18,7 +18,7 @@ setup(
 			"shithead=shithead.__main__:main",
 		]
 	},
-	install_requires = ["pygame"],
+	install_requires = ["pygame", "enum34", "setuptools"],
 	zip_safe = False,
 	#data_files=[
 	#	("img/cards/", glob.glob("img/cards/*.png"))
