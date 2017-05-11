@@ -4,13 +4,14 @@ The card game [Shithead](https://en.wikipedia.org/wiki/Shithead_(card_game)) imp
 
 ![IMAGE](doc/img/screenshot.png)
 
+## Requirements
+
+```
+sudo apt install git python-pip
+```
+
 ## Installation
 
-Requires pip:
-
-```
-sudo apt install python-pip
-```
 
 ```
 git clone https://github.com/rlefmann/Shithead.git Shithead
@@ -19,6 +20,12 @@ sudo pip install .
 ```
 
 ## Usage
+
+To get started, simply execute the shithead program by typing:
+
+```
+$ shithead
+```
 
 * Use the left and right arrow keys to move the cursor.
 * Use the tab key to cycle through the different card collections.
