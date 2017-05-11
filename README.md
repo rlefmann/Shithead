@@ -4,6 +4,20 @@ The card game [Shithead](https://en.wikipedia.org/wiki/Shithead_(card_game)) imp
 
 ![IMAGE](doc/img/screenshot.png)
 
+## Installation
+
+Requires pip:
+
+```
+sudo apt install python-pip
+```
+
+```
+git clone https://github.com/rlefmann/Shithead.git Shithead
+cd Shithead
+sudo pip install .
+```
+
 ## Usage
 
 * Use the left and right arrow keys to move the cursor.
