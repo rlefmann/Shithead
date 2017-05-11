@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class GameMode(Enum):
 	HAND = 1
 	UPCARDS = 2

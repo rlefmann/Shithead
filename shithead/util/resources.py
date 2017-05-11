@@ -1,5 +1,6 @@
 import os.path
 
+
 def get_resource_path(relpath):
 	"""
 	Returns the absolute filepath to a resource. The relpath is the
@@ -8,6 +9,6 @@ def get_resource_path(relpath):
 	"img/cards/2h.png".
 	"""
 	# find absolute path of res directory:
-	resourcepath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..","res"))
+	resourcepath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "res"))
 	# join it with the relative path:
 	return os.path.join(resourcepath, relpath)
