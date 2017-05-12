@@ -48,8 +48,8 @@ class Game:
 		self._graveyard = Graveyard()
 
 		# create players:
-		hero = Player(settings["NCARDS_UPDOWN"], True)
-		villain = Player(settings["NCARDS_UPDOWN"], False)
+		hero = Player(settings.ncards_updown, True)
+		villain = Player(settings.ncards_updown, False)
 		self._players = (hero, villain)
 
 		self._deal()
@@ -207,7 +207,7 @@ class Game:
 		game with left in his hand, he redraws the missing number of
 		cards or whatever is left in the deck.
 		"""
-		numcards_missing = self._settings["NCARDS_HAND"] - len(self.curplayer.hand)
+		numcards_missing = self._settings.ncards_hand - len(self.curplayer.hand)
 		if numcards_missing > 0:
 			cards = self._deck.draw(numcards_missing)
 			self.curplayer.hand.add(cards)
@@ -220,13 +220,13 @@ class Game:
 		"""
 		for i in range(2):
 			# draw hand cards:
-			handcards = self._deck.draw(self._settings["NCARDS_HAND"])
+			handcards = self._deck.draw(self._settings.ncards_hand)
 			self._players[i].hand.add(handcards)
 			# draw downcards:
-			downcards = self._deck.draw(self._settings["NCARDS_UPDOWN"])
+			downcards = self._deck.draw(self._settings.ncards_updown)
 			self._players[i].downcards.add(downcards)
 			# draw upcards:
-			upcards = self._deck.draw(self._settings["NCARDS_UPDOWN"])
+			upcards = self._deck.draw(self._settings.ncards_updown)
 			self._players[i].upcards.add(upcards)
 
 	def _findfirstplayer(self):
@@ -246,14 +246,14 @@ class Game:
 		# check if cards are playable
 		rank = playsrc[indices[0]].rank
 		# LOWER-Card is on top or highest non skipcard:
-		if self._minval == self._settings["LOWER"]:
+		if self._minval == self._settings.lower:
 			return rank <= self._minval \
-				or rank == self._settings["INVISIBLE"] \
-				or rank == self._settings["BURN"]
+				or rank == self._settings.invisible \
+				or rank == self._settings.burn
 		else:
 			return rank >= self._minval \
-				or rank == self._settings["INVISIBLE"] \
-				or rank == self._settings["BURN"]
+				or rank == self._settings.invisible \
+				or rank == self._settings.burn
 
 	def _play(self, playsrc, indices):
 		"""
@@ -272,11 +272,11 @@ class Game:
 			self._minval = 0
 			turn_ended = False
 		# adjust minval:
-		elif rank == self._settings["SKIP"]:
+		elif rank == self._settings.skip:
 			self._minval = rank
 			turn_ended = False
 		# dont adjust minval if a invisible card is played:
-		elif rank != self._settings["INVISIBLE"]:
+		elif rank != self._settings.invisible:
 			self._minval = rank
 			turn_ended = True
 		else:
@@ -310,7 +310,7 @@ class Game:
 		happens if either the burn card is played or four cards of
 		equal rank lie on top of the discard pile.
 		"""
-		if rank == self._settings["BURN"]:
+		if rank == self._settings.burn:
 			return True
 		if len(self._discardpile) > 3:
 			# look at the last 4 cards of the discardpile and

@@ -63,10 +63,10 @@ class StraightforwardAI(AI):
 			raise AIError("we cannot find the smallest playable index from downcards")
 
 		# create an order of the ranks:
-		special = [self.game._settings["INVISIBLE"], self.game._settings["BURN"]]
+		special = [self.game._settings.invisible, self.game._settings.burn]
 
-		if self.game._minval == self.game._settings["LOWER"]:
-			r = range(self.game._settings["LOWER"]+1) # 0,1,...,minval
+		if self.game._minval == self.game._settings.lower:
+			r = range(self.game._settings.lower+1) # 0,1,...,minval
 		else:
 			r = range(self.game._minval,13) # minval,minval+1,...,12
 		order = [i for i in r if i not in special]

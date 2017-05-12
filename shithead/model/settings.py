@@ -1,10 +1,10 @@
 import json
 
 
-class Settings(dict):
+class Settings(object):
 	"""
 	A settings object which contains all the necessary settings for
-	the rules of the game of shithead. To be more specific it specifies
+	the rules of the game of shithead. It specifies for example
 	the rank of the special cards as well as the initial amount of cards
 	dealed to the players.
 	"""
@@ -14,17 +14,15 @@ class Settings(dict):
 		the settings are loaded from that file. Otherwise default
 		values are set
 		"""
-		super(self.__class__, self).__init__()
+		# set default values:
+		self.ncards_hand = 4
+		self.ncards_updown = 3
+		self.lower = 7  # Nines are lower
+		self.skip = 5  # On Sevens the next player has to skip
+		self.invisible = 1
+		self.burn = 0
 		if filepath:
 			self.load(filepath)
-		# set default values:
-		else:
-			self["NCARDS_HAND"] = 4
-			self["NCARDS_UPDOWN"] = 3
-			self["LOWER"] = 7  # Nines are lower
-			self["SKIP"] = 5  # On Sevens the next player has to skip
-			self["INVISIBLE"] = 1
-			self["BURN"] = 0
 
 	def load(self, filepath):
 		"""
@@ -33,7 +31,10 @@ class Settings(dict):
 		"""
 		with open(filepath, 'r') as f:
 			for key, val in json.load(f).iteritems():
-				self[key] = val
+				if key in self.__dict__:
+					self.__dict__[key] = val
+				else:
+					raise ValueError("invalid parameter {}.".format(key))
 
 	def save(self, filepath):
 		"""
@@ -41,16 +42,20 @@ class Settings(dict):
 		file.
 		"""
 		with open(filepath, 'w') as f:
-			json.dump(self, f)
+			json.dump(self.__dict__, f)
 
 	def check(self):
 		"""
 		Checks whether the current dictionary values are valid w.r.t.
 		the game rules and all necessary settings are specified.
 		"""
-		pass  # TODO
+		if self.ncards_hand < 1 or self.ncards_updown < 1:
+			return False
+		return True # TODO: more checks
 
 
 if __name__ == "__main__":
 	s = Settings()
-	s["BURN"] = 42
+	print s.lower
+	s.burn = 42
+	print s.burn
