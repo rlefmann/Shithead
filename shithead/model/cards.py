@@ -3,9 +3,11 @@ from random import shuffle
 
 # Maps from integers representing ranks to a more read friendly
 # string representation.
-ranks = {0:"2",1:"3",2:"4",3:"5",4:"6",5:"7",6:"8",7:"9",8:"t",9:"j",10:"q",11:"k",12:"a"}
+ranks = {0: "2", 1: "3", 2: "4", 3: "5", 4: "6", 5: "7", 6: "8",
+	7: "9", 8: "t", 9: "j", 10: "q", 11: "k", 12: "a"}
 # The same for the suits (diamonds, hearts, spades, clubs).
-suits = {0:"d",1:"h",2:"s",3:"c"}
+suits = {0: "d", 1: "h", 2: "s", 3: "c"}
+
 
 class Card:
 	"""
@@ -17,7 +19,7 @@ class Card:
 		"""
 		self.rank = rank
 		self.suit = suit
-	
+
 	def __repr__(self):
 		"""
 		Uses the dictionaries above to create a read friendly string
@@ -32,7 +34,7 @@ class Card:
 		to compare the cards. This is for example necessary when finding
 		the player who begins the game.
 		"""
-		return self.rank*4 + self.suit
+		return self.rank * 4 + self.suit
 
 
 class CardCollection(object):
@@ -55,14 +57,14 @@ class CardCollection(object):
 			player or not. Influences for example what happens, if you
 			print the cards
 	"""
-	def __init__(self, visible = True):
+	def __init__(self, visible=True):
 		"""
 		Creates a new, empty card collection.
 		"""
 		self._cards = []
 		self._visible = visible
-		
-	def __getitem__(self,idx):
+
+	def __getitem__(self, idx):
 		"""
 		For accessing the elements of the CardCollection via square brackets.
 
@@ -74,12 +76,12 @@ class CardCollection(object):
 	def add(self, cards):
 		"""
 		Adds more cards to the collection.
-		
+
 		Args:
 			cards (list of Card): the new cards, that should be added.
 		"""
 		self._cards.extend(cards)
-		
+
 	def remove(self, indices):
 		"""
 		Removes the cards at the specified indices of the collection.
@@ -91,16 +93,16 @@ class CardCollection(object):
 			A list of the removed cards.
 		"""
 		# check if indices is of correct type and contains at least one index.
-		if not isinstance(indices,(list,range)):
+		if not isinstance(indices, (list, range)):
 			raise ValueError("remove: indices must be a list or range")
 		elif len(indices) == 0:
 			raise ValueError("remove: you must provide at least one index")
 		# collect removed cards:
 		removed_cards = []
 		# last index first to avoid messing the indices up by removing elements
-		for idx in sorted(indices, reverse=True): 
+		for idx in sorted(indices, reverse=True):
 			c = self._cards[idx]
-			if c == None:
+			if c is None:
 				raise ValueError("remove: index %d contains no card" % idx)
 			removed_cards.append(c)
 			self.delete(idx)
@@ -109,12 +111,12 @@ class CardCollection(object):
 	def delete(self, idx):
 		"""
 		Deletes the card at the specified index.
-		
+
 		Args:
 			idx (Int): the index of the card that should be deleted.
 		"""
 		del self._cards[idx]
-		
+
 	def __len__(self):
 		"""
 		The number of cards in the CardCollection is simply the length
@@ -132,7 +134,7 @@ class CardCollection(object):
 			return [str(c) for c in self._cards]
 		else:
 			return ["??" for c in self._cards]
-		
+
 	def __repr__(self):
 		return str(self.cardstrings())
 
@@ -150,7 +152,7 @@ class Hand(CardCollection):
 		Sorts the cards in the hand in increasing order by their
 		value.
 		"""
-		self._cards.sort(key = lambda c: c.value)
+		self._cards.sort(key=lambda c: c.value)
 
 	def add(self, newcards):
 		"""
@@ -191,7 +193,7 @@ class Pile(CardCollection):
 		# is the only card that is visible (in case of the deck
 		# which inherits from Stack, the top card cannot be seen
 		# and therefore it has its own cardstrings method):
-		if len(self._cards)>0:
+		if len(self._cards) > 0:
 			res[-1] = str(self._cards[-1])
 		return res
 
@@ -205,14 +207,14 @@ class DrawPile(Pile):
 	set up, too.
 	"""
 	def __init__(self):
-		super(DrawPile, self).__init__(False) # The deck is hidden
+		super(DrawPile, self).__init__(visible=False)
 
 	def shuffle(self):
 		"""
 		Shuffle the cards of the deck.
 		"""
 		shuffle(self._cards)
-		
+
 	def draw(self, numcards=1):
 		"""
 		Draws numcards many cards from the end of the deck.
@@ -232,36 +234,40 @@ class DrawPile(Pile):
 	@classmethod
 	def create_deck(cls):
 		"""
-		The deck is a special draw pile that contains all of the cards in the beginning of the game. This class method creates the deck with all of its cards.
+		The deck is a special draw pile that contains all of the cards
+		in the beginning of the game. This class method creates the
+		deck with all of its cards.
 		"""
 		drawpile = cls()
 		# create cards:
-		tuples = itertools.product(range(13),range(4)) # TODO: change back to 13
+		tuples = itertools.product(range(13), range(4))
 		for t in tuples:
-			c = Card(t[0],t[1])
+			c = Card(t[0], t[1])
 			drawpile._cards.append(c)
 		return drawpile
 
 
 class DiscardPile(Pile):
 	"""
-	A discard pile is a pile of cards that is placed face up, such that you can see the top card (but not the cards underneath it).
+	A discard pile is a pile of cards that is placed face up, such that
+	you can see the top card (but not the cards underneath it).
 	"""
 	def removeall(self):
 		"""
-		Take the whole pile. This method is used when a player has to take it
-		and when the DiscardPile is burnt.
+		Take the whole pile. This method is used when a player has to
+		take it and when the DiscardPile is burnt.
 		"""
-		allindices = range(len(self._cards)) 
+		allindices = range(len(self._cards))
 		return self.remove(allindices)
 
 
 # TODO: is this really necessary?
 class Graveyard(Pile):
 	"""
-	This is where burned cards from the discard pile go. Eventually we do not
-	need to have a data structure for this and could just let the cards disappear,
-	but an AI might want to use the information of the cards in here.
+	This is where burned cards from the discard pile go. Eventually we
+	do not need to have a data structure for this and could just let the
+	cards disappear, but an AI might want to use the information of the
+	cards in here.
 	"""
 	pass
 	# TODO: probably should not inherit from stack, but from CardCollection
@@ -269,17 +275,20 @@ class Graveyard(Pile):
 
 class CardRow(CardCollection):
 	"""
-	A CardRow object is a set of a fixed number of places, each of which can be None or hold a Card. Either all of the cards are visible (this is the case for the upcards in Shithead) or all of the cards are hidden (this is the case for the downcards).
+	A CardRow object is a set of a fixed number of places, each of which
+	can be None or hold a Card. Either all of the cards are visible
+	(this is the case for the upcards in Shithead) or all of the cards
+	are hidden (this is the case for the downcards).
 	"""
 	def __init__(self, numcards, visible=True):
 		"""
 		Creates numcards slots, which are filled with None entries.
 		"""
 		super(self.__class__, self).__init__(visible)
-		if numcards<=0:
+		if numcards <= 0:
 			raise ValueError("the number of cards must be positive")
 		# add none entries:
-		super(self.__class__, self).add([None]*numcards)
+		super(self.__class__, self).add([None] * numcards)
 		self.numcards = numcards
 
 	def add(self, newcards):
@@ -309,7 +318,7 @@ class CardRow(CardCollection):
 	def cardstrings(self):
 		res = []
 		for card in self._cards:
-			if card == None:
+			if card is None:
 				res.append("xx")
 			elif not self._visible:
 				res.append("??")
@@ -323,12 +332,13 @@ class CardRow(CardCollection):
 		"""
 		return self._cards.count(None) == len(self._cards)
 
+
 if __name__ == "__main__":
-	c1 = Card(10,3)
-	c2 = Card(8,0)
-	c3 = Card(11,2)
+	c1 = Card(10, 3)
+	c2 = Card(8, 0)
+	c3 = Card(11, 2)
 
 	upcards = CardRow(3)
-	upcards.add([c1,c2,c3])
-	upcards.remove([0,2])
+	upcards.add([c1, c2, c3])
+	upcards.remove([0, 2])
 	print upcards
