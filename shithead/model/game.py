@@ -1,6 +1,8 @@
-from shithead.model.cards import *
-from shithead.model.settings import *
-from shithead.gamemode import *
+from shithead.model.cards import Hand, CardRow, DrawPile
+from shithead.model.cards import DiscardPile, Graveyard
+from shithead.model.settings import Settings
+from shithead.gamemode import GameMode
+
 
 class Player:
 	"""
@@ -14,56 +16,57 @@ class Player:
 			villain: True, if the Player is villain, False if he is hero
 		"""
 		self.hero = hero
-		self.hand = Hand(hero) # if villain, then the hand is hidden
-		self.upcards = CardRow(num_up_down, visible = True)
-		self.downcards = CardRow(num_up_down, visible = False)
-		
+		self.hand = Hand(visible=hero)  # if villain, then the hand is hidden
+		self.upcards = CardRow(num_up_down, visible=True)
+		self.downcards = CardRow(num_up_down, visible=False)
+
 	def is_playing_from_hand(self):
 		return len(self.hand) > 0
-	
+
 	def is_playing_from_upcards(self):
 		return len(self.hand) == 0 and not self.upcards.isempty()
-		
+
 	def is_playing_from_downcards(self):
-		return len(self.hand) == 0 and self.upcards.isempty() and not self.downcards.isempty()
+		return len(self.hand) == 0 and self.upcards.isempty() \
+			and not self.downcards.isempty()
 
 
 class Game:
 	"""
 	This class contains all of the game logic.
 	"""
-	
+
 	def __init__(self, settings):
 		self._settings = settings
-		
+
 		# create and shuffle deck:
 		self._deck = DrawPile.create_deck()
 		self._deck.shuffle()
-		
+
 		# create other card collections:
 		self._discardpile = DiscardPile()
 		self._graveyard = Graveyard()
-		
+
 		# create players:
 		hero = Player(settings["NCARDS_UPDOWN"], True)
 		villain = Player(settings["NCARDS_UPDOWN"], False)
-		self._players = (hero,villain)
-		
+		self._players = (hero, villain)
+
 		self._deal()
-		
+
 		# the minimal value that can be played
 		# (in the beginning every card can be played):
 		self._minval = 0
 		# the player whos turn it is right now:
 		self._playeridx = self._findfirstplayer()
-		self._playeridx = 0 # TODO: remove
+		self._playeridx = 0  # TODO: remove
 		# the cardstring representation of the last cards that were played:
 		self._lastplayed = []
 		# the current game mode:
 		self._mode = GameMode.HAND
 		# the lower card was played and the game direction is reversed:
 		self._lower = False
-		
+
 	def can_play_handcards(self, playeridx, indices):
 		if playeridx != self._playeridx:
 			return False
@@ -79,13 +82,13 @@ class Game:
 			return False
 		playsrc = self.curplayer.upcards
 		return self._can_play(playsrc, indices)
-		
+
 	def can_play_downcards(self, playeridx, indices):
 		if playeridx != self._playeridx:
 			return False
 		elif not self._mode == GameMode.DOWNCARDS:
 			return False
-		elif len(indices) != 1: # you can only play one downcard at a time
+		elif len(indices) != 1:  # you can only play one downcard at a time
 			return False
 		playsrc = self.curplayer.downcards
 		return self._can_play(playsrc, indices)
@@ -113,7 +116,7 @@ class Game:
 		playsrc = self._players[pidx].hand
 		turn_ended = self._play(playsrc, indices)
 		# redraw if there are cards left in the deck:
-		self.redraw() # TODO: this should be inside the controller
+		self.redraw()  # TODO: this should be inside the controller
 		# switch player if the discardpile was not cleared or a skip card was played:
 		if turn_ended:
 			self._switch_player()
@@ -129,7 +132,7 @@ class Game:
 		else:
 			self._determine_game_mode()
 		return turn_ended
-		
+
 	def play_downcards(self, pidx, indices):
 		playsrc = self._players[pidx].downcards
 		turn_ended = self._play(playsrc, indices)
@@ -169,7 +172,7 @@ class Game:
 		self._switch_player()
 		return True
 
-	def has_won(self, pidx): # TODO: we can add the player as an argument and only return for the current player
+	def has_won(self, pidx):
 		"""
 		Returns True if the specified player has won the game.
 		"""
@@ -184,7 +187,7 @@ class Game:
 		Switches to the next player and sets the GameMode depending on
 		his cards.
 		"""
-		self._playeridx = (self._playeridx+1)%2 # TODO: uncomment!
+		self._playeridx = (self._playeridx + 1) % 2
 		self._determine_game_mode()
 
 	def _determine_game_mode(self):
@@ -196,7 +199,7 @@ class Game:
 		elif not self.curplayer.downcards.isempty():
 			self._mode = GameMode.DOWNCARDS
 		else:
-			self._mode = GameMode.FINISHED # TODO: maybe we can make the win check obsolete!
+			self._mode = GameMode.FINISHED
 
 	def redraw(self):
 		"""
@@ -209,8 +212,6 @@ class Game:
 			cards = self._deck.draw(numcards_missing)
 			self.curplayer.hand.add(cards)
 			self.curplayer.hand.sort()
-
-
 
 	def _deal(self):
 		"""
@@ -244,10 +245,15 @@ class Game:
 			return False
 		# check if cards are playable
 		rank = playsrc[indices[0]].rank
-		if self._minval == self._settings["LOWER"]: # LOWER-Card is on top or highest non skipcard
-			return rank <= self._minval or rank == self._settings["INVISIBLE"] or rank == self._settings["BURN"]
+		# LOWER-Card is on top or highest non skipcard:
+		if self._minval == self._settings["LOWER"]:
+			return rank <= self._minval \
+				or rank == self._settings["INVISIBLE"] \
+				or rank == self._settings["BURN"]
 		else:
-			return rank >= self._minval or rank == self._settings["INVISIBLE"] or rank == self._settings["BURN"]
+			return rank >= self._minval \
+				or rank == self._settings["INVISIBLE"] \
+				or rank == self._settings["BURN"]
 
 	def _play(self, playsrc, indices):
 		"""
@@ -265,12 +271,12 @@ class Game:
 			self._graveyard.add(dead_cards)
 			self._minval = 0
 			turn_ended = False
-			#self._determine_game_mode()
 		# adjust minval:
 		elif rank == self._settings["SKIP"]:
 			self._minval = rank
 			turn_ended = False
-		elif rank != self._settings["INVISIBLE"]: # dont adjust minval if a invisible card is played
+		# dont adjust minval if a invisible card is played:
+		elif rank != self._settings["INVISIBLE"]:
 			self._minval = rank
 			turn_ended = True
 		else:
@@ -288,15 +294,17 @@ class Game:
 		rank = None
 		for idx in indices:
 			# check if indices are valid:
-			if idx<0 or idx>=len(playsrc):
+			if idx < 0 or idx >= len(playsrc):
 				return False
-			elif rank == None: # get rank of first chosen card
+			elif rank is None:  # get rank of first chosen card
 				rank = playsrc[indices[0]].rank
 			elif playsrc[idx].rank != rank:
 				return False
 		return True
 
-	def _is_burn(self, rank): # TODO: maybe we can just look at the top cards of the pile and dont need the rank
+	# TODO: maybe we can just look at the top cards of the pile
+	# and dont need the rank
+	def _is_burn(self, rank):
 		"""
 		Checks whether the cards in the discard pile get burned. This
 		happens if either the burn card is played or four cards of
@@ -305,7 +313,8 @@ class Game:
 		if rank == self._settings["BURN"]:
 			return True
 		if len(self._discardpile) > 3:
-			# look at the last 4 cards of the discardpile and check if they all have the same rank
+			# look at the last 4 cards of the discardpile and
+			# check if they all have the same rank
 			return all(c.rank == rank for c in self._discardpile[-4:])
 		return False
 
@@ -364,7 +373,7 @@ class Game:
 	@property
 	def curplayer(self):
 		return self._players[self._playeridx]
-		
+
 	@property
 	def curplayeridx(self):
 		return self._playeridx
