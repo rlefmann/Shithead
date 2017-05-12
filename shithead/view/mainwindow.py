@@ -1,5 +1,5 @@
 import pygame as pg
-from time import sleep # TODO
+from time import sleep
 
 from shithead.view.constants import *
 from shithead.requests import *
@@ -148,7 +148,7 @@ class MainWindow:
 				self.cursor.reset()
 			self._redraw()
 			if vmode == ViewMode.VILLAIN_MOVE:
-				sleep(1)
+				sleep(PAUSE)
 
 
 	def show_message(self, msg):
