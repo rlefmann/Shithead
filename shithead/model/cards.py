@@ -22,8 +22,7 @@ class Card:
 
 	def __repr__(self):
 		"""
-		Uses the dictionaries above to create a read friendly string
-		representation of the card for printing to the screen.
+		Create a read friendly string representation of the card.
 		"""
 		return ranks[self.rank] + suits[self.suit]
 
@@ -31,8 +30,8 @@ class Card:
 	def value(self):
 		"""
 		Creates a unique integer value for each pair of rank and suit
-		to compare the cards. This is for example necessary when finding
-		the player who begins the game.
+		to compare the cards. This is necessary when finding the player
+		who begins the game.
 		"""
 		return self.rank * 4 + self.suit
 

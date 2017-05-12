@@ -3,6 +3,9 @@ from shithead.requests import RequestMove
 from shithead.gamemode import GameMode
 
 
+class AIError(Exception):
+	pass
+
 class AI(object):
 	"""
 	This is a base class for all specific AI implementations.
@@ -32,7 +35,7 @@ class StraightforwardAI(AI):
 			while i < len(playsrc) and playsrc[i] is None:
 				i+=1
 			if i == len(playsrc):
-				raise Exception("all downcards were already played")
+				raise AIError("all downcards were already played")
 			return RequestMove.play_from_downcards(1, [i])
 		else:
 			src_collection, smallestplayable = self.findsmallestplayableindices()
@@ -57,7 +60,7 @@ class StraightforwardAI(AI):
 		elif self.game.mode in [GameMode.UPCARDS, GameMode.TAKE_UPCARDS]:
 			src_coll = self.game.curplayer.upcards
 		elif self.game.mode == GameMode.DOWNCARDS:
-			raise Exception("we cannot find the smallest playable index from downcards")
+			raise AIError("we cannot find the smallest playable index from downcards")
 
 		# create an order of the ranks:
 		special = [self.game._settings["INVISIBLE"], self.game._settings["BURN"]]
