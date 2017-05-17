@@ -36,7 +36,9 @@ class Controller:
 		
 	def on_request(self, request):
 		"""
-		Here all the message handling is performed. The method determines what type of request was given to it and then performs the appropriate actions.
+		Here all the message handling is performed. The method determines
+		what type of request was given to it and then performs the
+		appropriate actions.
 		"""
 		# Check if a request was send and not sth else:
 		if not isinstance(request, Request):

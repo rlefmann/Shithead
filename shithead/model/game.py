@@ -3,6 +3,7 @@ from shithead.model.cards import DiscardPile, Graveyard
 from shithead.model.settings import Settings
 from shithead.gamemode import GameMode
 
+import sys
 
 class Player:
 	"""
@@ -229,7 +230,7 @@ class Game:
 			upcards = self._deck.draw(self._settings.ncards_updown)
 			self._players[i].upcards.add(upcards)
 
-	def _findfirstplayer(self):
+	def _findfirstplayer(self, inclspecial=False):
 		"""
 		Determines which player starts the game. Looks for the player
 		who's hand contains the smallest card which is not a special card.
@@ -238,7 +239,23 @@ class Game:
 
 		Returns 0, if hero starts and 1 otherwise.
 		"""
-		return 0
+		if inclspecial:
+			special = [self._settings.burn, self._settings.invisible]
+		else:
+			special = []
+		lowestplayer = -1
+		lowestvalue = sys.maxint
+		for i in range(2):
+			hand = self._players[i].hand
+			for card in hand:
+				if card.rank not in special:
+					if card.value < lowestvalue:
+						lowestvalue = card.value
+						lowestplayer = i
+		print "lowest value: {}".format(lowestvalue)
+		if lowestplayer == sys.maxint:  # both players have only special cards
+			return self._findfirstplayer(True)
+		return lowestplayer
 
 	def _can_play(self, playsrc, indices):
 		if not self._is_allowed_card_indexlist(playsrc, indices):
