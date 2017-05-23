@@ -37,7 +37,7 @@ class Game:
 	This class contains all of the game logic.
 	"""
 
-	def __init__(self, settings):
+	def __init__(self, settings, numplayers):
 		self._settings = settings
 
 		# create and shuffle deck:
@@ -47,12 +47,14 @@ class Game:
 		# create other card collections:
 		self._discardpile = DiscardPile()
 		self._graveyard = Graveyard()
-
 		# create players:
+		if numplayers < 2 or numplayers > 4:
+			raise ValueError('the number of players must be between 2 and 4')
 		hero = Player(settings.ncards_updown, True)
-		villain = Player(settings.ncards_updown, False)
-		self._players = (hero, villain)
-
+		self._players = [hero]
+		for i in range(1,numplayers):
+			p = Player(settings.ncards_updown, False)
+			self._players.append(p)
 		self._deal()
 
 		# the minimal value that can be played
@@ -188,7 +190,7 @@ class Game:
 		Switches to the next player and sets the GameMode depending on
 		his cards.
 		"""
-		self._playeridx = (self._playeridx + 1) % 2
+		self._playeridx = (self._playeridx + 1) % len(self._players)
 		self._determine_game_mode()
 
 	def _determine_game_mode(self):
@@ -219,7 +221,7 @@ class Game:
 		Distributes the initial number of cards specified in the settings
 		to the players hands, upcards and downcards.
 		"""
-		for i in range(2):
+		for i in range(len(self._players)):
 			# draw hand cards:
 			handcards = self._deck.draw(self._settings.ncards_hand)
 			self._players[i].hand.add(handcards)
@@ -245,7 +247,7 @@ class Game:
 			special = []
 		lowestplayer = -1
 		lowestvalue = sys.maxint
-		for i in range(2):
+		for i in range(len(self._players)):
 			hand = self._players[i].hand
 			for card in hand:
 				if card.rank not in special:

@@ -24,7 +24,7 @@ class Controller:
 		# TODO: allow to change these values?
 		settings = Settings()
 		# the model:
-		self.game = Game(settings)
+		self.game = Game(settings,numplayers=2)
 		# create the ai that simulates the opponent player:
 		# TODO: maybe other ai's should be allowed, too
 		self.ai = StraightforwardAI(self.game) # TODO: uncomment
