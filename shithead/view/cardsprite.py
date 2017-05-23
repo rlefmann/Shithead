@@ -7,9 +7,9 @@ from os.path import join
 class CardSprite(pg.sprite.Sprite):
 	"""
 	A card of which you can see the rank and suit.
-	It can be either highlighted or unhighlighted (=visible). If the card is visible, the highlighted attribute is false.
+	It can be either highlighted or unhighlighted (=visible).
 	"""
-	def __init__(self, cardstr, xpos, ypos, hidden=False):
+	def __init__(self, cardstr, xpos, ypos, width, height, hidden=False):
 		"""
 		Attributes:
 			cardstr: a string representation of the card, eg "qh" for the queen of hearts
@@ -21,16 +21,18 @@ class CardSprite(pg.sprite.Sprite):
 
 		# The images dictionary assigns to each value of highlighted (true or false) an image
 		self.images = {}
+		
+		cardsize = (width,height)
 
 		# The image for the unhighlighted (=visible) card:
 		unhighlighted_imagepath = self._get_image_path()
 		unhighlighted_image = pg.image.load(unhighlighted_imagepath).convert()
-		self.images[False] = pg.transform.scale(unhighlighted_image, CARDSIZE)
+		self.images[False] = pg.transform.scale(unhighlighted_image, cardsize)
 
 		# The image for the highlighted card
 		highlighted_imagepath = self._get_image_path(True)
 		highlighted_image = pg.image.load(highlighted_imagepath).convert()
-		self.images[True] = pg.transform.scale(highlighted_image, CARDSIZE)
+		self.images[True] = pg.transform.scale(highlighted_image, cardsize)
 
 		# set the appropriate image for the current highlighted status of the sprite:
 		self.image = self.images[self.highlighted]
@@ -64,7 +66,8 @@ class CardSprite(pg.sprite.Sprite):
 
 	def sethighlighted(self,highlighted):
 		"""
-		Changes the "highlightedness" of the card sprite and sets the image accordingly.
+		Changes the "highlightedness" of the card sprite and sets the
+		image accordingly.
 		"""
 		self.image = self.images[highlighted]
 		self.highlighted = highlighted
@@ -74,5 +77,5 @@ class HiddenCardSprite(CardSprite):
 	"""
 	A card of which you can only see the back.
 	"""
-	def __init__(self, xpos, ypos):
-		super(HiddenCardSprite,self).__init__("??", xpos, ypos, hidden=True)
+	def __init__(self, xpos, ypos, width, height):
+		super(HiddenCardSprite,self).__init__('??', xpos, ypos, width, height, hidden=True)

@@ -173,7 +173,7 @@ class MainWindow:
 		self.msgbox = Textbox(DECK_X,DECK_Y-MARGIN-40,2*(CARDWIDTH+MARGIN),20,18,WHITE,RED)
 		
 		# now we display villains hand, downcards and upcards:
-		self.vhand = SpreadCards(VHAND_X, VHAND_Y, alignment=Align.RIGHT, visible=False)
+		self.vhand = SpreadCards(VHAND_X, VHAND_Y, alignment=Align.RIGHT, visible=False, small=True)
 		self.vdown = LaidOutCards(VDOWN_X,VDOWN_Y,alignment=Align.RIGHT,visible=False)
 		self.vup = LaidOutCards(VUP_X,VUP_Y,alignment=Align.RIGHT,visible=True)
 		

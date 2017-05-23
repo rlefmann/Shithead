@@ -18,9 +18,10 @@ class Align(Enum):
 
 class CardSpriteGroup(pg.sprite.OrderedUpdates):
 	"""
-	A basic group of card sprites. Inherits from OrderedUpdates so that the overlapping of cards is displayed correctly.
+	A basic group of card sprites. Inherits from OrderedUpdates so that
+	the overlapping of cards is displayed correctly.
 	"""
-	def __init__(self,xpos,ypos,alignment=Align.LEFT,visible=True):
+	def __init__(self,xpos,ypos,alignment=Align.LEFT,visible=True,small=False):
 		super(CardSpriteGroup, self).__init__()
 		self.xpos = xpos
 		self.ypos = ypos
@@ -30,10 +31,12 @@ class CardSpriteGroup(pg.sprite.OrderedUpdates):
 		if not self.alignment_allowed(alignment):
 			raise Exception("alignment not allowed for this CardSpriteGroup")
 		self.alignment = alignment
+		self.small = small
 
 	def __getitem__(self,idx):
 		"""
-		For accessing the sprites of the CardSpriteGroup via square brackets.
+		For accessing the sprites of the CardSpriteGroup via square
+		brackets.
 		"""
 		return self.spritelist[idx]
 
@@ -63,10 +66,15 @@ class CardSpriteGroup(pg.sprite.OrderedUpdates):
 
 class SpreadCards(CardSpriteGroup):
 	"""
-	Cards that are spread out on the table such that they overlap by a certain amount specified in the constant OVERLAP. These can be either hidden (for opponents cards) or visible. The alignment can be either left or right aligned. If it is left aligned the xpos is the x-position of the leftmost card, otherwise the x-position of the rightmost card.
+	Cards that are spread out on the table such that they overlap by a
+	certain amount specified in the constant OVERLAP. These can be
+	either hidden (for opponents cards) or visible. The alignment can
+	be either left or right aligned. If it is left aligned the xpos is
+	the x-position of the leftmost card, otherwise the x-position of
+	the rightmost card.
 	"""
-	def __init__(self,xpos,ypos,alignment=Align.LEFT,visible=True):
-		super(SpreadCards, self).__init__(xpos,ypos,alignment,visible)
+	def __init__(self, xpos, ypos, alignment=Align.LEFT, visible=True, small=False):
+		super(SpreadCards, self).__init__(xpos, ypos, alignment, visible, small)
 
 	def alignment_allowed(self, alignment):
 		"""
@@ -76,7 +84,8 @@ class SpreadCards(CardSpriteGroup):
 
 	def update(self, cards):
 		"""
-		Draws the cards to the screen. The argument cards is a list of strings representing cards.
+		Draws the cards to the screen. The argument cards is a list of
+		strings representing cards.
 		"""
 		# empty the sprite list:
 		self.spritelist = []
@@ -84,17 +93,26 @@ class SpreadCards(CardSpriteGroup):
 		self.empty()
 		# the xpos of the next card to be drawn:
 		curxpos = self.xpos
+		
+		if self.small:
+			overlap = OVERLAPSMALL
+			width = CARDWIDTHSMALL
+			height = CARDHEIGHTSMALL
+		else:
+			overlap = OVERLAP
+			width = CARDWIDTH
+			height = CARDHEIGHT
 		for cardstr in cards:
 			if self.visible:
-				c = CardSprite(cardstr,curxpos,self.ypos)
+				c = CardSprite(cardstr, curxpos, self.ypos, width, height)
 			else:
-				c = HiddenCardSprite(curxpos,self.ypos)
+				c = HiddenCardSprite(curxpos,self.ypos, width, height)
 			self.spritelist.append(c)
 			self.add(c)
 			if self.alignment == Align.LEFT:
-				curxpos += OVERLAP
+				curxpos += overlap
 			else:
-				curxpos -= OVERLAP
+				curxpos -= overlap
 
 
 class LaidOutCards(CardSpriteGroup):
@@ -104,8 +122,8 @@ class LaidOutCards(CardSpriteGroup):
 	and the cards can be either visible (example: upcards) or hidden
 	(example: downcards).
 	"""
-	def __init__(self,xpos,ypos,alignment=Align.CENTER,visible=True):
-		super(LaidOutCards, self).__init__(xpos,ypos,alignment,visible)
+	def __init__(self,xpos,ypos,alignment=Align.CENTER,visible=True, small=False):
+		super(LaidOutCards, self).__init__(xpos,ypos,alignment,visible, small)
 		self.empty_slots = []
 	
 	def __len__(self): # TODO: remove
@@ -158,11 +176,11 @@ class LaidOutCards(CardSpriteGroup):
 			elif self.visible:
 				if cardstr == "??":
 					raise ValueError("the cardstring ?? is not allowed to be handed to visible LaidOutCards")
-				c = CardSprite(cardstr, curxpos, self.ypos)
+				c = CardSprite(cardstr, curxpos, self.ypos, CARDWIDTH, CARDHEIGHT) # TODO: change
 				self.spritelist.append(c)
 				self.add(c)
 			else:
-				c = HiddenCardSprite(curxpos, self.ypos)
+				c = HiddenCardSprite(curxpos, self.ypos, CARDWIDTH, CARDHEIGHT) # TODO: change
 				self.spritelist.append(c)
 				self.add(c)
 			curxpos += (CARDWIDTH+MARGIN)
@@ -183,9 +201,9 @@ class CardStack(CardSpriteGroup):
 		self.empty()
 		if len(cards) > 0:
 			if self.visible:
-				c = CardSprite(cards[-1], self.xpos, self.ypos)
+				c = CardSprite(cards[-1], self.xpos, self.ypos, CARDWIDTH, CARDHEIGHT) # TODO: change
 			else:
-				c = HiddenCardSprite(self.xpos, self.ypos)
+				c = HiddenCardSprite(self.xpos, self.ypos, CARDWIDTH, CARDHEIGHT) # TODO: change
 			self.spritelist.append(c)
 			self.add(c)
 				
